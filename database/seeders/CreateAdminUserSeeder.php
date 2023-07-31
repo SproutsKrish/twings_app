@@ -28,26 +28,12 @@ class CreateAdminUserSeeder extends Seeder
         ]);
 
         $role = Role::create(['name' => 'Super Admin']);
-        $permissions = Permission::pluck('id', 'id')->all();
-        $role->syncPermissions($permissions);
 
         $user->assignRole([$role->id]);
-        // $user->givePermissionTo('role-delete');
-        // $user->givePermissionTo('role-create');
 
-        $user = User::create([
-            'name' => 'admin',
-            'email' => 'admin@gmail.com',
-            'password' => bcrypt('123456'),
-            'secondary_password' => bcrypt('twingszxc')
-        ]);
-
-        $role = Role::create(['name' => 'Admin']);
         $permissions = Permission::pluck('id', 'id')->all();
-        $role->syncPermissions($permissions);
 
-        $user->assignRole([$role->id]);
-        // $user->givePermissionTo('role-delete');
-        // $user->givePermissionTo('role-create');
+        $role->syncPermissions($permissions);
+        $user->syncPermissions($permissions);
     }
 }

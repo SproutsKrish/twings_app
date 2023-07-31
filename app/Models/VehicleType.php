@@ -6,13 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class PointType extends Model
+class VehicleType extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
     protected $fillable = [
-        'point_type',
+        'vehicle_type',
         'status',
         'created_by',
         'updated_by',

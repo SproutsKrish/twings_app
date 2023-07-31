@@ -15,13 +15,13 @@ return new class extends Migration
     {
         Schema::create('licenses', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('point_type_id');
-            $table->float('total_point');
-            $table->float('balance_point');
+            $table->string('license_no');
+            $table->integer('vehicle_id')->nullable();
             $table->integer('admin_id')->nullable();
             $table->integer('distributor_id')->nullable();
             $table->integer('dealer_id')->nullable();
             $table->integer('subdealer_id')->nullable();
+            $table->integer('client_id')->nullable();
             $table->timestamps();
             $table->softDeletes(); // Add this line to enable soft delete
             $table->integer('created_by')->nullable();

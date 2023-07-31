@@ -12,6 +12,14 @@ use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\RoleHasPermissionController;
 use App\Http\Controllers\Country\CountryController;
 
+use App\Http\Controllers\User\AdminController;
+use App\Http\Controllers\User\DistributorController;
+use App\Http\Controllers\User\DealerController;
+use App\Http\Controllers\User\SubDealerController;
+use App\Http\Controllers\User\ClientController;
+use App\Http\Controllers\User\VehicleOwnerController;
+use App\Http\Controllers\User\UserController;
+
 use App\Http\Controllers\Stock\NetworkProviderController;
 use App\Http\Controllers\Stock\SupplierController;
 use App\Http\Controllers\Stock\CameraCategoryController;
@@ -24,17 +32,14 @@ use App\Http\Controllers\Stock\SimController;
 use App\Http\Controllers\Stock\DeviceController;
 use App\Http\Controllers\Stock\CameraController;
 
-use App\Http\Controllers\User\AdminController;
-use App\Http\Controllers\User\DistributorController;
-use App\Http\Controllers\User\DealerController;
-use App\Http\Controllers\User\SubDealerController;
-use App\Http\Controllers\User\ClientController;
-use App\Http\Controllers\User\VehicleOwnerController;
-use App\Http\Controllers\User\UserController;
-
 use App\Http\Controllers\Vehicle\VehicleController;
 use App\Http\Controllers\Vehicle\VehicleDocumentController;
 use App\Http\Controllers\Vehicle\VehicleServiceController;
+use App\Http\Controllers\Vehicle\VehicleTypeController;
+
+use App\Http\Controllers\License\PointTypeController;
+use App\Http\Controllers\License\PointController;
+use App\Http\Controllers\License\LicenseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,14 +65,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('user/update/{id}', 'update');
         Route::delete('user/delete/{id}', 'destroy');
         Route::get('user/details', 'showdetails');
-        // Route::get('user/gett', 'gett');
     });
+
     Route::controller(LoginController::class)->group(function () {
         Route::post('logout', 'logout');
     });
-});
 
-Route::middleware('auth:sanctum')->group(function () {
     Route::group(['middleware' => ['auth']], function () {
         Route::resource('country', CountryController::class);
         Route::resource('permission', PermissionController::class);
@@ -75,21 +78,23 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
+//Role Has Permissions
 Route::get('roles/permissions', [RoleHasPermissionController::class, 'index']);
 Route::get('roles/permissions/{role}', [RoleHasPermissionController::class, 'show']);
 Route::delete('roles/permissions/{role}', [RoleHasPermissionController::class, 'destroy']);
 Route::post('roles/permissions', [RoleHasPermissionController::class, 'store']);
 
+//Model Has Permissions
 Route::get('users/permissions', [ModelHasPermissionController::class, 'index']);
 Route::get('users/permissions/{id}', [ModelHasPermissionController::class, 'show']);
 Route::delete('users/permissions/{id}', [ModelHasPermissionController::class, 'destroy']);
 Route::post('users/permissions', [ModelHasPermissionController::class, 'store']);
 
+//Model Has Roles
 Route::get('users/roles', [ModelHasRoleController::class, 'index']);
 Route::get('users/rolebyuser/{id}', [ModelHasRoleController::class, 'role_user']);
 Route::get('users/usersbyrole/{id}', [ModelHasRoleController::class, 'users_role']);
 Route::put('users/roleupdate/{id}', [ModelHasRoleController::class, 'user_role_update']);
-
 
 Route::resource('admin', AdminController::class);
 Route::resource('distributor', DistributorController::class);
@@ -116,3 +121,8 @@ Route::resource('camera', CameraController::class);
 Route::resource('vehicle', VehicleController::class);
 Route::resource('vehicle_document', VehicleDocumentController::class);
 Route::resource('vehicle_service', VehicleServiceController::class);
+Route::resource('vehicle_type', VehicleTypeController::class);
+
+Route::resource('point_type', PointTypeController::class);
+Route::resource('point', PointController::class);
+Route::resource('license', LicenseController::class);

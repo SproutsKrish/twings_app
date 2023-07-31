@@ -13,15 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('points', function (Blueprint $table) {
+        Schema::create('vehicle_types', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('point_type_id');
-            $table->float('total_point');
-            $table->float('balance_point');
-            $table->integer('admin_id')->nullable();
-            $table->integer('distributor_id')->nullable();
-            $table->integer('dealer_id')->nullable();
-            $table->integer('subdealer_id')->nullable();
+            $table->string('vehicle_type');
             $table->tinyInteger('status')->nullable()->default(1);
             $table->timestamps();
             $table->softDeletes(); // Add this line to enable soft delete
@@ -39,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('points');
+        Schema::dropIfExists('vehicle_types');
     }
 };
