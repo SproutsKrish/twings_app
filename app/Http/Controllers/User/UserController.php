@@ -15,6 +15,14 @@ use Spatie\Permission\Models\Permission;
 
 class UserController extends BaseController
 {
+    function __construct()
+    {
+        $this->middleware('permission:user-list|user-create|user-edit|user-delete', ['only' => ['index', 'show']]);
+        $this->middleware('permission:user-create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:user-edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:user-delete', ['only' => ['destroy']]);
+    }
+
     public function index()
     {
         $users = User::all();
@@ -166,41 +174,4 @@ class UserController extends BaseController
 
         return $this->sendSuccess($user);
     }
-
-    // public function gett()
-    // {
-    //     // Get the authenticated user
-    //     $user = Auth::user();
-    //     // Check if the user has direct permissions
-    //     $userBasedPermissions = $user->getAllPermissions();
-    //     $permissionToCheck = 'role-edit'; // Replace this with the actual permission you want to check
-    //     // Check if the user has direct permissions
-    //     $userBasedPermissions = Auth::user()->getAllPermissions();
-
-
-    //     // Check if the user has the permission directly
-    //     if ($userBasedPermissions->contains('name', $permissionToCheck)) {
-    //         dd($userBasedPermissions);
-    //     } else {
-    //         // The user doesn't have the permission directly, check role-based permissions
-    //         // Get the roles assigned to the user
-    //         $userRoles = Auth::user()->getRoleNames();
-    //         // dd($userRoles);
-
-    //         // Check if any of the user's roles have the permission
-    //         $roleBasedPermission = Permission::where('name', $permissionToCheck)
-    //             ->whereHas('roles', function ($query) use ($userRoles) {
-    //                 $query->whereIn('name', $userRoles);
-    //             })
-    //             ->exists();
-
-    //         if ($roleBasedPermission) {
-    //             // The user has the permission through one of their roles, proceed with the action
-    //             // Your code here
-    //         } else {
-    //             // The user doesn't have the permission directly or through their roles, handle the case where they don't have permission
-    //             // Your code here
-    //         }
-    //     }
-    // }
 }

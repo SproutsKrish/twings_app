@@ -4,9 +4,11 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
+
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\Role;
+use App\Models\ModelHasRole;
 
 class RoleController extends BaseController
 {
@@ -17,6 +19,7 @@ class RoleController extends BaseController
         $this->middleware('permission:role-edit', ['only' => ['edit', 'update']]);
         $this->middleware('permission:role-delete', ['only' => ['destroy']]);
     }
+
     public function index()
     {
         $roles = Role::all();
@@ -88,12 +91,19 @@ class RoleController extends BaseController
 
         if (!$role) {
             return $this->sendError('Role Not Found');
-        }
-
-        if ($role->delete()) {
-            return $this->sendSuccess('Role Deleted Successfully');
         } else {
-            return $this->sendError('Failed to Delete Role');
+            $result = ModelHasRole::where('role_id', $id)
+                ->first();
+
+            if ($result) {
+                return $this->sendError('Some User Belongs to this Role');
+            } else {
+                if ($role->delete()) {
+                    return $this->sendSuccess('Role Deleted Successfully');
+                } else {
+                    return $this->sendError('Failed to Delete Role');
+                }
+            }
         }
     }
 }

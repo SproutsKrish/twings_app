@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Support\Facades\Validator;
 
-use App\Models\Permission;
+use Spatie\Permission\Models\Permission;
+use App\Models\User;
 
 class PermissionController extends BaseController
 {
@@ -41,7 +42,11 @@ class PermissionController extends BaseController
         }
 
         $permission = new Permission($request->all());
+
         if ($permission->save()) {
+            $user = User::find(1);
+            $user->givePermissionTo($permission->id); // Assuming the 'name' field holds the name of the permission.
+
             return $this->sendSuccess("Permission Inserted Successfully");
         } else {
             return $this->sendError('Failed to Insert Permission');
