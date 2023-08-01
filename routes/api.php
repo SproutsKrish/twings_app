@@ -1,17 +1,20 @@
 <?php
 
-use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\API\LoginController;
-use App\Http\Controllers\API\ModelHasPermissionController;
-use App\Http\Controllers\API\ModelHasRoleController;
-use App\Http\Controllers\API\PermissionController;
 use App\Http\Controllers\API\RoleController;
+use App\Http\Controllers\API\PermissionController;
 use App\Http\Controllers\API\RoleHasPermissionController;
+use App\Http\Controllers\API\ModelHasRoleController;
+use App\Http\Controllers\API\ModelHasPermissionController;
+
+use App\Http\Controllers\API\ModuleController;
+use App\Http\Controllers\API\ParentMenuController;
+use App\Http\Controllers\API\ChildMenuController;
 
 use App\Http\Controllers\Country\CountryController;
+
 use App\Http\Controllers\User\AdminController;
 use App\Http\Controllers\User\DistributorController;
 use App\Http\Controllers\User\DealerController;
@@ -135,3 +138,7 @@ Route::resource('feature', FeatureController::class);
 Route::resource('package', PackageController::class);
 Route::resource('period', PeriodController::class);
 Route::resource('plan', PlanController::class);
+
+Route::resource('module', ModuleController::class);
+Route::resource('parent_menu', ParentMenuController::class);
+Route::resource('child_menu', ChildMenuController::class);
