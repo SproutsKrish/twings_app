@@ -13,7 +13,10 @@ class License extends Model
 
     protected $fillable = [
         'license_no',
+        'plan_id',
         'vehicle_id',
+        'start_date',
+        'expiry_date',
         'admin_id',
         'distributor_id',
         'dealer_id',

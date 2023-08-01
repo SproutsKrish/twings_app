@@ -12,7 +12,6 @@ use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\RoleHasPermissionController;
 
 use App\Http\Controllers\Country\CountryController;
-
 use App\Http\Controllers\User\AdminController;
 use App\Http\Controllers\User\DistributorController;
 use App\Http\Controllers\User\DealerController;
@@ -42,6 +41,10 @@ use App\Http\Controllers\License\PointTypeController;
 use App\Http\Controllers\License\PointController;
 use App\Http\Controllers\License\LicenseController;
 
+use App\Http\Controllers\License\FeatureController;
+use App\Http\Controllers\License\PackageController;
+use App\Http\Controllers\License\PeriodController;
+use App\Http\Controllers\License\PlanController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -127,3 +130,8 @@ Route::resource('vehicle_type', VehicleTypeController::class);
 Route::resource('point_type', PointTypeController::class);
 Route::resource('point', PointController::class);
 Route::resource('license', LicenseController::class);
+
+Route::resource('feature', FeatureController::class);
+Route::resource('package', PackageController::class);
+Route::resource('period', PeriodController::class);
+Route::resource('plan', PlanController::class);

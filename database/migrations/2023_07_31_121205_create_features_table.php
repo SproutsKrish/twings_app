@@ -13,23 +13,18 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('licenses', function (Blueprint $table) {
+        Schema::create('features', function (Blueprint $table) {
             $table->id();
-            $table->string('license_no');
-            $table->integer('plan_id')->nullable();
-            $table->integer('vehicle_id')->nullable();
-            $table->dateTime('start_date')->nullable();
-            $table->dateTime('expiry_date')->nullable();
-            $table->integer('admin_id')->nullable();
-            $table->integer('distributor_id')->nullable();
-            $table->integer('dealer_id')->nullable();
-            $table->integer('subdealer_id')->nullable();
-            $table->integer('client_id')->nullable();
+            $table->string('feature_name');
+            $table->tinyInteger('status')->nullable()->default(1);
+            $table->tinyInteger('approval_status')->nullable()->default(0);
+            $table->dateTime('approved_at')->nullable();
             $table->timestamps();
             $table->softDeletes(); // Add this line to enable soft delete
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
             $table->integer('deleted_by')->nullable();
+            $table->integer('approved_by')->nullable();
             $table->string('ip_address')->nullable();
         });
     }
@@ -41,6 +36,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('licenses');
+        Schema::dropIfExists('features');
     }
 };

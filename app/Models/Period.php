@@ -6,23 +6,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Point extends Model
+class Period extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
     protected $fillable = [
-        'point_type_id',
-        'plan_id',
-        'total_point',
-        'balance_point',
-        'admin_id',
-        'distributor_id',
-        'dealer_id',
-        'subdealer_id',
-        'created_by',
-        'updated_by',
-        'deleted_by',
+        'period_name',
+        'period_days',
+        'description',
+        'status',
+        'approval_status',
+        'approved_at',
+        'approved_by',
         'ip_address',
     ];
 }
