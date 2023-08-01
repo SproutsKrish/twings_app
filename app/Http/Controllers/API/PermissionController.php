@@ -33,6 +33,9 @@ class PermissionController extends BaseController
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'module_id' => 'required',
+            'parent_menu_id' => 'required',
+            'child_menu_id' => 'required',
             'name' => 'required|max:255|unique:permissions,name',
             'guard_name' => 'required|max:255',
         ]);
@@ -73,6 +76,9 @@ class PermissionController extends BaseController
         }
 
         $validator = Validator::make($request->all(), [
+            'module_id' => 'required',
+            'parent_menu_id' => 'required',
+            'child_menu_id' => 'required',
             'name' => 'required|max:255|unique:permissions,name,' . $id,
             'guard_name' => 'required|max:255',
         ]);
