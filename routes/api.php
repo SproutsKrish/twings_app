@@ -13,7 +13,7 @@ use App\Http\Controllers\API\ModuleController;
 use App\Http\Controllers\API\ParentMenuController;
 use App\Http\Controllers\API\ChildMenuController;
 use App\Http\Controllers\API\LanguageController;
-
+use App\Http\Controllers\API\ImportController;
 
 use App\Http\Controllers\Country\CountryController;
 
@@ -147,3 +147,8 @@ Route::resource('child_menu', ChildMenuController::class);
 
 Route::get('greeting', [LanguageController::class, 'index'])
     ->middleware('localization');
+
+
+Route::post('sim_import', [ImportController::class, 'sim_import']);
+Route::post('device_import', [ImportController::class, 'device_import']);
+Route::post('camera_import', [ImportController::class, 'camera_import']);
