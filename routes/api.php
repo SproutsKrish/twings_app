@@ -15,7 +15,7 @@ use App\Http\Controllers\API\ChildMenuController;
 use App\Http\Controllers\API\LanguageController;
 use App\Http\Controllers\API\ImportController;
 
-use App\Http\Controllers\Country\CountryController;
+use App\Http\Controllers\API\CountryController;
 
 use App\Http\Controllers\User\AdminController;
 use App\Http\Controllers\User\DistributorController;
