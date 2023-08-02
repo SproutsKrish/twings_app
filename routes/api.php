@@ -12,6 +12,8 @@ use App\Http\Controllers\API\ModelHasPermissionController;
 use App\Http\Controllers\API\ModuleController;
 use App\Http\Controllers\API\ParentMenuController;
 use App\Http\Controllers\API\ChildMenuController;
+use App\Http\Controllers\API\LanguageController;
+
 
 use App\Http\Controllers\Country\CountryController;
 
@@ -142,3 +144,6 @@ Route::resource('plan', PlanController::class);
 Route::resource('module', ModuleController::class);
 Route::resource('parent_menu', ParentMenuController::class);
 Route::resource('child_menu', ChildMenuController::class);
+
+Route::get('greeting', [LanguageController::class, 'index'])
+    ->middleware('localization');
