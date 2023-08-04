@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('points', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('point_type_id');
+            $table->bigInteger('plan_id');
             $table->float('total_point');
-            $table->float('balance_point');
             $table->integer('admin_id')->nullable();
             $table->integer('distributor_id')->nullable();
             $table->integer('dealer_id')->nullable();

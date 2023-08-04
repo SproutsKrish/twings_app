@@ -20,11 +20,11 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('secondary_password')->nullable();
+            $table->bigInteger('role_id')->nullable();
 
             // $table->bigInteger('client_id')->unsigned()->nullable();
             // $table->bigInteger('dealer_id')->unsigned()->nullable();
             // $table->bigInteger('subdealer_id')->unsigned()->nullable();
-            // $table->bigInteger('role_id')->unsigned()->nullable();
 
             // $table->bigInteger('country_id')->unsigned()->nullable();
             // $table->string('country_name')->nullable();

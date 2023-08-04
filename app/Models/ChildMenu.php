@@ -6,23 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class License extends Model
+class ChildMenu extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
     protected $fillable = [
-        'license_no',
-        'plan_id',
-        'vehicle_id',
-        'start_date',
-        'expiry_date',
-        'admin_id',
-        'distributor_id',
-        'dealer_id',
-        'subdealer_id',
-        'client_id',
+        'parent_menu_id',
+        'child_menu_name',
+        'child_menu_icon',
+        'child_menu_url',
+        'status',
         'created_by',
         'updated_by',
+        'deleted_by',
+        'ip_address',
     ];
 }

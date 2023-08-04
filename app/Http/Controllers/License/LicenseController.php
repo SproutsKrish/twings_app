@@ -4,11 +4,12 @@ namespace App\Http\Controllers\License;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
-use Illuminate\Support\Facades\Validator;
 
 use App\Models\License;
+use App\Models\Period;
+use App\Models\Plan;
 use App\Models\Point;
-
+use Carbon\Carbon;
 
 class LicenseController extends BaseController
 {
@@ -32,25 +33,48 @@ class LicenseController extends BaseController
         $subdealer_id = $request->input('subdealer_id');
         $client_id = $request->input('client_id');
 
-        //dealer license to client
-        if ($client_id != null && $dealer_id != null && $subdealer_id == null) {
+        $plan_id = $request->input('plan_id');
+        $point_type_id = $request->input('point_type_id');
 
-            $result = Point::where('balance_point', '>=', 1)
+        $maxId = License::max('id');
+        if (!$maxId)
+            $maxId = 1;
+        else
+            $maxId += 1;
+        $date = Carbon::now()->format('Ymd');
+
+        $request->merge(['license_no' => $date . $maxId]);
+
+
+        //dealer license to client
+        if ($client_id != null && $dealer_id != null && $subdealer_id == null && $point_type_id == 1) {
+
+            $result = Point::where('total_point', '>=', 1)
                 ->where('admin_id', $admin_id)
                 ->where('distributor_id', $distributor_id)
                 ->where('dealer_id', $dealer_id)
                 ->where('subdealer_id', null)
+                ->where('plan_id', $plan_id)
+                ->where('point_type_id', $point_type_id)
                 ->where('status', 1)
                 ->first();
 
             if (!empty($result)) {
-                $result->balance_point = $result->balance_point - 1;
-
-                if ($result->balance_point == 0) {
-                    $result->status = 0;
-                }
+                $result->total_point = $result->total_point - 1;
                 $result->save();
+
+                $plan_id = $result->plan_id;
+
+                $plan = Plan::find($plan_id);
+                $period_id = $plan->period_id;
+                $period = Period::find($period_id);
+
                 $point = new License($request->all());
+
+                $start_date = Carbon::now();
+                $point->start_date = Carbon::now();
+                $newDateTime = $start_date->addDays($period->period_days);
+                $point->expiry_date = $newDateTime->format('Y-m-d H:i:s');
                 $point->save();
                 return $this->sendSuccess("License Created Successfully");
             } else {
@@ -58,24 +82,37 @@ class LicenseController extends BaseController
             }
         }
         //subdealer license to client
-        else if ($client_id != null && $dealer_id != null && $subdealer_id != null) {
+        else if ($client_id != null && $dealer_id != null && $subdealer_id != null && $point_type_id == 1) {
 
-            $result = Point::where('balance_point', '>=', 1)
+            $result = Point::where('total_point', '>=', 1)
                 ->where('admin_id', $admin_id)
                 ->where('distributor_id', $distributor_id)
                 ->where('dealer_id', $dealer_id)
                 ->where('subdealer_id', $subdealer_id)
+                ->where('plan_id', $plan_id)
+                ->where('point_type_id', $point_type_id)
                 ->where('status', 1)
                 ->first();
 
             if (!empty($result)) {
-                $result->balance_point = $result->balance_point - 1;
-
-                if ($result->balance_point == 0) {
-                    $result->status = 0;
-                }
+                $result->total_point = $result->total_point - 1;
                 $result->save();
+
+                $plan_id = $result->plan_id;
+
+                $plan = Plan::find($plan_id);
+                $period_id = $plan->period_id;
+                $period = Period::find($period_id);
+
                 $point = new License($request->all());
+
+
+                // dd($request->all());
+
+                $start_date = Carbon::now();
+                $point->start_date = Carbon::now();
+                $newDateTime = $start_date->addDays($period->period_days);
+                $point->expiry_date = $newDateTime->format('Y-m-d H:i:s');
                 $point->save();
                 return $this->sendSuccess("License Created Successfully");
             } else {

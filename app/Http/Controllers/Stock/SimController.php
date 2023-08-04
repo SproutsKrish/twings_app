@@ -103,4 +103,19 @@ class SimController extends BaseController
             return $this->sendError('Failed to Delete Sim');
         }
     }
+
+    public function sim_assign(Request $request, $id)
+    {
+        $sim = Sim::find($id);
+
+        if (!$sim) {
+            return $this->sendError('Sim Not Found');
+        }
+
+        if ($sim->update($request->all())) {
+            return $this->sendSuccess("Sim Updated Successfully");
+        } else {
+            return $this->sendError('Failed to Update Sim');
+        }
+    }
 }

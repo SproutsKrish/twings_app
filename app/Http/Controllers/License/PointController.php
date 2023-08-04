@@ -7,6 +7,7 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\Point;
+use App\Models\LicenseTransaction;
 
 class PointController extends BaseController
 {
@@ -29,78 +30,91 @@ class PointController extends BaseController
         $distributor_id = $request->input('distributor_id');
         $dealer_id = $request->input('dealer_id');
         $subdealer_id = $request->input('subdealer_id');
+        $plan_id = $request->input('plan_id');
+        $point_type_id = $request->input('point_type_id');
 
-        //Super Admin
-        if ($super_admin_id == '1' && $admin_id == null && $distributor_id == null && $dealer_id == null && $subdealer_id == null) {
+        //Super Admin to Admin
+        if ($super_admin_id == '1' && $admin_id != null && $distributor_id == null && $dealer_id == null && $subdealer_id == null) {
 
-            $result = Point::where('admin_id', null)
+            $result = Point::where('admin_id', $admin_id)
                 ->where('distributor_id', null)
-                ->where('subdealer_id', null)
                 ->where('dealer_id', null)
+                ->where('subdealer_id', null)
                 ->where('created_by', $super_admin_id)
+                ->where('plan_id', $plan_id)
+                ->where('point_type_id', $point_type_id)
                 ->where('status', 1)
                 ->first();
 
             if (!empty($result)) {
                 $result->total_point = $result->total_point + $request->input('total_point');
-                $result->balance_point = $result->balance_point + $request->input('balance_point');
                 $result->save();
-                return $this->sendSuccess("Recharge Point Added Successfully");
-            } else {
-                $point = new Point($request->all());
-                $point->save();
+                $transaction_head = new LicenseTransaction();
+                $transaction_head->point_id = $result->id;
+                $transaction_head->plan_quantity = $request->input('total_point');
+                $transaction_head->created_by = $request->input('created_by');
+                $transaction_head->ip_address = $request->input('ip_address');
+                $transaction_head->save();
                 return $this->sendSuccess("New Point Added Successfully");
-            }
-        }
-        //Super Admin to Admin
-        else  if ($super_admin_id == '1' && $admin_id != null && $distributor_id == null && $dealer_id == null && $subdealer_id == null) {
-
-            $result = Point::where('balance_point', '>=', $request->input('total_point'))
-                ->where('admin_id', null)
-                ->where('distributor_id', null)
-                ->where('dealer_id', null)
-                ->where('subdealer_id', null)
-                ->where('created_by', $super_admin_id)
-                ->where('status', 1)
-                ->first();
-
-            if (!empty($result)) {
-                $result->balance_point = $result->balance_point - $request->input('total_point');
-
-                if ($result->balance_point == 0) {
-                    $result->status = 0;
-                }
-
-                $result->save();
+            } else {
                 $point = new Point($request->all());
                 $point->save();
-                return $this->sendSuccess("Point Added Successfully");
-            } else {
-                return $this->sendSuccess("Requested Point Not Available");
+                $transaction_head = new LicenseTransaction();
+                $transaction_head->point_id = $point->id;
+                $transaction_head->plan_quantity = $request->input('total_point');
+                $transaction_head->created_by = $request->input('created_by');
+                $transaction_head->ip_address = $request->input('ip_address');
+                $transaction_head->save();
+                return $this->sendSuccess("New Point Added Successfully");
             }
         }
         //Admin to Distributor
         else  if ($admin_id != null && $distributor_id != null && $dealer_id == null && $subdealer_id == null) {
 
-            $result = Point::where('balance_point', '>=', $request->input('total_point'))
+            $result = Point::where('total_point', '>=', $request->input('total_point'))
                 ->where('admin_id', $admin_id)
                 ->where('distributor_id', null)
                 ->where('dealer_id', null)
                 ->where('subdealer_id', null)
+                ->where('plan_id', $plan_id)
+                ->where('point_type_id', $point_type_id)
                 ->where('status', 1)
                 ->first();
 
             if (!empty($result)) {
-                $result->balance_point = $result->balance_point - $request->input('total_point');
-
-                if ($result->balance_point == 0) {
-                    $result->status = 0;
-                }
-
+                $result->total_point = $result->total_point - $request->input('total_point');
                 $result->save();
-                $point = new Point($request->all());
-                $point->save();
-                return $this->sendSuccess("Point Added Successfully");
+
+                $result = Point::where('admin_id', $admin_id)
+                    ->where('distributor_id', $distributor_id)
+                    ->where('dealer_id', null)
+                    ->where('subdealer_id', null)
+                    ->where('plan_id', $plan_id)
+                    ->where('point_type_id', $point_type_id)
+                    ->where('status', 1)
+                    ->first();
+                if (!empty($result)) {
+                    $result->total_point = $result->total_point + $request->input('total_point');
+                    $result->save();
+                    $transaction_head = new LicenseTransaction();
+                    $transaction_head->point_id = $result->id;
+                    $transaction_head->plan_quantity = $request->input('total_point');
+                    $transaction_head->created_by = $request->input('created_by');
+                    $transaction_head->ip_address = $request->input('ip_address');
+                    $transaction_head->save();
+                    return $this->sendSuccess("New Point Added Successfully");
+                } else {
+
+                    $point = new Point($request->all());
+                    $point->save();
+                    $transaction_head = new LicenseTransaction();
+                    $transaction_head->point_id = $point->id;
+                    $transaction_head->plan_quantity = $request->input('total_point');
+                    $transaction_head->created_by = $request->input('created_by');
+                    $transaction_head->ip_address = $request->input('ip_address');
+                    $transaction_head->save();
+                    return $this->sendSuccess("New Point Added Successfully");
+                }
             } else {
                 return $this->sendSuccess("Requested Point Not Available");
             }
@@ -108,25 +122,50 @@ class PointController extends BaseController
         //Distributor to Dealer
         else  if ($admin_id != null && $distributor_id != null && $dealer_id != null && $subdealer_id == null) {
 
-            $result = Point::where('balance_point', '>=', $request->input('total_point'))
+            $result = Point::where('total_point', '>=', $request->input('total_point'))
                 ->where('admin_id', $admin_id)
                 ->where('distributor_id', $distributor_id)
                 ->where('dealer_id', null)
                 ->where('subdealer_id', null)
+                ->where('plan_id', $plan_id)
+                ->where('point_type_id', $point_type_id)
                 ->where('status', 1)
                 ->first();
 
             if (!empty($result)) {
-                $result->balance_point = $result->balance_point - $request->input('total_point');
-
-                if ($result->balance_point == 0) {
-                    $result->status = 0;
-                }
-
+                $result->total_point = $result->total_point - $request->input('total_point');
                 $result->save();
-                $point = new Point($request->all());
-                $point->save();
-                return $this->sendSuccess("Point Added Successfully");
+
+                $result = Point::where('admin_id', $admin_id)
+                    ->where('distributor_id', $distributor_id)
+                    ->where('dealer_id', $dealer_id)
+                    ->where('subdealer_id', null)
+                    ->where('plan_id', $plan_id)
+                    ->where('point_type_id', $point_type_id)
+                    ->where('status', 1)
+                    ->first();
+                if (!empty($result)) {
+                    $result->total_point = $result->total_point + $request->input('total_point');
+                    $result->save();
+                    $transaction_head = new LicenseTransaction();
+                    $transaction_head->point_id = $result->id;
+                    $transaction_head->plan_quantity = $request->input('total_point');
+                    $transaction_head->created_by = $request->input('created_by');
+                    $transaction_head->ip_address = $request->input('ip_address');
+                    $transaction_head->save();
+                    return $this->sendSuccess("New Point Added Successfully");
+                } else {
+
+                    $point = new Point($request->all());
+                    $point->save();
+                    $transaction_head = new LicenseTransaction();
+                    $transaction_head->point_id = $point->id;
+                    $transaction_head->plan_quantity = $request->input('total_point');
+                    $transaction_head->created_by = $request->input('created_by');
+                    $transaction_head->ip_address = $request->input('ip_address');
+                    $transaction_head->save();
+                    return $this->sendSuccess("New Point Added Successfully");
+                }
             } else {
                 return $this->sendSuccess("Requested Point Not Available");
             }
@@ -134,25 +173,50 @@ class PointController extends BaseController
         //Dealer to Sub Dealer
         else  if ($admin_id != null && $distributor_id != null && $dealer_id != null && $subdealer_id != null) {
 
-            $result = Point::where('balance_point', '>=', $request->input('total_point'))
+            $result = Point::where('total_point', '>=', $request->input('total_point'))
                 ->where('admin_id', $admin_id)
                 ->where('distributor_id', $distributor_id)
                 ->where('dealer_id', $dealer_id)
                 ->where('subdealer_id', null)
+                ->where('plan_id', $plan_id)
+                ->where('point_type_id', $point_type_id)
                 ->where('status', 1)
                 ->first();
 
             if (!empty($result)) {
-                $result->balance_point = $result->balance_point - $request->input('total_point');
-
-                if ($result->balance_point == 0) {
-                    $result->status = 0;
-                }
-
+                $result->total_point = $result->total_point - $request->input('total_point');
                 $result->save();
-                $point = new Point($request->all());
-                $point->save();
-                return $this->sendSuccess("Point Added Successfully");
+
+                $result = Point::where('admin_id', $admin_id)
+                    ->where('distributor_id', $distributor_id)
+                    ->where('dealer_id', $dealer_id)
+                    ->where('subdealer_id', $subdealer_id)
+                    ->where('plan_id', $plan_id)
+                    ->where('point_type_id', $point_type_id)
+                    ->where('status', 1)
+                    ->first();
+                if (!empty($result)) {
+                    $result->total_point = $result->total_point + $request->input('total_point');
+                    $result->save();
+                    $transaction_head = new LicenseTransaction();
+                    $transaction_head->point_id = $result->id;
+                    $transaction_head->plan_quantity = $request->input('total_point');
+                    $transaction_head->created_by = $request->input('created_by');
+                    $transaction_head->ip_address = $request->input('ip_address');
+                    $transaction_head->save();
+                    return $this->sendSuccess("New Point Added Successfully");
+                } else {
+
+                    $point = new Point($request->all());
+                    $point->save();
+                    $transaction_head = new LicenseTransaction();
+                    $transaction_head->point_id = $point->id;
+                    $transaction_head->plan_quantity = $request->input('total_point');
+                    $transaction_head->created_by = $request->input('created_by');
+                    $transaction_head->ip_address = $request->input('ip_address');
+                    $transaction_head->save();
+                    return $this->sendSuccess("New Point Added Successfully");
+                }
             } else {
                 return $this->sendSuccess("Requested Point Not Available");
             }
