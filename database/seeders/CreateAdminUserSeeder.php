@@ -20,14 +20,6 @@ class CreateAdminUserSeeder extends Seeder
 
     public function run()
     {
-        $user = User::create([
-            'name' => 'superadmin',
-            'email' => 'superadmin@gmail.com',
-            'password' => bcrypt('123456'),
-            'secondary_password' => bcrypt('twingszxc'),
-            'role_id' => 1
-        ]);
-
         $roles = [
             'Super Admin',
             'Admin',
@@ -38,14 +30,40 @@ class CreateAdminUserSeeder extends Seeder
             'Vehicle Owner',
             'Staff'
         ];
-
         foreach ($roles as $role) {
             Role::create(['name' => $role]);
         }
+
+        $permissions = [
+            'role-list',
+            'role-create',
+            'role-edit',
+            'role-delete',
+            'permission-list',
+            'permission-create',
+            'permission-edit',
+            'permission-delete',
+            'country-list',
+            'country-create',
+            'country-edit',
+            'country-delete'
+        ];
+        foreach ($permissions as $permission) {
+            Permission::create(['name' => $permission]);
+        }
+
+        $user = User::create([
+            'name' => 'superadmin',
+            'email' => 'superadmin@gmail.com',
+            'password' => bcrypt('123456'),
+            'secondary_password' => bcrypt('twingszxc'),
+            'role_id' => 1
+        ]);
+
         // Retrieve the Super Admin role
         $superAdminRole = Role::where('name', 'Super Admin')->first();
 
-        // Assign the Super Admin role to the user
+        // // Assign the Super Admin role to the user
         $user->assignRole([$superAdminRole->id]);
 
         $permissions = Permission::pluck('id', 'id')->all();
