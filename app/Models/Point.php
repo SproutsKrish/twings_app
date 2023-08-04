@@ -15,7 +15,6 @@ class Point extends Model
         'point_type_id',
         'plan_id',
         'total_point',
-        'balance_point',
         'admin_id',
         'distributor_id',
         'dealer_id',

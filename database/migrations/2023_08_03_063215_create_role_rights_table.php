@@ -13,16 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('license_transactions', function (Blueprint $table) {
+        Schema::create('role_rights', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('point_id')->nullable();
-            $table->double('plan_quantity')->nullable();
-            $table->tinyInteger('status')->nullable()->default(1);
+            $table->bigInteger('role_id');
+            $table->bigInteger('rights_id');
             $table->timestamps();
             $table->softDeletes(); // Add this line to enable soft delete
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
             $table->integer('deleted_by')->nullable();
+            $table->integer('approved_by')->nullable();
             $table->string('ip_address')->nullable();
         });
     }
@@ -34,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('license_transactions');
+        Schema::dropIfExists('role_rights');
     }
 };

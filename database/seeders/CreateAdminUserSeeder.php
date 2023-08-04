@@ -24,12 +24,29 @@ class CreateAdminUserSeeder extends Seeder
             'name' => 'superadmin',
             'email' => 'superadmin@gmail.com',
             'password' => bcrypt('123456'),
-            'secondary_password' => bcrypt('twingszxc')
+            'secondary_password' => bcrypt('twingszxc'),
+            'role_id' => 1
         ]);
 
-        $role = Role::create(['name' => 'Super Admin']);
+        $roles = [
+            'Super Admin',
+            'Admin',
+            'Distributor',
+            'Dealer',
+            'SubDealer',
+            'Client',
+            'Vehicle Owner',
+            'Staff'
+        ];
 
-        $user->assignRole([$role->id]);
+        foreach ($roles as $role) {
+            Role::create(['name' => $role]);
+        }
+        // Retrieve the Super Admin role
+        $superAdminRole = Role::where('name', 'Super Admin')->first();
+
+        // Assign the Super Admin role to the user
+        $user->assignRole([$superAdminRole->id]);
 
         $permissions = Permission::pluck('id', 'id')->all();
 

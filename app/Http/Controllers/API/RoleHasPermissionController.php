@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\API\BaseController as BaseController;
+use App\Models\ModelHasRole;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Http\Request;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 
 class RoleHasPermissionController extends BaseController
 {
@@ -67,7 +68,13 @@ class RoleHasPermissionController extends BaseController
 
         $attachedPermissions = $role->syncPermissions($permissions);
 
+        $user = ModelHasRole::where('role_id', $request->input('role_id'))->get();
 
+
+        foreach ($user as $userModel) {
+            $modelId = $userModel->model_id;
+            dd($modelId);
+        }
 
         if ($attachedPermissions) {
             return $this->sendSuccess('Permissions linked with the Role');

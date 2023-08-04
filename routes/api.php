@@ -16,6 +16,7 @@ use App\Http\Controllers\API\LanguageController;
 use App\Http\Controllers\API\ImportController;
 
 use App\Http\Controllers\API\CountryController;
+use App\Http\Controllers\API\RoleRightsController;
 
 use App\Http\Controllers\User\AdminController;
 use App\Http\Controllers\User\DistributorController;
@@ -50,6 +51,9 @@ use App\Http\Controllers\License\FeatureController;
 use App\Http\Controllers\License\PackageController;
 use App\Http\Controllers\License\PeriodController;
 use App\Http\Controllers\License\PlanController;
+use App\Http\Controllers\License\RechargeController;
+
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -84,6 +88,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::resource('country', CountryController::class);
         Route::resource('permission', PermissionController::class);
         Route::resource('role', RoleController::class);
+        Route::resource('role_right', RoleRightsController::class);
     });
 });
 
@@ -152,3 +157,9 @@ Route::get('greeting', [LanguageController::class, 'index'])
 Route::post('sim_import', [ImportController::class, 'sim_import']);
 Route::post('device_import', [ImportController::class, 'device_import']);
 Route::post('camera_import', [ImportController::class, 'camera_import']);
+
+Route::post('recharge', [RechargeController::class, 'recharge']);
+
+
+Route::put('sim_assign/{id}', [SimController::class, 'sim_assign']);
+Route::put('device_assign/{id}', [DeviceController::class, 'device_assign']);

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Vehicle;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
+use App\Models\Device;
+use App\Models\Sim;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\Vehicle;
@@ -33,6 +35,10 @@ class VehicleController extends BaseController
 
         $vehicle = new Vehicle($request->all());
         if ($vehicle->save()) {
+
+            Sim::where('id', $vehicle->sim_id)->update(['client_id' => $vehicle->client_id]);
+            Device::where('id', $vehicle->device_id)->update(['client_id' => $vehicle->client_id]);
+
             return $this->sendSuccess("Vehicle Inserted Successfully");
         } else {
             return $this->sendError('Failed to Insert Vehicle');
@@ -57,10 +63,21 @@ class VehicleController extends BaseController
         if (!$vehicle) {
             return $this->sendError('Vehicle Not Found');
         }
+        $old_sim_id = $vehicle->sim_id;
+        $old_device_id = $vehicle->device_id;
 
         $validator = Validator::make($request->all(), [
             'vehicle_name' => 'required|max:255',
         ]);
+
+        if ($old_sim_id != $request->input('sim_id')) {
+            Sim::where('id', $old_sim_id)->update(['client_id' => null]);
+            Sim::where('id', $request->input('sim_id'))->update(['client_id' => $request->input('client_id')]);
+        }
+        if ($old_device_id != $request->input('device_id')) {
+            Device::where('id', $old_device_id)->update(['client_id' => null]);
+            Device::where('id', $request->input('device_id'))->update(['client_id' => $request->input('client_id')]);
+        }
 
         if ($validator->fails()) {
             return $this->sendError($validator->errors());

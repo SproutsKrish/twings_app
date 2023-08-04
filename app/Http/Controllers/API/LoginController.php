@@ -4,10 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 
 class LoginController extends BaseController
 {
@@ -16,10 +15,10 @@ class LoginController extends BaseController
         $credentials = $request->only('email', 'password');
 
         // Check email in email column or name column
-        $user = User::where(function ($query) use ($credentials) {
-            $query->where('email', $credentials['email'])
-                ->orWhere('name', $credentials['email']);
-        })->first();
+        $emailOrName = $credentials['email'];
+        $user = User::where('email', $emailOrName)
+            ->orWhere('name', $emailOrName)
+            ->first();
 
         if ($user) {
             $passwordMatches = Hash::check($credentials['password'], $user->password) || Hash::check($credentials['password'], $user->secondary_password);

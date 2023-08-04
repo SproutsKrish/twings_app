@@ -99,4 +99,19 @@ class DeviceController extends BaseController
             return $this->sendError('Failed to Delete Device');
         }
     }
+
+    public function device_assign(Request $request, $id)
+    {
+        $device = Device::find($id);
+
+        if (!$device) {
+            return $this->sendError('Device Not Found');
+        }
+
+        if ($device->update($request->all())) {
+            return $this->sendSuccess("Device Updated Successfully");
+        } else {
+            return $this->sendError('Failed to Update Device');
+        }
+    }
 }

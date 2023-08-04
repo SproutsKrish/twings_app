@@ -4,19 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class LicenseTransaction extends Model
+class RoleRights extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
     protected $fillable = [
-        'point_id',
-        'plan_quantity',
+        'role_id',
+        'rights_id',
         'status',
         'created_by',
         'updated_by',
+        'deleted_by',
         'ip_address',
     ];
 }
