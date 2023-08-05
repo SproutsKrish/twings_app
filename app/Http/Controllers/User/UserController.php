@@ -54,7 +54,7 @@ class UserController extends BaseController
         $data['role_id'] = $input['role_id'];
 
         $role_id = $data['role_id'];
-        unset($input['role_id']);
+        //unset($input['role_id']);
         $role = Role::find($role_id);
         $permissions = $role->permissions;
 
