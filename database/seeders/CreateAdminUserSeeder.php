@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Feature;
 use App\Models\ModelHasRole;
 use Illuminate\Database\Seeder;
 use App\Models\User;
@@ -50,6 +51,24 @@ class CreateAdminUserSeeder extends Seeder
         ];
         foreach ($permissions as $permission) {
             Permission::create(['name' => $permission]);
+        }
+
+        $features = [
+            'AC',
+            'Angle Sensor',
+            'Engine RPM',
+            'Escort BLE Fuel',
+            'Escort LLS Fuel',
+            'Fuel',
+            'Temp Sensor',
+            'iButton',
+            'MDVR',
+            'Normal',
+            'Temp Sensor(BLE)',
+            'Temp Sensor(1Wire)'
+        ];
+        foreach ($features as $feature) {
+            Feature::create(['feature_name' => $feature]);
         }
 
         $user = User::create([
