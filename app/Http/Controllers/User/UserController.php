@@ -55,16 +55,16 @@ class UserController extends BaseController
         $data['role_id'] = $input['role_id'];
 
         $role_id = $data['role_id'];
-        //unset($input['role_id']);
         $role = Role::find($role_id);
         $permissions = $role->permissions;
 
         $user = new User($input);
 
         if ($user->save()) {
-
-            $tenant1 = Tenant::create(['id' => $request->input('name')]);
-            $tenant1->domains()->create(['domain' => $request->input('name') . 'localhost']);
+            if ($role_id == 6) {
+                $tenant1 = Tenant::create(['id' => $request->input('name')]);
+                $tenant1->domains()->create(['domain' => $request->input('name') . 'localhost']);
+            }
 
             $data['model_type'] = "App\Models\User";
             $data['model_id'] = $user->id;
