@@ -26,8 +26,16 @@ class User extends Authenticatable
         'password',
         'secondary_password',
         'role_id',
-        'status',
 
+        'admin_id',
+        'distributor_id',
+        'dealer_id',
+        'subdealer_id',
+        'client_id',
+        'vehicle_owner_id',
+        'staff_id',
+
+        'status',
         'created_by',
         'updated_by',
         'deleted_by',

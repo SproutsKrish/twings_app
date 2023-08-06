@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\ModelHasRole;
+use App\Models\Tenant;
 use App\Models\User;
 use Validator;
 
@@ -61,6 +62,9 @@ class UserController extends BaseController
         $user = new User($input);
 
         if ($user->save()) {
+
+            $tenant1 = Tenant::create(['id' => $request->input('name')]);
+            $tenant1->domains()->create(['domain' => $request->input('name') . 'localhost']);
 
             $data['model_type'] = "App\Models\User";
             $data['model_id'] = $user->id;
