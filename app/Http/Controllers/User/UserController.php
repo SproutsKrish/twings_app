@@ -27,7 +27,7 @@ class UserController extends BaseController
 
     public function index()
     {
-        dd(auth());
+        // dd(auth());
         $users = User::all();
 
         if ($users->isEmpty()) {
