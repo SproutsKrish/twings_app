@@ -70,5 +70,25 @@ class CreateAdminUserSeeder extends Seeder
 
         $superAdminRole->syncPermissions($permissions);
         $user->syncPermissions($permissions);
+
+
+        $data = [
+            ['role_id' => 1, 'rights_id' => 2],
+            ['role_id' => 1, 'rights_id' => 8],
+            ['role_id' => 2, 'rights_id' => 3],
+            ['role_id' => 2, 'rights_id' => 8],
+            ['role_id' => 3, 'rights_id' => 4],
+            ['role_id' => 3, 'rights_id' => 8],
+            ['role_id' => 4, 'rights_id' => 5],
+            ['role_id' => 4, 'rights_id' => 6],
+            ['role_id' => 4, 'rights_id' => 8],
+            ['role_id' => 5, 'rights_id' => 6],
+            ['role_id' => 5, 'rights_id' => 8],
+            ['role_id' => 6, 'rights_id' => 7],
+            ['role_id' => 6, 'rights_id' => 7],
+        ];
+
+        // Insert the data into the role_rights table
+        DB::table('role_rights')->insert($data);
     }
 }
