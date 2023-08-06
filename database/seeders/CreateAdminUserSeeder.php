@@ -71,6 +71,138 @@ class CreateAdminUserSeeder extends Seeder
             Feature::create(['feature_name' => $feature]);
         }
 
+        $packages = [
+            [
+                'package_code' => 'AC',
+                'package_name' => 'AC',
+            ],
+            [
+                'package_code' => 'Angle Sensor',
+                'package_name' => 'Angle Sensor',
+            ],
+            [
+                'package_code' => 'EngineRPM',
+                'package_name' => 'Engine RPM',
+            ],
+            [
+                'package_code' => 'EscortBLEFuel',
+                'package_name' => 'Escort BLE Fuel',
+            ],
+            [
+                'package_code' => 'EscortLLSFuel',
+                'package_name' => 'Escort LLS Fuel',
+            ],
+            [
+                'package_code' => 'Fuel',
+                'package_name' => 'Fuel',
+            ],
+            [
+                'package_code' => 'FuelAngleSensor',
+                'package_name' => 'Fuel + Angle Sensor',
+            ],
+            [
+                'package_code' => 'FuelTempSensor',
+                'package_name' => 'Fuel + Temp Sensor',
+            ],
+            [
+                'package_code' => 'FueliButton',
+                'package_name' => 'Fuel + iButton',
+            ],
+            [
+                'package_code' => 'FueliButtonMDVR',
+                'package_name' => 'Fuel + iButton + MDVR',
+            ],
+            [
+                'package_code' => 'FuelMDVR',
+                'package_name' => 'Fuel + MDVR',
+            ],
+            [
+                'package_code' => 'FuelSensor',
+                'package_name' => 'Fuel + Sensor',
+            ],
+            [
+                'package_code' => 'FuelSensorMDVR',
+                'package_name' => 'Fuel + Sensor + MDVR',
+            ],
+            [
+                'package_code' => 'Normal',
+                'package_name' => 'Normal',
+            ],
+            [
+                'package_code' => 'NormaliButton',
+                'package_name' => 'Normal + iButton',
+            ],
+            [
+                'package_code' => 'NormalMDVR',
+                'package_name' => 'Normal + MDVR',
+            ],
+            [
+                'package_code' => 'RPMEscortBLEFuel',
+                'package_name' => 'RPM + Escort BLE Fuel',
+            ],
+            [
+                'package_code' => 'TempSensorAngleSensor',
+                'package_name' => 'Temp Sensor + Angle Sensor',
+            ],
+            [
+                'package_code' => 'TempSensorBLE',
+                'package_name' => 'Temp Sensor (BLE)',
+            ],
+            [
+                'package_code' => 'TempSensor1Wire',
+                'package_name' => 'Temp Sensor (1 wire)',
+            ],
+        ];
+
+        DB::table('packages')->insert($packages);
+
+        $periods = [
+            [
+                'period_name' => '3 Month',
+                'period_days' => 30,
+                'description' => '3',
+            ],
+            [
+                'period_name' => '6 Month',
+                'period_days' => 90,
+                'description' => '6',
+            ],
+            [
+                'period_name' => '9 Month',
+                'period_days' => 180,
+                'description' => '9',
+            ],
+            [
+                'period_name' => '1 Year',
+                'period_days' => 365,
+                'description' => '12'
+            ],
+        ];
+
+        DB::table('periods')->insert($periods);
+
+        $plans = [
+            [
+                'package_id' => 1,
+                'period_id' => 1,
+            ],
+            [
+                'package_id' => 1,
+                'period_id' => 2,
+            ],
+            [
+                'package_id' => 1,
+                'period_id' => 3,
+            ],
+            [
+                'package_id' => 1,
+                'period_id' => 4,
+            ],
+
+        ];
+
+        DB::table('plans')->insert($plans);
+
         $user = User::create([
             'name' => 'superadmin',
             'email' => 'superadmin@gmail.com',

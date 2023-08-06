@@ -70,8 +70,8 @@ class UserController extends BaseController
 
             if ($user->save()) {
                 if ($role_id == 6) {
-                    $tenant1 = Tenant::create(['id' => $request->input('name')]);
-                    $tenant1->domains()->create(['domain' => $request->input('name') . 'localhost']);
+                    $tenant1 = Tenant::create(['id' => $user->id]);
+                    $tenant1->domains()->create(['domain' => $request->input('name') . '.' . 'localhost']);
                 }
 
                 $data['model_type'] = "App\Models\User";

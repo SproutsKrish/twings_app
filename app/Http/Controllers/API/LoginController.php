@@ -30,8 +30,6 @@ class LoginController extends BaseController
             if ($passwordMatches) {
                 $role_id = $user->role_id;
 
-
-
                 if ($role_id != 6) {
                     $data['token'] = $user->createToken('API Token')->plainTextToken;
                     $data['user'] = $user;
@@ -39,21 +37,21 @@ class LoginController extends BaseController
                 } else {
                     $data['token'] = $user->createToken('API Token')->plainTextToken;
 
-                    $tenantData = json_decode(Tenant::find($user->name), true);
-                    $tenantDbName = $tenantData['tenancy_db_name'];
+                    // $tenantData = json_decode(Tenant::find($user->name), true);
+                    // $tenantDbName = $tenantData['tenancy_db_name'];
 
-                    config([
-                        'database.connections.mysql.database' => $tenantDbName,
-                    ]);
+                    // config([
+                    //     'database.connections.mysql.database' => $tenantDbName,
+                    // ]);
 
-                    DB::purge('mysql');
-                    DB::reconnect('mysql');
-                    DB::setDefaultConnection('mysql');
+                    // DB::purge('mysql');
+                    // DB::reconnect('mysql');
+                    // DB::setDefaultConnection('mysql');
 
-                    $request->session()->put('tenant_db_name', $tenantDbName);
+                    // $request->session()->put('tenant_db_name', $tenantDbName);
 
 
-                    $data['info'] = \App\Models\User::all();
+                    // $data['info'] = \App\Models\User::all();
                     $data['user'] = $user;
 
                     return $this->sendSuccess($data);

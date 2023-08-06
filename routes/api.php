@@ -71,17 +71,15 @@ Route::controller(LoginController::class)->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::controller(UserController::class)->group(function () {
-        Route::post('user/store', 'store');
-        Route::get('user', 'index');
-        Route::get('user/show/{id}', 'show');
-        Route::put('user/update/{id}', 'update');
-        Route::delete('user/delete/{id}', 'destroy');
-        Route::get('user/details', 'showdetails');
-    });
-
-    Route::controller(DemoReportController::class)->group(function () {
-        Route::get('report', 'index');
+    Route::middleware('switch.database')->group(function () {
+        Route::controller(UserController::class)->group(function () {
+            Route::post('user/store', 'store');
+            Route::get('user', 'index');
+            Route::get('user/show/{id}', 'show');
+            Route::put('user/update/{id}', 'update');
+            Route::delete('user/delete/{id}', 'destroy');
+            Route::get('user/details', 'showdetails');
+        });
     });
 
     Route::controller(LoginController::class)->group(function () {
