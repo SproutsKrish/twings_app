@@ -17,7 +17,7 @@ use App\Http\Controllers\API\ImportController;
 
 use App\Http\Controllers\API\CountryController;
 use App\Http\Controllers\API\RoleRightsController;
-
+use App\Http\Controllers\DemoReportController;
 use App\Http\Controllers\User\AdminController;
 use App\Http\Controllers\User\DistributorController;
 use App\Http\Controllers\User\DealerController;
@@ -78,6 +78,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('user/update/{id}', 'update');
         Route::delete('user/delete/{id}', 'destroy');
         Route::get('user/details', 'showdetails');
+    });
+
+    Route::controller(DemoReportController::class)->group(function () {
+        Route::get('report', 'index');
     });
 
     Route::controller(LoginController::class)->group(function () {

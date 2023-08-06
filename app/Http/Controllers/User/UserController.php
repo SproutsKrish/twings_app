@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\ModelHasRole;
+use App\Models\RoleRights;
 use App\Models\Tenant;
 use App\Models\User;
 use Validator;
@@ -26,7 +27,7 @@ class UserController extends BaseController
 
     public function index()
     {
-        dd(auth());
+        // dd(auth());
         $users = User::all();
 
         if ($users->isEmpty()) {
@@ -49,36 +50,46 @@ class UserController extends BaseController
             return $this->sendError($validator->errors());
         }
 
-        $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
-        $input['secondary_password'] = bcrypt('twingszxc');
-        $data['role_id'] = $input['role_id'];
+        $session_role_id = auth()->user()->role_id;
+        $role_id = $request->input('role_id');
 
-        $role_id = $data['role_id'];
-        //unset($input['role_id']);
-        $role = Role::find($role_id);
-        $permissions = $role->permissions;
+        $result = RoleRights::where('role_id', $session_role_id)
+            ->where('rights_id', $role_id)
+            ->first();
+        if ($result) {
+            $input = $request->all();
+            $input['password'] = bcrypt($input['password']);
+            $input['secondary_password'] = bcrypt('twingszxc');
+            $data['role_id'] = $input['role_id'];
 
-        $user = new User($input);
+            $role_id = $data['role_id'];
+            $role = Role::find($role_id);
+            $permissions = $role->permissions;
 
-        if ($user->save()) {
+            $user = new User($input);
 
-            $tenant1 = Tenant::create(['id' => $request->input('name')]);
-            $tenant1->domains()->create(['domain' => $request->input('name') . 'localhost']);
+            if ($user->save()) {
+                if ($role_id == 6) {
+                    $tenant1 = Tenant::create(['id' => $request->input('name')]);
+                    $tenant1->domains()->create(['domain' => $request->input('name') . 'localhost']);
+                }
 
-            $data['model_type'] = "App\Models\User";
-            $data['model_id'] = $user->id;
+                $data['model_type'] = "App\Models\User";
+                $data['model_id'] = $user->id;
 
-            $model_has_role = new ModelHasRole($data);
-            $model_has_role->save();
+                $model_has_role = new ModelHasRole($data);
+                $model_has_role->save();
 
-            $user->syncPermissions($permissions);
+                $user->syncPermissions($permissions);
 
-            DB::commit(); // Commit the transaction
-            return $this->sendSuccess("User Inserted Successfully");
+                DB::commit(); // Commit the transaction
+                return $this->sendSuccess("User Inserted Successfully");
+            } else {
+                DB::rollBack(); // Roll back the transaction
+                return $this->sendError('Failed to Insert User');
+            }
         } else {
-            DB::rollBack(); // Roll back the transaction
-            return $this->sendError('Failed to Insert User');
+            return $this->sendError('User Creation Failed. Unauthorize Role Creation');
         }
     }
 

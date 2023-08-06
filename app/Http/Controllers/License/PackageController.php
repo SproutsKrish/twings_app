@@ -25,23 +25,33 @@ class PackageController extends BaseController
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'package_code' => 'required|max:255',
-            'package_name' => 'required|max:255',
-            'feature_id' => 'required|array',
+            'features_name' => 'required|array',
         ]);
 
         if ($validator->fails()) {
             return $this->sendError($validator->errors());
         }
+        // Convert the array to a single string with hyphens
+        $packageNames = implode(' - ', $request->input('features_name'));
 
-        $package = new Package();
-        $package->package_code = $request->input('package_code');
-        $package->package_name = $request->input('package_name');
+        // dd($packageNames);
 
-        if ($package->save()) {
-            return $this->sendSuccess("Package Inserted Successfully");
+        $result = Package::where('package_name', $packageNames)
+            ->first();
+
+        // dd($result);
+        if ($result == null) {
+            $package = new Package();
+            $package->package_code = $packageNames;
+            $package->package_name = $packageNames;
+
+            if ($package->save()) {
+                return $this->sendSuccess("Package Inserted Successfully");
+            } else {
+                return $this->sendError('Failed to Insert Package');
+            }
         } else {
-            return $this->sendError('Failed to Insert Package');
+            return $this->sendError('This Package Already Created');
         }
     }
 
@@ -59,25 +69,35 @@ class PackageController extends BaseController
     public function update(Request $request, $id)
     {
         $package = Package::find($id);
-
         if (!$package) {
             return $this->sendError('Package Not Found');
         }
 
         $validator = Validator::make($request->all(), [
-            'package_code' => 'required|max:255',
-            'package_name' => 'required|max:255',
-            'feature_id' => 'required|max:255',
+            'features_name' => 'required|array',
         ]);
-
         if ($validator->fails()) {
             return $this->sendError($validator->errors());
         }
 
-        if ($package->update($request->all())) {
-            return $this->sendSuccess("Package Updated Successfully");
+        $packageNames = implode(' - ', $request->input('features_name'));
+
+        // dd($packageNames);
+
+        $result = Package::where('package_name', $packageNames)
+            ->first();
+
+        if ($result == null) {
+            $package->package_code = $packageNames;
+            $package->package_name = $packageNames;
+
+            if ($package->save()) {
+                return $this->sendSuccess("Package Updated Successfully");
+            } else {
+                return $this->sendError('Failed to Update Package');
+            }
         } else {
-            return $this->sendError('Failed to Update Package');
+            return $this->sendError('This Package Already Created');
         }
     }
 
