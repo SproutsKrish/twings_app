@@ -52,7 +52,7 @@ use App\Http\Controllers\License\PackageController;
 use App\Http\Controllers\License\PeriodController;
 use App\Http\Controllers\License\PlanController;
 use App\Http\Controllers\License\RechargeController;
-
+use App\Http\Controllers\Report\LiveDataController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,6 +79,11 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::put('user/update/{id}', 'update');
             Route::delete('user/delete/{id}', 'destroy');
             Route::get('user/details', 'showdetails');
+        });
+        Route::controller(LiveDataController::class)->group(function () {
+            Route::get('multi_dashboard', 'multi_dashboard');
+            Route::get('single_dashboard/{id}', 'single_dashboard');
+            Route::get('vehicle_count', 'vehicle_count');
         });
     });
 
