@@ -9,6 +9,8 @@ class KeyOnKeyOffReport extends Model
 {
     use HasFactory;
 
+    protected $table = 'keyoff_keyon_reports';
+
     protected $fillable = [
         'id',
         'flag',

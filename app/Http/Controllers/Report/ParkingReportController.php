@@ -15,7 +15,7 @@ class ParkingReportController extends BaseController
             ->where('vehicle_id', '=', $request->input('vehicle_id'))
             ->get();
 
-        if (!$parkingReports->isEmpty()) {
+        if ($parkingReports->isEmpty()) {
             return $this->sendError('No Parking Data Found');
         }
 

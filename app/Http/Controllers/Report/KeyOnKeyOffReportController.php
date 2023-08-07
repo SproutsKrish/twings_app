@@ -15,7 +15,7 @@ class KeyOnKeyOffReportController extends BaseController
             ->where('vehicle_id', '=', $request->input('vehicle_id'))
             ->get();
 
-        if (!$keyonoffReports->isEmpty()) {
+        if ($keyonoffReports->isEmpty()) {
             return $this->sendError('No KeyOnOff Data Found');
         }
 
