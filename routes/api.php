@@ -56,6 +56,7 @@ use App\Http\Controllers\Report\IdleReportController;
 use App\Http\Controllers\Report\KeyOnKeyOffReportController;
 use App\Http\Controllers\Report\LiveDataController;
 use App\Http\Controllers\Report\ParkingReportController;
+use App\Http\Controllers\Report\PlaybackHistoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -96,6 +97,9 @@ Route::middleware('auth:sanctum')->group(function () {
         });
         Route::controller(ParkingReportController::class)->group(function () {
             Route::post('get_parking_report', 'get_parking_report');
+        });
+        Route::controller(PlaybackHistoryController::class)->group(function () {
+            Route::post('get_playback_report', 'get_playback_report');
         });
     });
 
