@@ -52,7 +52,10 @@ use App\Http\Controllers\License\PackageController;
 use App\Http\Controllers\License\PeriodController;
 use App\Http\Controllers\License\PlanController;
 use App\Http\Controllers\License\RechargeController;
+use App\Http\Controllers\Report\IdleReportController;
+use App\Http\Controllers\Report\KeyOnKeyOffReportController;
 use App\Http\Controllers\Report\LiveDataController;
+use App\Http\Controllers\Report\ParkingReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -84,6 +87,15 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('multi_dashboard', 'multi_dashboard');
             Route::get('single_dashboard/{id}', 'single_dashboard');
             Route::get('vehicle_count', 'vehicle_count');
+        });
+        Route::controller(KeyOnKeyOffReportController::class)->group(function () {
+            Route::post('get_keyonoff_report', 'get_keyonoff_report');
+        });
+        Route::controller(IdleReportController::class)->group(function () {
+            Route::post('get_idle_report', 'get_idle_report');
+        });
+        Route::controller(ParkingReportController::class)->group(function () {
+            Route::post('get_parking_report', 'get_parking_report');
         });
     });
 
