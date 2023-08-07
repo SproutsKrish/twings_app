@@ -71,8 +71,13 @@ class UserController extends BaseController
             if ($user->save()) {
                 if ($role_id == 6) {
                     $tenant1 = Tenant::create(['id' => $user->id]);
+<<<<<<< HEAD
                     $tenant1->domains()->create(['domain' =>($user->name) . '.' . 'localhost']);
                     // \Artisan::call('tenants:migrate');
+=======
+
+                    $tenant1->domains()->create(['domain' => $request->input('name') . '.' . 'localhost']);
+>>>>>>> 5c580a1350d24d57bd890128ddb01abb0324f08d
                 }
 
                 $data['model_type'] = "App\Models\User";
