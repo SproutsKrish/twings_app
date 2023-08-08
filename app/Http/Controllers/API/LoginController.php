@@ -10,57 +10,44 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
-
+use Exception;
 
 class LoginController extends BaseController
 {
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        try {
+            $credentials = $request->only('email', 'password');
 
-        // Check email in email column or name column
-        $emailOrName = $credentials['email'];
-        $user = User::where('email', $emailOrName)
-            ->orWhere('name', $emailOrName)
-            ->first();
+            $user = User::where('email', $credentials['email'])
+                ->orWhere('name', $credentials['email'])
+                ->first();
 
-        if ($user) {
-            $passwordMatches = Hash::check($credentials['password'], $user->password) || Hash::check($credentials['password'], $user->secondary_password);
+            if ($user) {
+                $passwordMatches = Hash::check($credentials['password'], $user->password) || Hash::check($credentials['password'], $user->secondary_password);
 
-            if ($passwordMatches) {
-                $role_id = $user->role_id;
-
-                if ($role_id != 6) {
-                    $data['token'] = $user->createToken('API Token')->plainTextToken;
-                    $data['user'] = $user;
-                    return $this->sendSuccess($data);
+                if ($passwordMatches) {
+                    $role_id = $user->role_id;
+                    if ($role_id != 6) {
+                        $data['token'] = $user->createToken('API Token')->plainTextToken;
+                        $data['user'] = $user;
+                        return $this->sendSuccess($data);
+                    } else {
+                        // Handle role_id 6 if needed.
+                        $data['token'] = $user->createToken('API Token')->plainTextToken;
+                        $data['user'] = $user;
+                        return $this->sendSuccess($data);
+                    }
                 } else {
-                    $data['token'] = $user->createToken('API Token')->plainTextToken;
-
-                    // $tenantData = json_decode(Tenant::find($user->name), true);
-                    // $tenantDbName = $tenantData['tenancy_db_name'];
-
-                    // config([
-                    //     'database.connections.mysql.database' => $tenantDbName,
-                    // ]);
-
-                    // DB::purge('mysql');
-                    // DB::reconnect('mysql');
-                    // DB::setDefaultConnection('mysql');
-
-                    // $request->session()->put('tenant_db_name', $tenantDbName);
-
-
-                    // $data['info'] = \App\Models\User::all();
-                    $data['user'] = $user;
-
-                    return $this->sendSuccess($data);
+                    // Password doesn't match, return an error response.
+                    return $this->sendError('Invalid Password Credentials');
                 }
             } else {
-                return $this->sendError('Invalid Login Credentials');
+                // User not found, return an error response.
+                return $this->sendError('Invalid Username Credentials');
             }
-        } else {
-            return $this->sendError('Invalid Login Credentials');
+        } catch (Exception $e) {
+            return $this->sendError('An error occurred: ' . $e->getMessage());
         }
     }
 
