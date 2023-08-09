@@ -18,7 +18,7 @@ return new class extends Migration
             $table->bigInteger('deviceimei',20)->comment("Device IMEI");
             $table->double("lattitute")->comment("Lattitute");
             $table->double("longitute")->comment("Longtitude");
-            $table->tinyInteger("ignition",4)->default(0)->comment("Ignition Status");
+            $table->tinyInteger("ignition")->default(0)->comment("Ignition Status");
             $table->tinyInteger("ac_status")->default(0)->comment("Lattitute");
             $table->float("speed")->default(0)->comment("Vehicle Speed");
             $table->smallInteger("angle",6)->default(0)->comment("Angle");
