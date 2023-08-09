@@ -198,3 +198,5 @@ Route::post('recharge', [RechargeController::class, 'recharge']);
 
 Route::put('sim_assign/{id}', [SimController::class, 'sim_assign']);
 Route::put('device_assign/{id}', [DeviceController::class, 'device_assign']);
+
+Route::get('link_generate/{id}', [ClientController::class, 'link_generate'])->name('route.name');

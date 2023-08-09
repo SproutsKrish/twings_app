@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->integer('vehicle_id')->nullable();
             $table->string('vehicle_name', 40)->nullable();
+            $table->tinyInteger('vehicle_current_status')->nullable();
             $table->tinyInteger('vehicle_status')->nullable();
             $table->bigInteger('deviceimei')->nullable();
             $table->double('lattitute')->nullable();
