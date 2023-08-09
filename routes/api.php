@@ -57,6 +57,8 @@ use App\Http\Controllers\Report\KeyOnKeyOffReportController;
 use App\Http\Controllers\Report\LiveDataController;
 use App\Http\Controllers\Report\ParkingReportController;
 use App\Http\Controllers\Report\PlaybackHistoryController;
+use App\Http\Controllers\VehicleSetting\ConfigurationController;
+use App\Http\Controllers\VehicleSetting\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -100,6 +102,16 @@ Route::middleware('auth:sanctum')->group(function () {
         });
         Route::controller(PlaybackHistoryController::class)->group(function () {
             Route::post('get_playback_report', 'get_playback_report');
+        });
+        Route::controller(NotificationController::class)->group(function () {
+            Route::get('notify/show', 'show');
+            Route::put('notify/update/{id}', 'update');
+        });
+        Route::controller(ConfigurationController::class)->group(function () {
+            Route::get('config/show', 'show');
+            Route::put('config/update/{id}', 'update');
+            Route::put('config/immobilizer_option/{id}', 'immobilizer_option');
+            Route::put('config/safe_parking/{id}', 'safe_parking');
         });
     });
 

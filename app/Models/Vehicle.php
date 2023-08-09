@@ -43,5 +43,8 @@ class Vehicle extends Model
         'updated_by',
         'deleted_by',
         'ip_address',
+
+        'immobilizer_option',
+        'safe_parking',
     ];
 }
