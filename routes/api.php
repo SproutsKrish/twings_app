@@ -110,6 +110,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::controller(ConfigurationController::class)->group(function () {
             Route::get('config/show', 'show');
             Route::put('config/update/{id}', 'update');
+            Route::put('config/immobilizer_option/{id}', 'immobilizer_option');
+            Route::put('config/safe_parking/{id}', 'safe_parking');
         });
     });
 
