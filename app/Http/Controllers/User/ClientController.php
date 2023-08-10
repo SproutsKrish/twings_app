@@ -107,7 +107,8 @@ class ClientController extends BaseController
 
     public function link_generate($id)
     {
-        $link  = getrandmax();
+        $link  = base_path();
+
         return $this->sendSuccess($link);
     }
 }
