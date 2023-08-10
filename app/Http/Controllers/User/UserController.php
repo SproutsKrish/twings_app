@@ -11,10 +11,8 @@ use Validator;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use Artisan;
+
 class UserController extends BaseController
 {
     // function __construct()
@@ -190,5 +188,18 @@ class UserController extends BaseController
         }
 
         return $this->sendSuccess($user);
+    }
+
+    public function yourMethod()
+    {
+        // Retrieve data from the "vehicletype" table in the "default" database connection
+        $vehicleTypes = DB::table('vehicle_types')->get();
+
+        // Retrieve data from the "test" table in the "test_connection" database connection
+        $testData = DB::connection('twings_api')->table('vehicle_types')->get();
+
+        // Your logic here
+
+        dd($testData);
     }
 }

@@ -57,6 +57,8 @@ use App\Http\Controllers\Report\KeyOnKeyOffReportController;
 use App\Http\Controllers\Report\LiveDataController;
 use App\Http\Controllers\Report\ParkingReportController;
 use App\Http\Controllers\Report\PlaybackHistoryController;
+use App\Http\Controllers\Report\RouteDeviationController;
+use App\Http\Controllers\Report\TripPlanReportController;
 use App\Http\Controllers\VehicleSetting\ConfigurationController;
 use App\Http\Controllers\VehicleSetting\NotificationController;
 
@@ -85,6 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::put('user/update/{id}', 'update');
             Route::delete('user/delete/{id}', 'destroy');
             Route::get('user/details', 'showdetails');
+            Route::get('user/yourMethod', 'yourMethod');
         });
         Route::controller(LiveDataController::class)->group(function () {
             Route::get('multi_dashboard', 'multi_dashboard');
@@ -103,6 +106,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::controller(PlaybackHistoryController::class)->group(function () {
             Route::post('get_playback_report', 'get_playback_report');
         });
+        Route::controller(RouteDeviationController::class)->group(function () {
+            Route::post('route_deviation_report', 'route_deviation_report');
+        });
+        Route::controller(TripPlanReportController::class)->group(function () {
+            Route::post('trip_plan_report', 'trip_plan_report');
+        });
+
         Route::controller(NotificationController::class)->group(function () {
             Route::get('notify/show', 'show');
             Route::put('notify/update/{id}', 'update');

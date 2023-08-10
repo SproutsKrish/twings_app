@@ -13,8 +13,8 @@ class ParkingReportController extends BaseController
     {
         $parkingReports = ParkingReport::select('parking_reports.*', 'B.vehicle_name') // Specify the correct table name
             ->join('vehicles as B', 'parking_reports.vehicle_id', '=', 'B.id')
-            ->where('parking_reports.start_day', '>', $request->input('start_day'))
-            ->where('parking_reports.end_day', '<', $request->input('end_day'))
+            ->where('parking_reports.start_datetime', '>', $request->input('start_day'))
+            ->where('parking_reports.end_datetime', '<', $request->input('end_day'))
             ->where('parking_reports.vehicle_id', '=', $request->input('vehicle_id'))
             ->get();
 
