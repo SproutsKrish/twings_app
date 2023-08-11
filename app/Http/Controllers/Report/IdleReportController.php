@@ -22,7 +22,6 @@ class IdleReportController extends BaseController
             return $this->sendError('No Idle Data Found');
         }
 
-
         return $this->sendSuccess($idleReports);
     }
 }

@@ -52,6 +52,10 @@ use App\Http\Controllers\License\PackageController;
 use App\Http\Controllers\License\PeriodController;
 use App\Http\Controllers\License\PlanController;
 use App\Http\Controllers\License\RechargeController;
+use App\Http\Controllers\Report\AssignGeofenceController;
+use App\Http\Controllers\Report\DistanceReportController;
+use App\Http\Controllers\Report\GeofenceController;
+use App\Http\Controllers\Report\GeofenceReportController;
 use App\Http\Controllers\Report\IdleReportController;
 use App\Http\Controllers\Report\KeyOnKeyOffReportController;
 use App\Http\Controllers\Report\LiveDataController;
@@ -111,6 +115,17 @@ Route::middleware('auth:sanctum')->group(function () {
         });
         Route::controller(TripPlanReportController::class)->group(function () {
             Route::post('trip_plan_report', 'trip_plan_report');
+        });
+        Route::controller(GeofenceReportController::class)->group(function () {
+            Route::post('geofence_report', 'geofence_report');
+        });
+
+        Route::resource('geo_fence', GeofenceController::class);
+        Route::resource('assign_geo_fence', AssignGeofenceController::class);
+
+
+        Route::controller(DistanceReportController::class)->group(function () {
+            Route::post('get_distance_report', 'get_distance_report');
         });
 
         Route::controller(NotificationController::class)->group(function () {
