@@ -41,6 +41,9 @@ return new class extends Migration
             $table->date('expire_date')->nullable();
             $table->date('extend_date')->nullable();
 
+            $table->tinyInteger('immobilizer_option')->nullable();
+            $table->tinyInteger('safe_parking')->nullable();
+
             $table->bigInteger('admin_id')->nullable();
             $table->bigInteger('distributor_id')->nullable();
             $table->bigInteger('dealer_id')->nullable();

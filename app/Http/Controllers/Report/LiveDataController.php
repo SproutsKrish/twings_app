@@ -23,10 +23,12 @@ class LiveDataController extends BaseController
                 ->join('vehicle_types AS C', 'C.id', '=', 'A.vehicle_type_id')
                 ->get();
 
-            if (!$result) {
-                return $this->sendError('No Live Data Found');
+            if ($result->isEmpty()) {
+                $response = ["success" => true, "message" => 'No Live Data Found', "status_code" => 404];
+                return response($response, 404);
             }
-            return $this->sendSuccess($result);
+            $response = ["success" => false, "data" => $result, "status_code" => 200];
+            return response($response, 200);
         } else {
 
             $vehicles = Vehicle::where('vehicle_name', 'LIKE', "%$search%")->pluck('id');
@@ -38,10 +40,12 @@ class LiveDataController extends BaseController
                 ->whereIn('vehicle_id', $vehicles)
                 ->get();
 
-            if (!$result) {
-                return $this->sendError('No Live Data Found');
+            if ($result->isEmpty()) {
+                $response = ["success" => false, "message" => 'No Live Data Found', "status_code" => 404];
+                return response($response, 404);
             }
-            return $this->sendSuccess($result);
+            $response = ["success" => true, "data" => $result, "status_code" => 200];
+            return response($response, 200);
         }
     }
 
@@ -59,11 +63,13 @@ class LiveDataController extends BaseController
         $data['live'] = PlayBackHistory::select('lattitute', 'longitute', 'speed', 'angle')->where('deviceimei', $deviceImei)->get();
 
 
-        if (!$data) {
-            return $this->sendError('Live Data Not Found');
+        if (empty($deviceImei)) {
+            $response = ["success" => false, "message" => 'No Live Data Found', "status_code" => 404];
+            return response()->json($response, 404);
         }
 
-        return $this->sendSuccess($data);
+        $response = ["success" => true, "data" => $data, "status_code" => 200];
+        return response()->json($response, 200);
     }
 
     public function vehicle_count()
@@ -130,9 +136,11 @@ class LiveDataController extends BaseController
         );
 
         if (!$vehicle_count) {
-            return $this->sendError('Live Data Not Found');
+            $response = ["success" => false, "message" => 'No Live Data Found', "status_code" => 404];
+            return response()->json($response, 404);
         }
 
-        return $this->sendSuccess($vehicle_count);
+        $response = ["success" => true, "data" => $vehicle_count, "status_code" => 200];
+        return response()->json($response, 200);
     }
 }
