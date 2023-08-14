@@ -19,9 +19,10 @@ class LiveDataController extends BaseController
         $search = $request->input('search');
         if ($search == null) {
             $result = DB::table('vehicles AS A')
-                ->select('A.vehicle_name', 'A.expire_date', 'B.vehicle_current_status', 'B.odometer', 'B.speed', 'B.angle', 'B.ignition', 'B.lattitute', 'B.longitute', 'B.device_updatedtime', 'B.gpssignal', 'B.battery_percentage', 'B.door_status', 'B.power_status', 'B.today_distance', 'B.last_ignition_off_time', DB::raw("TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), '%H:%i:%s') as last_duration"), 'A.vehicle_type_id', 'C.vehicle_type')
-                ->join('live_data AS B', 'A.id', '=', 'B.vehicle_id')
-                ->join('vehicle_types AS C', 'C.id', '=', 'A.vehicle_type_id')
+                ->select('A.vehicle_name', 'A.expire_date', 'A.safe_parking', 'A.immobilizer_option', 'D.speed_limit', 'B.vehicle_current_status', 'B.odometer', 'B.speed', 'B.angle', 'B.ignition', 'B.lattitute', 'B.longitute', 'B.device_updatedtime', 'B.gpssignal', 'B.battery_percentage', 'B.door_status', 'B.power_status', 'B.today_distance', 'B.last_ignition_off_time', DB::raw("TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), '%H:%i:%s') as last_duration"), 'A.vehicle_type_id', 'C.vehicle_type')
+                ->leftJoin('live_data AS B', 'A.id', '=', 'B.vehicle_id')
+                ->leftJoin('vehicle_types AS C', 'C.id', '=', 'A.vehicle_type_id')
+                ->leftJoin('configurations AS D', 'D.vehicle_id', '=', 'A.id')
                 ->get();
 
             if ($result->isEmpty()) {
@@ -35,9 +36,11 @@ class LiveDataController extends BaseController
             $vehicles = Vehicle::where('vehicle_name', 'LIKE', "%$search%")->pluck('id');
 
             $result = DB::table('vehicles AS A')
-                ->select('A.vehicle_name', 'A.expire_date', 'B.vehicle_current_status', 'B.odometer', 'B.speed', 'B.angle', 'B.ignition', 'B.lattitute', 'B.longitute', 'B.device_updatedtime', 'B.gpssignal', 'B.battery_percentage', 'B.door_status', 'B.power_status', 'B.today_distance', 'B.last_ignition_off_time', DB::raw("TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), '%H:%i:%s') as last_duration"), 'A.vehicle_type_id', 'C.vehicle_type')
-                ->join('live_data AS B', 'A.id', '=', 'B.vehicle_id')
-                ->join('vehicle_types AS C', 'C.id', '=', 'A.vehicle_type_id')
+                ->select('A.vehicle_name', 'A.expire_date', 'A.safe_parking', 'A.immobilizer_option', 'D.speed_limit', 'B.vehicle_current_status', 'B.odometer', 'B.speed', 'B.angle', 'B.ignition', 'B.lattitute', 'B.longitute', 'B.device_updatedtime', 'B.gpssignal', 'B.battery_percentage', 'B.door_status', 'B.power_status', 'B.today_distance', 'B.last_ignition_off_time', DB::raw("TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), '%H:%i:%s') as last_duration"), 'A.vehicle_type_id', 'C.vehicle_type')
+                ->leftJoin('live_data AS B', 'A.id', '=', 'B.vehicle_id')
+                ->leftJoin('vehicle_types AS C', 'C.id', '=', 'A.vehicle_type_id')
+                ->leftJoin('configurations AS D', 'D.vehicle_id', '=', 'A.id')
+
                 ->whereIn('vehicle_id', $vehicles)
                 ->get();
 
