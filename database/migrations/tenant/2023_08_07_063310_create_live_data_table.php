@@ -31,10 +31,14 @@ return new class extends Migration
             $table->float('temperature')->nullable();
             $table->float('device_battery_volt')->nullable();
             $table->float('vehicle_battery_volt')->nullable();
+            $table->float('battery_percentage')->nullable();
             $table->dateTime('last_ignition_on_time')->nullable();
             $table->dateTime('last_ignition_off_time')->nullable();
             $table->float('fuel_litre')->nullable();
             $table->tinyInteger('imobilizer_status')->nullable();
+            $table->tinyInteger('door_status')->nullable();
+            $table->tinyInteger('power_status')->nullable();
+            $table->float('today_distance')->nullable();
             $table->string('gpssignal')->nullable();
             $table->string('gsm_status')->nullable()->default(1);
             $table->decimal('rpm_value')->nullable();

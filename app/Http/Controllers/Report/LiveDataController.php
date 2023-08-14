@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 
 use App\Models\LiveData;
 use App\Models\PlayBackHistory;
+use App\Models\PlaybackReport;
 use App\Models\Vehicle;
 use Illuminate\Support\Facades\DB;
 
@@ -18,7 +19,7 @@ class LiveDataController extends BaseController
         $search = $request->input('search');
         if ($search == null) {
             $result = DB::table('vehicles AS A')
-                ->select('A.vehicle_name', 'A.expire_date', 'B.vehicle_current_status', 'B.odometer', 'B.speed', 'B.angle', 'B.ignition', 'B.lattitute', 'B.longitute', 'B.device_updatedtime', 'B.gpssignal', 'B.battery_percentage', 'B.door_status', 'B.power_status', 'B.today_distance', 'B.last_ignition_off_time', DB::raw("TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), '%H:%i:%s') as last_dur"), 'A.vehicle_type_id', 'C.vehicle_type')
+                ->select('A.vehicle_name', 'A.expire_date', 'B.vehicle_current_status', 'B.odometer', 'B.speed', 'B.angle', 'B.ignition', 'B.lattitute', 'B.longitute', 'B.device_updatedtime', 'B.gpssignal', 'B.battery_percentage', 'B.door_status', 'B.power_status', 'B.today_distance', 'B.last_ignition_off_time', DB::raw("TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), '%H:%i:%s') as last_duration"), 'A.vehicle_type_id', 'C.vehicle_type')
                 ->join('live_data AS B', 'A.id', '=', 'B.vehicle_id')
                 ->join('vehicle_types AS C', 'C.id', '=', 'A.vehicle_type_id')
                 ->get();
@@ -34,7 +35,7 @@ class LiveDataController extends BaseController
             $vehicles = Vehicle::where('vehicle_name', 'LIKE', "%$search%")->pluck('id');
 
             $result = DB::table('vehicles AS A')
-                ->select('A.vehicle_name', 'A.expire_date', 'B.vehicle_current_status', 'B.odometer', 'B.speed', 'B.angle', 'B.ignition', 'B.lattitute', 'B.longitute', 'B.device_updatedtime', 'B.gpssignal', 'B.battery_percentage', 'B.door_status', 'B.power_status', 'B.today_distance', 'B.last_ignition_off_time', DB::raw("TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), '%H:%i:%s') as last_dur"), 'A.vehicle_type_id', 'C.vehicle_type')
+                ->select('A.vehicle_name', 'A.expire_date', 'B.vehicle_current_status', 'B.odometer', 'B.speed', 'B.angle', 'B.ignition', 'B.lattitute', 'B.longitute', 'B.device_updatedtime', 'B.gpssignal', 'B.battery_percentage', 'B.door_status', 'B.power_status', 'B.today_distance', 'B.last_ignition_off_time', DB::raw("TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), '%H:%i:%s') as last_duration"), 'A.vehicle_type_id', 'C.vehicle_type')
                 ->join('live_data AS B', 'A.id', '=', 'B.vehicle_id')
                 ->join('vehicle_types AS C', 'C.id', '=', 'A.vehicle_type_id')
                 ->whereIn('vehicle_id', $vehicles)
@@ -52,16 +53,15 @@ class LiveDataController extends BaseController
     public function single_dashboard($id)
     {
         $data['vehicle'] = DB::table('vehicles AS A')
-            ->select('A.vehicle_name', 'A.expire_date', 'B.odometer', 'B.speed', 'B.angle', 'B.ignition', 'B.lattitute', 'B.longitute', 'B.device_updatedtime', 'B.gpssignal', 'B.battery_percentage', 'B.door_status', 'B.power_status', 'B.today_distance', 'B.last_ignition_off_time', DB::raw("TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), '%H:%i:%s') as last_dur"), 'A.vehicle_type_id', 'C.vehicle_type')
+            ->select('A.vehicle_name', 'A.expire_date', 'B.odometer', 'B.speed', 'B.angle', 'B.ignition', 'B.lattitute', 'B.longitute', 'B.device_updatedtime', 'B.gpssignal', 'B.battery_percentage', 'B.door_status', 'B.power_status', 'B.today_distance', 'B.last_ignition_off_time', DB::raw("TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), '%H:%i:%s') as last_duration"), 'A.vehicle_type_id', 'C.vehicle_type')
             ->join('live_data AS B', 'A.id', '=', 'B.vehicle_id')
             ->join('vehicle_types AS C', 'C.id', '=', 'A.vehicle_type_id')
             ->where('vehicle_id', $id)
-            ->get();
+            ->first();
 
         $deviceImei = Vehicle::where('id', $id)->value('device_imei');
 
-        $data['live'] = PlayBackHistory::select('lattitute', 'longitute', 'speed', 'angle')->where('deviceimei', $deviceImei)->get();
-
+        $data['live'] = PlaybackReport::select('latitude', 'longitude', 'speed', 'angle')->where('device_imei', $deviceImei)->get();
 
         if (empty($deviceImei)) {
             $response = ["success" => false, "message" => 'No Live Data Found', "status_code" => 404];

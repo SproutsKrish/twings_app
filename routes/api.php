@@ -61,7 +61,9 @@ use App\Http\Controllers\Report\KeyOnKeyOffReportController;
 use App\Http\Controllers\Report\LiveDataController;
 use App\Http\Controllers\Report\ParkingReportController;
 use App\Http\Controllers\Report\PlaybackHistoryController;
+use App\Http\Controllers\Report\PlaybackReportController;
 use App\Http\Controllers\Report\RouteDeviationController;
+use App\Http\Controllers\Report\RoutedeviationReportController;
 use App\Http\Controllers\Report\TripPlanReportController;
 use App\Http\Controllers\VehicleSetting\ConfigurationController;
 use App\Http\Controllers\VehicleSetting\NotificationController;
@@ -91,42 +93,47 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::put('user/update/{id}', 'update');
             Route::delete('user/delete/{id}', 'destroy');
             Route::get('user/details', 'showdetails');
-            Route::get('user/yourMethod', 'yourMethod');
         });
+
+
         Route::controller(LiveDataController::class)->group(function () {
             Route::get('multi_dashboard', 'multi_dashboard');
             Route::get('single_dashboard/{id}', 'single_dashboard');
             Route::get('vehicle_count', 'vehicle_count');
         });
-        Route::controller(KeyOnKeyOffReportController::class)->group(function () {
-            Route::post('get_keyonoff_report', 'get_keyonoff_report');
-        });
+
         Route::controller(IdleReportController::class)->group(function () {
             Route::post('get_idle_report', 'get_idle_report');
         });
         Route::controller(ParkingReportController::class)->group(function () {
             Route::post('get_parking_report', 'get_parking_report');
         });
-        Route::controller(PlaybackHistoryController::class)->group(function () {
+        Route::controller(KeyOnKeyOffReportController::class)->group(function () {
+            Route::post('get_keyonoff_report', 'get_keyonoff_report');
+        });
+        Route::controller(PlaybackReportController::class)->group(function () {
             Route::post('get_playback_report', 'get_playback_report');
         });
-        Route::controller(RouteDeviationController::class)->group(function () {
-            Route::post('route_deviation_report', 'route_deviation_report');
-        });
-        Route::controller(TripPlanReportController::class)->group(function () {
-            Route::post('trip_plan_report', 'trip_plan_report');
-        });
-        Route::controller(GeofenceReportController::class)->group(function () {
-            Route::post('geofence_report', 'geofence_report');
-        });
-
-        Route::resource('geo_fence', GeofenceController::class);
-        Route::resource('assign_geo_fence', AssignGeofenceController::class);
-
 
         Route::controller(DistanceReportController::class)->group(function () {
             Route::post('get_distance_report', 'get_distance_report');
         });
+
+        Route::controller(RoutedeviationReportController::class)->group(function () {
+            Route::post('route_deviation_report', 'route_deviation_report');
+        });
+
+        Route::resource('geo_fence', GeofenceController::class);
+        Route::resource('assign_geo_fence', AssignGeofenceController::class);
+        Route::controller(GeofenceReportController::class)->group(function () {
+            Route::post('geofence_report', 'geofence_report');
+        });
+
+        Route::controller(TripPlanReportController::class)->group(function () {
+            Route::post('trip_plan_report', 'trip_plan_report');
+        });
+        Route::resource('trip_plan', TripPlanReportController::class);
+
 
         Route::controller(NotificationController::class)->group(function () {
             Route::get('notify/show', 'show');
@@ -219,7 +226,6 @@ Route::post('device_import', [ImportController::class, 'device_import']);
 Route::post('camera_import', [ImportController::class, 'camera_import']);
 
 Route::post('recharge', [RechargeController::class, 'recharge']);
-
 
 Route::put('sim_assign/{id}', [SimController::class, 'sim_assign']);
 Route::put('device_assign/{id}', [DeviceController::class, 'device_assign']);
