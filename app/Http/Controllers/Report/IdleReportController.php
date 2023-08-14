@@ -16,7 +16,7 @@ class IdleReportController extends Controller
             ->where('A.start_datetime', '>=', $request->input('start_day'))
             ->where('A.end_datetime', '<=', $request->input('end_day'))
             ->where('A.vehicle_id', '=', $request->input('vehicle_id'))
-            ->select('A.*', 'B.vehicle_make')
+            ->select('A.*', 'B.vehicle_make', DB::raw("TIME_FORMAT(TIMEDIFF(A.end_datetime, A.start_datetime), '%H:%i:%s') as idle_duration"))
             ->get();
 
         if ($idleReports->isEmpty()) {
