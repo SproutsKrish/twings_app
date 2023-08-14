@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Sim;
 use App\Models\Camera;
 use App\Models\Device;
+use App\Models\ModelHasRole;
+use App\Models\Tenant;
+use Spatie\Permission\Models\Role;
+use App\Models\User;
 
 class ImportController extends BaseController
 {
@@ -180,6 +184,75 @@ class ImportController extends BaseController
             DB::commit();
 
             return $this->sendSuccess('Camera Imported Successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->sendError('An error occurred during CSV import: ' . $e->getMessage());
+        }
+    }
+
+
+    public function user_import(Request $request)
+    {
+        $file_path = $request->input('file_path');
+
+        if (!$file_path) {
+            return $this->sendError("No File Path Provided");
+        }
+
+        $validator = Validator::make($request->all(), ['file_path' => 'required']);
+
+        if ($validator->fails()) {
+            return $this->sendError("Invalid File Format");
+        }
+
+        try {
+            $path = $file_path;
+            $data = array_map('str_getcsv', file($path));
+
+            DB::beginTransaction();
+
+            foreach ($data as $row) {
+                $rowValidator = Validator::make($row, [
+                    0 => 'required|unique:users,name', // name (unique in 'users' table)
+                    1 => 'required|unique:users,email', // email (unique in 'users' table)
+                    2 => 'required', // password
+                    3 => 'required', // secondary_password
+                    4 => 'required', // role_id
+                ]);
+
+                if ($rowValidator->fails()) {
+                    DB::rollBack();
+                    return $this->sendError($rowValidator->errors());
+                }
+
+                $user =  User::create([
+                    'name' => $row[0],
+                    'email' => $row[1],
+                    'password' => bcrypt($row[2]),
+                    'secondary_password' => bcrypt($row[3]),
+                    'role_id' => $row[4]
+                ]);
+
+                $role_id = $row[4];
+                $role = Role::find($role_id);
+                $permissions = $role->permissions;
+                $user->syncPermissions($permissions);
+
+                $data['role_id']  = $row[4];
+                $data['model_type'] = "App\Models\User";
+                $data['model_id'] = $user->id;
+                $model_has_role = new ModelHasRole($data);
+                $model_has_role->save();
+
+                if ($role_id == 6) {
+                    $tenant = Tenant::create(['id' => $user->id]);
+                    $tenant->domains()->create(['domain' => $user->name . '.' . 'localhost']);
+                }
+            }
+
+            DB::commit();
+
+            return $this->sendSuccess('User Imported Successfully');
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->sendError('An error occurred during CSV import: ' . $e->getMessage());

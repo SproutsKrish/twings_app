@@ -54,6 +54,7 @@ class UserController extends BaseController
         $result = RoleRights::where('role_id', $session_role_id)
             ->where('rights_id', $role_id)
             ->first();
+
         if ($result) {
             $input = $request->all();
             $input['password'] = bcrypt($input['password']);

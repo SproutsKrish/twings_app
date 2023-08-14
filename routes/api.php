@@ -224,6 +224,7 @@ Route::get('greeting', [LanguageController::class, 'index'])
 Route::post('sim_import', [ImportController::class, 'sim_import']);
 Route::post('device_import', [ImportController::class, 'device_import']);
 Route::post('camera_import', [ImportController::class, 'camera_import']);
+Route::post('user_import', [ImportController::class, 'user_import']);
 
 Route::post('recharge', [RechargeController::class, 'recharge']);
 
