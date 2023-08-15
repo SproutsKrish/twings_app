@@ -52,6 +52,8 @@ use App\Http\Controllers\License\PackageController;
 use App\Http\Controllers\License\PeriodController;
 use App\Http\Controllers\License\PlanController;
 use App\Http\Controllers\License\RechargeController;
+use App\Http\Controllers\Report\AcReportController;
+use App\Http\Controllers\Report\AlertReportController;
 use App\Http\Controllers\Report\AssignGeofenceController;
 use App\Http\Controllers\Report\DistanceReportController;
 use App\Http\Controllers\Report\GeofenceController;
@@ -64,6 +66,7 @@ use App\Http\Controllers\Report\PlaybackHistoryController;
 use App\Http\Controllers\Report\PlaybackReportController;
 use App\Http\Controllers\Report\RouteDeviationController;
 use App\Http\Controllers\Report\RoutedeviationReportController;
+use App\Http\Controllers\Report\TemperatureReportController;
 use App\Http\Controllers\Report\TripPlanReportController;
 use App\Http\Controllers\VehicleSetting\ConfigurationController;
 use App\Http\Controllers\VehicleSetting\NotificationController;
@@ -144,6 +147,16 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::put('config/update/{id}', 'update');
             Route::put('config/immobilizer_option/{id}', 'immobilizer_option');
             Route::put('config/safe_parking/{id}', 'safe_parking');
+        });
+
+        Route::controller(AcReportController::class)->group(function () {
+            Route::post('ac_report', 'ac_report');
+        });
+        Route::controller(AlertReportController::class)->group(function () {
+            Route::post('alert_report', 'alert_report');
+        });
+        Route::controller(TemperatureReportController::class)->group(function () {
+            Route::post('temperature_report', 'temperature_report');
         });
     });
 
