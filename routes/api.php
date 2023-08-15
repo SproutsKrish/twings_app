@@ -158,6 +158,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::controller(TemperatureReportController::class)->group(function () {
             Route::post('temperature_report', 'temperature_report');
         });
+        Route::controller(VehicleController::class)->group(function () {
+            Route::put('change_vehicletype/{id}', 'change_vehicletype');
+        });
     });
 
     Route::controller(LoginController::class)->group(function () {

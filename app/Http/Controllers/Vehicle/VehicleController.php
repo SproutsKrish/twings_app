@@ -115,4 +115,25 @@ class VehicleController extends BaseController
             return $this->sendError('Failed to Delete Vehicle');
         }
     }
+
+    public function change_vehicletype(Request $request, $id)
+    {
+        $vehicle = Vehicle::find($id);
+        if (!$vehicle) {
+            return $this->sendError('Vehicle Not Found');
+        }
+
+        $validator = Validator::make($request->all(), [
+            'vehicle_type_id' => 'required|max:255',
+        ]);
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors());
+        }
+
+        if ($vehicle->update($request->all())) {
+            return $this->sendSuccess("Vehicle Type Updated Successfully");
+        } else {
+            return $this->sendError('Failed to Update Vehicle Type');
+        }
+    }
 }
