@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('new_location_history', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('deviceimei');
-            $table->double('lattitude', 10, 6);
+            $table->double('lattitute', 10, 6);
             $table->double('longitute', 10, 6);
             $table->tinyInteger('ignition')->default(0);
             $table->tinyInteger('ac_status')->default(0);
