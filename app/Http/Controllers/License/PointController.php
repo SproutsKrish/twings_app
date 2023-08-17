@@ -4,10 +4,12 @@ namespace App\Http\Controllers\License;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
+use App\Models\License;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\Point;
 use App\Models\LicenseTransaction;
+use Carbon\Carbon;
 
 class PointController extends BaseController
 {
@@ -55,6 +57,34 @@ class PointController extends BaseController
                 $transaction_head->created_by = $request->input('created_by');
                 $transaction_head->ip_address = $request->input('ip_address');
                 $transaction_head->save();
+
+                if ($point_type_id == 1) {
+                    for ($i = 1; $i <= $request->input('total_point'); $i++) {
+                        $maxId = License::max('id');
+                        if (!$maxId) {
+                            $maxId = 1;
+                            $maxId = "0000" . $maxId;
+                        } else if ($maxId >= 1 && $maxId <= 8) {
+                            $maxId += 1;
+                            $maxId = "0000" . $maxId;
+                        } else if ($maxId >= 9 &&  $maxId <= 98) {
+                            $maxId += 1;
+                            $maxId = "000" . $maxId;
+                        } else if ($maxId >= 99 &&  $maxId <= 998) {
+                            $maxId += 1;
+                            $maxId = "00" . $maxId;
+                        } else if ($maxId >= 999 &&  $maxId <= 9998) {
+                            $maxId += 1;
+                            $maxId = "0" . $maxId;
+                        } else {
+                            $maxId += 1;
+                        }
+                        $prefix = "SWTLIC";
+                        $date = Carbon::now()->format('Y');
+                        $license_no = $prefix . $date . $maxId;
+                        License::create(['license_no' => $license_no, 'plan_id' => $plan_id, 'admin_id' => $admin_id]);
+                    }
+                }
                 return $this->sendSuccess("New Point Added Successfully");
             } else {
                 $point = new Point($request->all());
@@ -65,6 +95,34 @@ class PointController extends BaseController
                 $transaction_head->created_by = $request->input('created_by');
                 $transaction_head->ip_address = $request->input('ip_address');
                 $transaction_head->save();
+
+                if ($point_type_id == 1) {
+                    for ($i = 1; $i <= $request->input('total_point'); $i++) {
+                        $maxId = License::max('id');
+                        if (!$maxId) {
+                            $maxId = 1;
+                            $maxId = "0000" . $maxId;
+                        } else if ($maxId >= 1 && $maxId <= 8) {
+                            $maxId += 1;
+                            $maxId = "0000" . $maxId;
+                        } else if ($maxId >= 9 &&  $maxId <= 98) {
+                            $maxId += 1;
+                            $maxId = "000" . $maxId;
+                        } else if ($maxId >= 99 &&  $maxId <= 998) {
+                            $maxId += 1;
+                            $maxId = "00" . $maxId;
+                        } else if ($maxId >= 999 &&  $maxId <= 9998) {
+                            $maxId += 1;
+                            $maxId = "0" . $maxId;
+                        } else {
+                            $maxId += 1;
+                        }
+                        $prefix = "SWTLIC";
+                        $date = Carbon::now()->format('Y');
+                        $license_no = $prefix . $date . $maxId;
+                        License::create(['license_no' => $license_no, 'plan_id' => $plan_id, 'admin_id' => $admin_id]);
+                    }
+                }
                 return $this->sendSuccess("New Point Added Successfully");
             }
         }
@@ -93,6 +151,7 @@ class PointController extends BaseController
                     ->where('point_type_id', $point_type_id)
                     ->where('status', 1)
                     ->first();
+
                 if (!empty($result)) {
                     $result->total_point = $result->total_point + $request->input('total_point');
                     $result->save();
@@ -102,6 +161,19 @@ class PointController extends BaseController
                     $transaction_head->created_by = $request->input('created_by');
                     $transaction_head->ip_address = $request->input('ip_address');
                     $transaction_head->save();
+
+                    if ($point_type_id == 1) {
+                        License::where('admin_id', $admin_id)
+                            ->where('distributor_id', null)
+                            ->where('dealer_id', null)
+                            ->where('subdealer_id', null)
+                            ->where('plan_id', $plan_id)
+                            ->where('vehicle_id', null)
+                            ->orderBy('id', 'asc')
+                            ->limit($request->input('total_point'))
+                            ->update(['distributor_id' => $distributor_id]);
+                    }
+
                     return $this->sendSuccess("New Point Added Successfully");
                 } else {
 
@@ -113,6 +185,18 @@ class PointController extends BaseController
                     $transaction_head->created_by = $request->input('created_by');
                     $transaction_head->ip_address = $request->input('ip_address');
                     $transaction_head->save();
+
+                    if ($point_type_id == 1) {
+                        License::where('admin_id', $admin_id)
+                            ->where('distributor_id', null)
+                            ->where('dealer_id', null)
+                            ->where('subdealer_id', null)
+                            ->where('plan_id', $plan_id)
+                            ->where('vehicle_id', null)
+                            ->orderBy('id', 'asc')
+                            ->limit($request->input('total_point'))
+                            ->update(['distributor_id' => $distributor_id]);
+                    }
                     return $this->sendSuccess("New Point Added Successfully");
                 }
             } else {
@@ -153,6 +237,20 @@ class PointController extends BaseController
                     $transaction_head->created_by = $request->input('created_by');
                     $transaction_head->ip_address = $request->input('ip_address');
                     $transaction_head->save();
+
+                    if ($point_type_id == 1) {
+                        License::where('admin_id', $admin_id)
+                            ->where('distributor_id', $distributor_id)
+                            ->where('dealer_id', null)
+                            ->where('subdealer_id', null)
+                            ->where('plan_id', $plan_id)
+                            ->where('vehicle_id', null)
+                            ->orderBy('id', 'asc')
+                            ->limit($request->input('total_point'))
+                            ->update(['dealer_id' => $dealer_id]);
+                    }
+
+
                     return $this->sendSuccess("New Point Added Successfully");
                 } else {
 
@@ -164,6 +262,19 @@ class PointController extends BaseController
                     $transaction_head->created_by = $request->input('created_by');
                     $transaction_head->ip_address = $request->input('ip_address');
                     $transaction_head->save();
+
+                    if ($point_type_id == 1) {
+                        License::where('admin_id', $admin_id)
+                            ->where('distributor_id', $distributor_id)
+                            ->where('dealer_id', null)
+                            ->where('subdealer_id', null)
+                            ->where('plan_id', $plan_id)
+                            ->where('vehicle_id', null)
+                            ->orderBy('id', 'asc')
+                            ->limit($request->input('total_point'))
+                            ->update(['dealer_id' => $dealer_id]);
+                    }
+
                     return $this->sendSuccess("New Point Added Successfully");
                 }
             } else {
@@ -204,6 +315,22 @@ class PointController extends BaseController
                     $transaction_head->created_by = $request->input('created_by');
                     $transaction_head->ip_address = $request->input('ip_address');
                     $transaction_head->save();
+
+
+                    if ($point_type_id == 1) {
+                        License::where('admin_id', $admin_id)
+                            ->where('distributor_id', $distributor_id)
+                            ->where('dealer_id', $dealer_id)
+                            ->where('subdealer_id', null)
+                            ->where('plan_id', $plan_id)
+                            ->where('vehicle_id', null)
+                            ->orderBy('id', 'asc')
+                            ->limit($request->input('total_point'))
+                            ->update(['subdealer_id' => $subdealer_id]);
+                    }
+
+
+
                     return $this->sendSuccess("New Point Added Successfully");
                 } else {
 
@@ -215,6 +342,19 @@ class PointController extends BaseController
                     $transaction_head->created_by = $request->input('created_by');
                     $transaction_head->ip_address = $request->input('ip_address');
                     $transaction_head->save();
+
+                    if ($point_type_id == 1) {
+                        License::where('admin_id', $admin_id)
+                            ->where('distributor_id', $distributor_id)
+                            ->where('dealer_id', $dealer_id)
+                            ->where('subdealer_id', null)
+                            ->where('plan_id', $plan_id)
+                            ->where('vehicle_id', null)
+                            ->orderBy('id', 'asc')
+                            ->limit($request->input('total_point'))
+                            ->update(['subdealer_id' => $subdealer_id]);
+                    }
+
                     return $this->sendSuccess("New Point Added Successfully");
                 }
             } else {

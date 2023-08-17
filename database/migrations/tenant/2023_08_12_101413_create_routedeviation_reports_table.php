@@ -18,7 +18,7 @@ return new class extends Migration
             $table->bigInteger('client_id')->nullable()->comments('Stores the ID of the associated client, can be null');
             $table->bigInteger('route_id')->nullable()->comments('Stores the ID of the associated route, can be null');
             $table->string('route_name')->nullable()->comments('Name of the route, can be null');
-            $table->string('device_imei')->nullable()->comments('IMEI of the associated device, can be null');
+            $table->bigInteger('device_imei')->nullable()->comments('IMEI of the associated device, can be null');
             $table->string('vehicle_name')->nullable()->comments('Name of the associated vehicle, can be null');
             $table->string('route_deviate_out_time')->nullable()->comments('Deviation out time for the route, can be null');
             $table->string('route_out_location')->nullable()->comments('Location of route out point, can be null');

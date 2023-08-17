@@ -11,7 +11,7 @@ class KeyOnKeyOffReportController extends Controller
 {
     public function get_keyonoff_report(Request $request)
     {
-        $idleReports = DB::table('key_on_key_off_reports as A')
+        $idleReports = DB::table('keyoff_keyon_reports as A')
             ->join('vehicles as B', 'A.vehicle_id', '=', 'B.id')
             ->where('A.start_datetime', '>=', $request->input('start_day'))
             ->where('A.end_datetime', '<=', $request->input('end_day'))
