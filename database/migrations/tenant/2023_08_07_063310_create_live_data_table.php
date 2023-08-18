@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('live_data', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('client_id');
+            $table->bigInteger('client_id')->nullable();
             $table->bigInteger('vehicle_id')->nullable();
             $table->string('vehicle_name', 40)->nullable();
             $table->tinyInteger('vehicle_current_status')->nullable();
