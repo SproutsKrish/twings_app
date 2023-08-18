@@ -100,6 +100,7 @@ INSERT INTO keyoff_keyon_reports(
  UPDATE
                                 live_data
                                 SET
+                                vehicle_current_status=2,
                                 ignition_report_flag = 3,
                                 last_ignition_on_time = NEW.device_datetime,
                                 last_ignition_off_time = NEW.device_datetime,
@@ -133,6 +134,7 @@ INSERT INTO keyoff_keyon_reports(
  UPDATE
                             live_data
                             SET
+                            vehicle_current_status=1,
                             ignition_report_flag = 0,
                             last_ignition_on_time = NEW.device_datetime,
                             last_ignition_off_time = NEW.device_datetime
@@ -183,6 +185,7 @@ INSERT
  UPDATE
                             live_data
                             SET
+                            vehicle_current_status=3,
                             ignition_report_flag = 2,
                             last_ignition_on_time = NEW.device_datetime,
                             last_ignition_off_time = NEW.device_datetime,
@@ -231,6 +234,7 @@ IF( @ignition_report_flag = 3 AND NEW.speed > 0 AND NEW.ignition = 1
  UPDATE
                             live_data
                             SET
+                            vehicle_current_status=3,
                             ignition_report_flag = 2,
                             last_ignition_on_time = NEW.device_datetime,
                             last_ignition_off_time = NEW.device_datetime,

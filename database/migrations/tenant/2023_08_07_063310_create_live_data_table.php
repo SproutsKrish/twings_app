@@ -21,8 +21,8 @@ return new class extends Migration
             $table->tinyInteger('vehicle_current_status')->nullable();
             $table->tinyInteger('vehicle_status')->nullable();
             $table->bigInteger('deviceimei')->nullable();
-            $table->double('lattitude', 10, 6)->nullable();
-            $table->double('longitude', 10, 6)->nullable();
+            $table->double('lattitute', 10, 6)->nullable();
+            $table->double('longitute', 10, 6)->nullable();
             $table->double('altitude')->nullable();
             $table->tinyInteger('ignition')->nullable();
             $table->tinyInteger('ac_status')->nullable();

@@ -82,6 +82,7 @@ class VehicleController extends BaseController
                 $data = $request->all(); // Get the data from the request
                 $data['installation_date'] = $installation_date; // Add start_date to the data array
                 $data['expiry_date'] = $expiry_date; // Add expiry_date to the data array
+                $data['ip_address'] = $request->ip_address;
 
                 $vehicle = new Vehicle($data);
 
@@ -117,9 +118,42 @@ class VehicleController extends BaseController
                     // Use the dynamic connection configuration to connect to the database
                     Config::set("database.connections.$connectionName", $connectionConfig);
                     DB::purge($connectionName); // Clear the connection cache
-                    DB::connection($connectionName)->table('vehicles')->insert($vehicleArray);
 
-                    $live_data = array('deviceimei' => $vehicleArray['device_imei'], 'vehicle_id' => $vehicleArray['id']);
+                    $client_vehicle_data = array(
+                        'vehicle_type_id' => $vehicleArray['vehicle_type_id'],
+                        'vehicle_name' => $vehicleArray['vehicle_name'],
+                        'vehicle_make' => $vehicleArray['vehicle_make'],
+                        'vehicle_model' => $vehicleArray['vehicle_model'],
+                        'vehicle_year' => $vehicleArray['vehicle_year'],
+                        'device_id' => $vehicleArray['device_id'],
+                        'device_imei' => $vehicleArray['device_imei'],
+                        'sim_id' => $vehicleArray['sim_id'],
+                        'sim_mob_no' => $vehicleArray['sim_mob_no'],
+                        'insurance_company' => $vehicleArray['insurance_company'],
+                        'insurance_number' => $vehicleArray['insurance_number'],
+                        'insurance_start_date' => $vehicleArray['insurance_start_date'],
+                        'insurance_expiry_date' => $vehicleArray['insurance_expiry_date'],
+                        'registration_number' => $vehicleArray['registration_number'],
+                        'chassis_number' => $vehicleArray['chassis_number'],
+                        'engine_number' => $vehicleArray['engine_number'],
+                        'engine_number' => $vehicleArray['engine_number'],
+                        'ownership_type' => $vehicleArray['ownership_type'],
+                        'fc_date' => $vehicleArray['fc_date'],
+                        'installation_date' => $vehicleArray['installation_date'],
+                        'expire_date' => $vehicleArray['expire_date'],
+                        'extend_date' => $vehicleArray['extend_date'],
+                        'immobilizer_option' => $vehicleArray['immobilizer_option'],
+                        'safe_parking' => $vehicleArray['safe_parking'],
+                        'admin_id' => $vehicleArray['admin_id'],
+                        'distributor_id' => $vehicleArray['distributor_id'],
+                        'dealer_id' => $vehicleArray['dealer_id'],
+                        'subdealer_id' => $vehicleArray['subdealer_id'],
+                        'client_id' => $vehicleArray['client_id']
+                    );
+
+                    DB::connection($connectionName)->table('vehicles')->insert($client_vehicle_data);
+
+                    $live_data = array('deviceimei' => $vehicleArray['device_imei'], 'vehicle_id' => $vehicleArray['id'], 'client_id' => $vehicle->client_id);
                     DB::connection($connectionName)->table('live_data')->insert($live_data);
 
                     // Close the dynamic connection and revert to the default connection
@@ -136,9 +170,9 @@ class VehicleController extends BaseController
                     return $this->sendError('Failed to Insert Vehicle');
                 }
 
-                return $this->sendSuccess("License Created Successfully");
+                return $this->sendSuccess("License Created Ssuccessfully");
             } else {
-                return $this->sendError("License Created Failed");
+                return $this->sendError("License Createds Failed");
             }
         }
         //subdealer license to client
@@ -171,6 +205,7 @@ class VehicleController extends BaseController
                 $data = $request->all(); // Get the data from the request
                 $data['installation_date'] = $installation_date; // Add start_date to the data array
                 $data['expiry_date'] = $expiry_date; // Add expiry_date to the data array
+                $data['ip_address'] = $request->ip_address;
 
                 $vehicle = new Vehicle($data);
 
@@ -206,9 +241,41 @@ class VehicleController extends BaseController
                     // Use the dynamic connection configuration to connect to the database
                     Config::set("database.connections.$connectionName", $connectionConfig);
                     DB::purge($connectionName); // Clear the connection cache
-                    DB::connection($connectionName)->table('vehicles')->insert($vehicleArray);
 
-                    $live_data = array('deviceimei' => $vehicleArray['device_imei'], 'vehicle_id' => $vehicleArray['id']);
+                    $client_vehicle_data = array(
+                        'vehicle_type_id' => $vehicleArray['vehicle_type_id'],
+                        'vehicle_name' => $vehicleArray['vehicle_name'],
+                        'vehicle_make' => $vehicleArray['vehicle_make'],
+                        'vehicle_model' => $vehicleArray['vehicle_model'],
+                        'vehicle_year' => $vehicleArray['vehicle_year'],
+                        'device_id' => $vehicleArray['device_id'],
+                        'device_imei' => $vehicleArray['device_imei'],
+                        'sim_id' => $vehicleArray['sim_id'],
+                        'sim_mob_no' => $vehicleArray['sim_mob_no'],
+                        'insurance_company' => $vehicleArray['insurance_company'],
+                        'insurance_number' => $vehicleArray['insurance_number'],
+                        'insurance_start_date' => $vehicleArray['insurance_start_date'],
+                        'insurance_expiry_date' => $vehicleArray['insurance_expiry_date'],
+                        'registration_number' => $vehicleArray['registration_number'],
+                        'chassis_number' => $vehicleArray['chassis_number'],
+                        'engine_number' => $vehicleArray['engine_number'],
+                        'engine_number' => $vehicleArray['engine_number'],
+                        'ownership_type' => $vehicleArray['ownership_type'],
+                        'fc_date' => $vehicleArray['fc_date'],
+                        'installation_date' => $vehicleArray['installation_date'],
+                        'expire_date' => $vehicleArray['expire_date'],
+                        'extend_date' => $vehicleArray['extend_date'],
+                        'immobilizer_option' => $vehicleArray['immobilizer_option'],
+                        'safe_parking' => $vehicleArray['safe_parking'],
+                        'admin_id' => $vehicleArray['admin_id'],
+                        'distributor_id' => $vehicleArray['distributor_id'],
+                        'dealer_id' => $vehicleArray['dealer_id'],
+                        'subdealer_id' => $vehicleArray['subdealer_id'],
+                        'client_id' => $vehicleArray['client_id']
+                    );
+                    DB::connection($connectionName)->table('vehicles')->insert($client_vehicle_data);
+
+                    $live_data = array('deviceimei' => $vehicleArray['device_imei'], 'vehicle_id' => $vehicleArray['id'], 'client_id' => $vehicle->client_id);
                     DB::connection($connectionName)->table('live_data')->insert($live_data);
 
                     // Close the dynamic connection and revert to the default connection
@@ -217,8 +284,6 @@ class VehicleController extends BaseController
                     Sim::where('id', $vehicle->sim_id)->update(['client_id' => $vehicle->client_id]);
                     Device::where('id', $vehicle->device_id)->update(['client_id' => $vehicle->client_id]);
 
-
-
                     return $this->sendSuccess("Vehicle Inserted Successfully");
                 } else {
                     return $this->sendError('Failed to Insert Vehicle');
@@ -226,7 +291,7 @@ class VehicleController extends BaseController
 
                 return $this->sendSuccess("License Created Successfully");
             } else {
-                return $this->sendError("License Created Failed");
+                return $this->sendError("License Createds Failed");
             }
         } else {
             return $this->sendError('Failed to insert license.', [], 500);
