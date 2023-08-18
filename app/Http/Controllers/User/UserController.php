@@ -9,8 +9,9 @@ use App\Models\ModelHasRole;
 use App\Models\RoleRights;
 use App\Models\Tenant;
 use App\Models\User;
-use Validator;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Validator;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -41,6 +42,7 @@ class UserController extends BaseController
 
     public function store(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:users,name',
             'email' => 'required|email|unique:users,email',
