@@ -27,7 +27,7 @@ class SetDatabaseConnectionMiddleware
         $user = Auth::user();
 
         if ($user && $user->role_id == 6) {
-            $tenantData = json_decode(Tenant::find($user->id), true);
+            $tenantData = json_decode(Tenant::find($user->client_id), true);
             $tenantDbName = $tenantData['tenancy_db_name'];
             // dd($tenantDbName);
 

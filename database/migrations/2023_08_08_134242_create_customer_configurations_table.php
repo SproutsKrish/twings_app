@@ -15,12 +15,19 @@ return new class extends Migration
     {
         Schema::create('customer_configurations', function (Blueprint $table) {
             $table->id();
-            $table->integer('client_id')->nullable();
-            $table->string('db_name',15)->nullable();
-            $table->string('user_name',32)->nullable();
-            $table->string('password',32)->nullable();
+            $table->bigInteger('user_id')->nullable();
+            $table->bigInteger('client_id')->nullable();
+            $table->string('db_name', 32)->nullable();
+            $table->string('user_name', 64)->nullable();
+            $table->string('password', 255)->nullable();
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
+            $table->softDeletes(); // Use soft delete to handle deletion gracefully
+
+            $table->integer('created_by')->unsigned()->nullable();
+            $table->integer('updated_by')->unsigned()->nullable();
+            $table->integer('deleted_by')->unsigned()->nullable();
+            $table->ipAddress('ip_address')->nullable(); // Use ipAddress for IP address column
         });
     }
 

@@ -43,7 +43,7 @@ class LoginController extends BaseController
                 if ($passwordMatches) {
                     $data['token'] = $user->createToken('API Token')->plainTextToken;
                     $data['user'] = $user;
-                    $response = ["success" => false, "data" => $data, "status_code" => 200];
+                    $response = ["success" => true, "data" => $data, "status_code" => 200];
                     return response($response, 200);
                 } else {
                     $response = ["success" => false, "message" => "Password Mismatch", "status_code" => 401];

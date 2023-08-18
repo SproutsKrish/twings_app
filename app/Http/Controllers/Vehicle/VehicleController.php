@@ -4,11 +4,19 @@ namespace App\Http\Controllers\Vehicle;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
+use App\Models\CustomerConfiguration;
 use App\Models\Device;
+use App\Models\License;
+use App\Models\Period;
+use App\Models\Plan;
+use App\Models\Point;
 use App\Models\Sim;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Config;
 
 use App\Models\Vehicle;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class VehicleController extends BaseController
 {
@@ -27,21 +35,201 @@ class VehicleController extends BaseController
     {
         $validator = Validator::make($request->all(), [
             'vehicle_name' => 'required|max:255',
+            'license_no' => 'required|max:255',
         ]);
 
         if ($validator->fails()) {
             return $this->sendError($validator->errors());
         }
 
-        $vehicle = new Vehicle($request->all());
-        if ($vehicle->save()) {
+        $admin_id = $request->input('admin_id');
+        $distributor_id = $request->input('distributor_id');
+        $dealer_id = $request->input('dealer_id');
+        $subdealer_id = $request->input('subdealer_id');
+        $client_id = $request->input('client_id');
 
-            Sim::where('id', $vehicle->sim_id)->update(['client_id' => $vehicle->client_id]);
-            Device::where('id', $vehicle->device_id)->update(['client_id' => $vehicle->client_id]);
+        $plan_id = $request->input('plan_id');
+        $point_type_id = $request->input('point_type_id');
 
-            return $this->sendSuccess("Vehicle Inserted Successfully");
+        //dealer license to client
+        if ($client_id != null && $dealer_id != null && $subdealer_id == null && $point_type_id == 1) {
+
+            $result = Point::where('total_point', '>=', 1)
+                ->where('admin_id', $admin_id)
+                ->where('distributor_id', $distributor_id)
+                ->where('dealer_id', $dealer_id)
+                ->where('subdealer_id', null)
+                ->where('plan_id', $plan_id)
+                ->where('point_type_id', $point_type_id)
+                ->where('status', 1)
+                ->first();
+
+            if (!empty($result)) {
+                $result->total_point = $result->total_point - 1;
+                $result->save();
+
+                $plan_id = $result->plan_id;
+
+                $plan = Plan::find($plan_id);
+                $period_id = $plan->period_id;
+                $period = Period::find($period_id);
+
+                $installation_date = Carbon::now();
+                $newstart_date = Carbon::now();
+                $newDateTime = $newstart_date->addDays($period->period_days);
+                $expiry_date = $newDateTime->format('Y-m-d H:i:s');
+
+                $data = $request->all(); // Get the data from the request
+                $data['installation_date'] = $installation_date; // Add start_date to the data array
+                $data['expiry_date'] = $expiry_date; // Add expiry_date to the data array
+
+                $vehicle = new Vehicle($data);
+
+                // dd($vehicle);
+                if ($vehicle->save()) {
+                    $vehicle = Vehicle::find($vehicle->id);
+                    $vehicleArray = $vehicle->toArray();
+
+                    License::where('license_no', $request->input('license_no'))->update([
+                        'vehicle_id' => $vehicle->id,
+                        'start_date' => $vehicle->installation_date,
+                        'expiry_date' => $vehicle->expire_date,
+                        'client_id' => $vehicle->client_id
+                    ]);
+
+                    $result = CustomerConfiguration::where('client_id', $vehicle->client_id)
+                        ->first();
+
+                    // dd($result);
+
+                    // Specify the dynamic connection configuration
+                    $connectionName = $result->db_name;
+                    $connectionConfig = [
+                        'driver' => 'mysql',
+                        'host' => env('DB_HOST'), // Use the environment variable for host
+                        'port' => env('DB_PORT'), // Use the environment variable for port
+                        'database' => $result->db_name,    // Change this to the actual database name
+                        'username' => env('DB_USERNAME'), // Use the environment variable for username
+                        'password' => env('DB_PASSWORD'), // Use the environment variable for password
+                        // Add any other connection parameters you need
+                    ];
+
+                    // Use the dynamic connection configuration to connect to the database
+                    Config::set("database.connections.$connectionName", $connectionConfig);
+                    DB::purge($connectionName); // Clear the connection cache
+                    DB::connection($connectionName)->table('vehicles')->insert($vehicleArray);
+
+                    $live_data = array('deviceimei' => $vehicleArray['device_imei'], 'vehicle_id' => $vehicleArray['id']);
+                    DB::connection($connectionName)->table('live_data')->insert($live_data);
+
+                    // Close the dynamic connection and revert to the default connection
+                    DB::disconnect($connectionName);
+
+                    Sim::where('id', $vehicle->sim_id)->update(['client_id' => $vehicle->client_id]);
+                    Device::where('id', $vehicle->device_id)->update(['client_id' => $vehicle->client_id]);
+
+                    // dd($vehicleArray['device_imei']);
+                    // dd($vehicleArray['id']);
+
+                    return $this->sendSuccess("Vehicle Inserted Successfully");
+                } else {
+                    return $this->sendError('Failed to Insert Vehicle');
+                }
+
+                return $this->sendSuccess("License Created Successfully");
+            } else {
+                return $this->sendError("License Created Failed");
+            }
+        }
+        //subdealer license to client
+        else if ($client_id != null && $dealer_id != null && $subdealer_id != null && $point_type_id == 1) {
+
+            $result = Point::where('total_point', '>=', 1)
+                ->where('admin_id', $admin_id)
+                ->where('distributor_id', $distributor_id)
+                ->where('dealer_id', $dealer_id)
+                ->where('subdealer_id', $subdealer_id)
+                ->where('plan_id', $plan_id)
+                ->where('point_type_id', $point_type_id)
+                ->where('status', 1)
+                ->first();
+
+            if (!empty($result)) {
+                $result->total_point = $result->total_point - 1;
+                $result->save();
+                $plan_id = $result->plan_id;
+
+                $plan = Plan::find($plan_id);
+                $period_id = $plan->period_id;
+                $period = Period::find($period_id);
+
+                $installation_date = Carbon::now();
+                $newstart_date = Carbon::now();
+                $newDateTime = $newstart_date->addDays($period->period_days);
+                $expiry_date = $newDateTime->format('Y-m-d H:i:s');
+
+                $data = $request->all(); // Get the data from the request
+                $data['installation_date'] = $installation_date; // Add start_date to the data array
+                $data['expiry_date'] = $expiry_date; // Add expiry_date to the data array
+
+                $vehicle = new Vehicle($data);
+
+                if ($vehicle->save()) {
+
+                    $vehicle = Vehicle::find($vehicle->id);
+                    $vehicleArray = $vehicle->toArray();
+
+
+                    License::where('license_no', $request->input('license_no'))->update([
+                        'vehicle_id' => $vehicle->id,
+                        'start_date' => $vehicle->installation_date,
+                        'expiry_date' => $vehicle->expire_date,
+                        'client_id' => $vehicle->client_id
+                    ]);
+
+                    $result = CustomerConfiguration::where('client_id', $vehicle->client_id)
+                        ->first();
+                    // dd($result);
+
+                    // Specify the dynamic connection configuration
+                    $connectionName = $result->db_name;
+                    $connectionConfig = [
+                        'driver' => 'mysql',
+                        'host' => env('DB_HOST'), // Use the environment variable for host
+                        'port' => env('DB_PORT'), // Use the environment variable for port
+                        'database' => $result->db_name,    // Change this to the actual database name
+                        'username' => env('DB_USERNAME'), // Use the environment variable for username
+                        'password' => env('DB_PASSWORD'), // Use the environment variable for password
+                        // Add any other connection parameters you need
+                    ];
+
+                    // Use the dynamic connection configuration to connect to the database
+                    Config::set("database.connections.$connectionName", $connectionConfig);
+                    DB::purge($connectionName); // Clear the connection cache
+                    DB::connection($connectionName)->table('vehicles')->insert($vehicleArray);
+
+                    $live_data = array('deviceimei' => $vehicleArray['device_imei'], 'vehicle_id' => $vehicleArray['id']);
+                    DB::connection($connectionName)->table('live_data')->insert($live_data);
+
+                    // Close the dynamic connection and revert to the default connection
+                    DB::disconnect($connectionName);
+
+                    Sim::where('id', $vehicle->sim_id)->update(['client_id' => $vehicle->client_id]);
+                    Device::where('id', $vehicle->device_id)->update(['client_id' => $vehicle->client_id]);
+
+
+
+                    return $this->sendSuccess("Vehicle Inserted Successfully");
+                } else {
+                    return $this->sendError('Failed to Insert Vehicle');
+                }
+
+                return $this->sendSuccess("License Created Successfully");
+            } else {
+                return $this->sendError("License Created Failed");
+            }
         } else {
-            return $this->sendError('Failed to Insert Vehicle');
+            return $this->sendError('Failed to insert license.', [], 500);
         }
     }
 

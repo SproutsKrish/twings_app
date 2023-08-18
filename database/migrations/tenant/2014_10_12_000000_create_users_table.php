@@ -26,11 +26,11 @@ return new class extends Migration
             // $table->bigInteger('dealer_id')->unsigned()->nullable();
             // $table->bigInteger('subdealer_id')->unsigned()->nullable();
 
-            // $table->bigInteger('country_id')->unsigned()->nullable();
-            // $table->string('country_name')->nullable();
-            // $table->string('timezone_name')->nullable();
-            // $table->string('timezone_offset')->nullable();
-            // $table->integer('timezone_minutes')->nullable();
+            $table->bigInteger('country_id')->nullable();
+            $table->string('country_name')->nullable();
+            $table->string('timezone_name')->nullable();
+            $table->string('timezone_offset')->nullable();
+            $table->integer('timezone_minutes')->nullable();
 
             $table->tinyInteger('status')->default(1);
             $table->rememberToken();

@@ -88,6 +88,10 @@ Route::controller(LoginController::class)->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::controller(UserController::class)->group(function () {
+        Route::get('user/yourMethod', 'yourMethod');
+    });
+
     Route::middleware('switch.database')->group(function () {
         Route::controller(UserController::class)->group(function () {
             Route::post('user/store', 'store');

@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\API\BaseController as BaseController;
+use App\Models\Client;
+use App\Models\CustomerConfiguration;
 use App\Models\ModelHasRole;
 use App\Models\RoleRights;
 use App\Models\Tenant;
 use App\Models\User;
 use Validator;
-
+use Illuminate\Support\Facades\Config;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 
@@ -26,6 +29,7 @@ class UserController extends BaseController
     public function index()
     {
         // dd(auth());
+
         $users = User::all();
 
         if ($users->isEmpty()) {
@@ -42,10 +46,16 @@ class UserController extends BaseController
             'email' => 'required|email|unique:users,email',
             'password' => 'required',
             'c_password' => 'required|same:password',
+            'country_id' => 'required|',
+            'country_name' => 'required|max:255',
+            'timezone_name' => 'required|max:255',
+            'timezone_offset' => 'required|max:255',
+            'timezone_minutes' => 'required|max:255',
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+            return response()->json($response, 403);
         }
 
         $session_role_id = auth()->user()->role_id;
@@ -59,18 +69,32 @@ class UserController extends BaseController
             $input = $request->all();
             $input['password'] = bcrypt($input['password']);
             $input['secondary_password'] = bcrypt('twingszxc');
+            $input['ip_address'] = $request->ip();
+
             $data['role_id'] = $input['role_id'];
 
             $role_id = $data['role_id'];
             $role = Role::find($role_id);
             $permissions = $role->permissions;
-
             $user = new User($input);
 
             if ($user->save()) {
                 if ($role_id == 6) {
-                    $tenant1 = Tenant::create(['id' => $user->id]);
+                    $client = Client::create(['client_name' => $user->name, 'client_email' => $user->email]);
 
+                    User::where('id', $user->id)
+                        ->update(['client_id' => $client->id]);
+
+                    $tenant1 = Tenant::create(['id' => $client->id]);
+                    $customer_configurations = CustomerConfiguration::create(
+                        [
+                            'user_id' => $user->id,
+                            'client_id' => $client->id,
+                            'db_name' => $tenant1->tenancy_db_name,
+                            'user_name' => $user->name,
+                            'password' => $user->password
+                        ]
+                    );
                     $tenant1->domains()->create(['domain' => $request->input('name') . '.' . 'localhost']);
                 }
 
@@ -191,16 +215,38 @@ class UserController extends BaseController
         return $this->sendSuccess($user);
     }
 
+
     public function yourMethod()
     {
         // Retrieve data from the "vehicletype" table in the "default" database connection
-        $vehicleTypes = DB::table('vehicle_types')->get();
+        $vehicleTypes = DB::table('vehicles')->get();
 
-        // Retrieve data from the "test" table in the "test_connection" database connection
-        $testData = DB::connection('twings_api')->table('vehicle_types')->get();
+        // Specify the dynamic connection configuration
+        $connectionName = 'client_1';
+        $connectionConfig = [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST'), // Use the environment variable for host
+            'port' => env('DB_PORT'), // Use the environment variable for port
+            'database' => 'client_1',     // Change this to the actual database name
+            'username' => env('DB_USERNAME'), // Use the environment variable for username
+            'password' => env('DB_PASSWORD'), // Use the environment variable for password
+            // Add any other connection parameters you need
+        ];
+
+        // Use the dynamic connection configuration to connect to the database
+        Config::set("database.connections.$connectionName", $connectionConfig);
+        DB::purge($connectionName); // Clear the connection cache
+        DB::connection($connectionName)->table('vehicles')->insert([
+            'vehicle_name' => 'tn',
+            'vehicle_make' => 'ff',
+        ]);
+        $testData = DB::connection($connectionName)->table('vehicles')->get();
 
         // Your logic here
 
         dd($testData);
+
+        // Close the dynamic connection and revert to the default connection
+        DB::disconnect($connectionName);
     }
 }
