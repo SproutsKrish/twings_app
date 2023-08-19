@@ -12,7 +12,7 @@ class PlaybackReportController extends Controller
     {
         $playbackReports = DB::table('play_back_histories as A')
             ->join('vehicles as B', 'A.device_imei', '=', 'B.device_imei')
-            ->whereBetween('A.created_at', [$request->input('start_day'), $request->input('end_day')])
+            ->whereBetween('A.device_datetime', [$request->input('start_day'), $request->input('end_day')])
             ->where('A.device_imei', $request->input('deviceimei'))
             ->select('A.*', 'B.vehicle_name') // You can select specific columns if needed
             ->get();
