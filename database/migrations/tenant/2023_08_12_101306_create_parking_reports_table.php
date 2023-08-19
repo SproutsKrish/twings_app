@@ -28,7 +28,7 @@ return new class extends Migration
             $table->integer('type_id')->default(0);
             $table->longText('start_location')->nullable();
             $table->longText('end_location')->nullable();
-            $table->bigInteger('client_id')->default(0);
+            $table->bigInteger('client_id')->nullable();
             $table->integer('updated_status')->default(0);
             $table->timestamps();
         });

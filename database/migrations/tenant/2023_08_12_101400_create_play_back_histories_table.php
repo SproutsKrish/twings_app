@@ -26,7 +26,7 @@ return new class extends Migration
             $table->tinyInteger('ac_status')->default(0);
             $table->tinyInteger('packet_status')->nullable();
             $table->longText('packet_details')->nullable();
-            $table->bigInteger('client_id')->default(3);
+            $table->bigInteger('client_id')->nullable();
             $table->timestamps();
         });
     }
