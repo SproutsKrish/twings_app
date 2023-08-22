@@ -10,7 +10,7 @@ class GeofenceReportController extends Controller
 {
     public function geofence_report(Request $request)
     {
-        $geofence_reports = GeofenceReport::select('A.*', 'C.location_short_name', 'D.vehicle_name')
+        $geofence_reports = GeofenceReport::select('D.vehicle_name', 'A.*')
             ->from('geofence_reports as A')
             ->join('assign_geofences as B', 'A.assign_geofence_id', '=', 'B.id')
             ->join('geofences as C', 'B.geofence_id', '=', 'C.id')
