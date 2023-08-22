@@ -22,6 +22,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \Illuminate\Session\Middleware\StartSession::class,
+        \App\Http\Middleware\CorsMiddleware::class,
     ];
 
     /**
@@ -69,5 +70,6 @@ class Kernel extends HttpKernel
         'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
         'localization' => \App\Http\Middleware\localization::class,
         'switch.database' => \App\Http\Middleware\SetDatabaseConnectionMiddleware::class,
+
     ];
 }
