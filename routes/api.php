@@ -87,7 +87,7 @@ Route::controller(LoginController::class)->group(function () {
     Route::post('login', 'login');
 });
 
-Route::middleware(['CorsMiddleware::class','auth:sanctum'])->group(function () {
+Route::middleware(['cors','auth:sanctum'])->group(function () {
     Route::controller(UserController::class)->group(function () {
         Route::get('user/yourMethod', 'yourMethod');
     });
