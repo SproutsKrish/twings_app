@@ -1,5 +1,5 @@
 <?php
-
+use App\Http\Middleware\CorsMiddleware;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\API\LoginController;
@@ -87,7 +87,7 @@ Route::controller(LoginController::class)->group(function () {
     Route::post('login', 'login');
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['CorsMiddleware::class','auth:sanctum'])->group(function () {
     Route::controller(UserController::class)->group(function () {
         Route::get('user/yourMethod', 'yourMethod');
     });
