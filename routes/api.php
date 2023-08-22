@@ -70,6 +70,7 @@ use App\Http\Controllers\Report\TemperatureReportController;
 use App\Http\Controllers\Report\TripPlanReportController;
 use App\Http\Controllers\VehicleSetting\ConfigurationController;
 use App\Http\Controllers\VehicleSetting\NotificationController;
+use App\Http\Controllers\VehicleSetting\ShareLinkController;
 
 /*
 |--------------------------------------------------------------------------
@@ -102,6 +103,8 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('user/details', 'showdetails');
         });
 
+        Route::get('current_link/{id}', [ShareLinkController::class, 'current_link']);
+        Route::get('live_link/{id}', [ShareLinkController::class, 'live_link']);
 
         Route::controller(LiveDataController::class)->group(function () {
             Route::get('multi_dashboard', 'multi_dashboard');
@@ -250,5 +253,3 @@ Route::post('recharge', [RechargeController::class, 'recharge']);
 
 Route::put('sim_assign/{id}', [SimController::class, 'sim_assign']);
 Route::put('device_assign/{id}', [DeviceController::class, 'device_assign']);
-
-Route::get('link_generate/{id}', [ClientController::class, 'link_generate'])->name('route.name');

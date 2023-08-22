@@ -104,11 +104,4 @@ class ClientController extends BaseController
             return $this->sendError('Failed to Delete Client');
         }
     }
-
-    public function link_generate($id)
-    {
-        $link  = base_path();
-
-        return $this->sendSuccess($link);
-    }
 }
