@@ -17,7 +17,7 @@ class OverSpeedReportController extends Controller
             ->select('latitude', 'longitude', 'speed', 'device_datetime')
             ->get();
 
-        if (empty($results)) {
+        if ($results->isEmpty()) {
             $response = ["success" => false, "message" => 'No Data Found', "status_code" => 404];
             return response($response, 404);
         }

@@ -385,19 +385,21 @@ class VehicleController extends BaseController
 
         if ($vehicle->update($request->all())) {
 
-            $dbName = 'twings_api';
+            //     $dbName = 'twings';
 
-            // Use the database name to specify the table
-            $updatedCount = DB::connection($dbName)
-                ->table('vehicles')
-                ->where('id', $id)
-                ->update(['vehicle_type_id' => $request->input('vehicle_type_id')]);
+            //     // Use the database name to specify the table
+            //     $updatedCount = DB::connection($dbName)
+            //         ->table('vehicles')
+            //         ->where('id', $id)
+            //         ->update(['vehicle_type_id' => $request->input('vehicle_type_id')]);
 
-            if ($updatedCount) {
-                return $this->sendSuccess("Vehicle Type Updated Successfully");
-            } else {
-                return $this->sendError('Failed to Update Vehicle Type');
-            }
+            //     if ($updatedCount) {
+            //         return $this->sendSuccess("Vehicle Type Updated Successfully");
+            //     } else {
+            //         return $this->sendError('Failed to Update Vehicle Type');
+            //     }
+
+            return $this->sendSuccess("Vehicle Type Updated Successfully");
         } else {
             return $this->sendError('Failed to Update Vehicle Type');
         }
