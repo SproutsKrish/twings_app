@@ -62,6 +62,7 @@ use App\Http\Controllers\Report\GeofenceReportController;
 use App\Http\Controllers\Report\IdleReportController;
 use App\Http\Controllers\Report\KeyOnKeyOffReportController;
 use App\Http\Controllers\Report\LiveDataController;
+use App\Http\Controllers\Report\OverSpeedReportController;
 use App\Http\Controllers\Report\ParkingReportController;
 use App\Http\Controllers\Report\PlaybackHistoryController;
 use App\Http\Controllers\Report\PlaybackReportController;
@@ -134,6 +135,10 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
 
         Route::controller(RoutedeviationReportController::class)->group(function () {
             Route::post('route_deviation_report', 'route_deviation_report');
+        });
+
+        Route::controller(OverSpeedReportController::class)->group(function () {
+            Route::post('speed_report', 'speed_report');
         });
 
         Route::resource('geo_fence', GeofenceController::class);
