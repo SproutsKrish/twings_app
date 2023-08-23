@@ -153,7 +153,15 @@ class VehicleController extends BaseController
 
                     DB::connection($connectionName)->table('vehicles')->insert($client_vehicle_data);
 
-                    $live_data = array('deviceimei' => $vehicleArray['device_imei'], 'vehicle_id' => $vehicleArray['id'], 'client_id' => $vehicle->client_id);
+                    $live_data = array(
+                        'deviceimei' => $vehicleArray['device_imei'],
+                        'vehicle_id' => $vehicleArray['id'],
+                        'client_id' => $vehicle->client_id,
+                        'vehicle_current_status' => '1',
+                        'vehicle_status' => '1'
+                    );
+
+                    // $live_data = array('deviceimei' => $vehicleArray['device_imei'], 'vehicle_id' => $vehicleArray['id'], 'client_id' => $vehicle->client_id);
                     DB::connection($connectionName)->table('live_data')->insert($live_data);
 
                     // Close the dynamic connection and revert to the default connection
@@ -275,7 +283,13 @@ class VehicleController extends BaseController
                     );
                     DB::connection($connectionName)->table('vehicles')->insert($client_vehicle_data);
 
-                    $live_data = array('deviceimei' => $vehicleArray['device_imei'], 'vehicle_id' => $vehicleArray['id'], 'client_id' => $vehicle->client_id);
+                    $live_data = array(
+                        'deviceimei' => $vehicleArray['device_imei'],
+                        'vehicle_id' => $vehicleArray['id'],
+                        'client_id' => $vehicle->client_id,
+                        'vehicle_current_status' => '1',
+                        'vehicle_status' => '1'
+                    );
                     DB::connection($connectionName)->table('live_data')->insert($live_data);
 
                     // Close the dynamic connection and revert to the default connection
@@ -385,19 +399,21 @@ class VehicleController extends BaseController
 
         if ($vehicle->update($request->all())) {
 
-            $dbName = 'twings_api';
+            //     $dbName = 'twings';
 
-            // Use the database name to specify the table
-            $updatedCount = DB::connection($dbName)
-                ->table('vehicles')
-                ->where('id', $id)
-                ->update(['vehicle_type_id' => $request->input('vehicle_type_id')]);
+            //     // Use the database name to specify the table
+            //     $updatedCount = DB::connection($dbName)
+            //         ->table('vehicles')
+            //         ->where('id', $id)
+            //         ->update(['vehicle_type_id' => $request->input('vehicle_type_id')]);
 
-            if ($updatedCount) {
-                return $this->sendSuccess("Vehicle Type Updated Successfully");
-            } else {
-                return $this->sendError('Failed to Update Vehicle Type');
-            }
+            //     if ($updatedCount) {
+            //         return $this->sendSuccess("Vehicle Type Updated Successfully");
+            //     } else {
+            //         return $this->sendError('Failed to Update Vehicle Type');
+            //     }
+
+            return $this->sendSuccess("Vehicle Type Updated Successfully");
         } else {
             return $this->sendError('Failed to Update Vehicle Type');
         }
