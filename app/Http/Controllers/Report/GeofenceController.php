@@ -90,4 +90,23 @@ class GeofenceController extends Controller
             return response()->json($response, 404);
         }
     }
+
+    public function destroy(Request $request, $id)
+    {
+        $Geofence = Geofence::find($id);
+
+        if (!$Geofence) {
+            $response = ["success" => false, "message" => 'Geofence Not Found', "status_code" => 404];
+            return response()->json($response, 404);
+        }
+
+        $Geofence->active_code = 0;
+        if ($Geofence->save()) {
+            $response = ["success" => true, "message" => 'Geofence Deleted Successfully', "status_code" => 200];
+            return response()->json($response, 200);
+        } else {
+            $response = ["success" => false, "message" => 'Failed to Delete Geofence', "status_code" => 404];
+            return response()->json($response, 404);
+        }
+    }
 }

@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Middleware\CorsMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -88,7 +89,7 @@ Route::controller(LoginController::class)->group(function () {
     Route::post('login', 'login');
 });
 
-Route::middleware(['cors','auth:sanctum'])->group(function () {
+Route::middleware(['cors', 'auth:sanctum'])->group(function () {
     Route::controller(UserController::class)->group(function () {
         Route::get('user/yourMethod', 'yourMethod');
     });
@@ -104,7 +105,9 @@ Route::middleware(['cors','auth:sanctum'])->group(function () {
         });
 
         Route::get('current_link/{id}', [ShareLinkController::class, 'current_link']);
-        Route::get('live_link/{id}', [ShareLinkController::class, 'live_link']);
+        Route::get('live_link', [ShareLinkController::class, 'live_link']);
+        Route::delete('delete_link/{id}', [ShareLinkController::class, 'destroy']);
+
 
         Route::controller(LiveDataController::class)->group(function () {
             Route::get('multi_dashboard', 'multi_dashboard');
@@ -154,13 +157,16 @@ Route::middleware(['cors','auth:sanctum'])->group(function () {
             Route::put('config/update/{id}', 'update');
             Route::put('config/immobilizer_option/{id}', 'immobilizer_option');
             Route::put('config/safe_parking/{id}', 'safe_parking');
+            Route::put('config/odometer_update/{id}', 'odometer_update');
+            Route::put('config/speed_update/{id}', 'speed_update');
         });
 
         Route::controller(AcReportController::class)->group(function () {
             Route::post('ac_report', 'ac_report');
         });
         Route::controller(AlertReportController::class)->group(function () {
-            Route::post('alert_report', 'alert_report');
+            Route::get('all_alert', 'all_alert');
+            Route::get('device_alert/{id}', 'device_alert');
         });
         Route::controller(TemperatureReportController::class)->group(function () {
             Route::post('temperature_report', 'temperature_report');

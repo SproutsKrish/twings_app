@@ -4,8 +4,10 @@ namespace App\Http\Controllers\VehicleSetting;
 
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\Configuration;
+use App\Models\LiveData;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class ConfigurationController extends BaseController
@@ -87,6 +89,50 @@ class ConfigurationController extends BaseController
             return $this->sendSuccess("Vehicle Updated Successfully");
         } else {
             return $this->sendError('Failed to Update Vehicle');
+        }
+    }
+    public function odometer_update(Request $request, $id)
+    {
+        $vehicle = LiveData::where('vehicle_id', $id)->first();
+
+        if (!$vehicle) {
+            return $this->sendError('Vehicle Not Found');
+        }
+
+        $validator = Validator::make($request->all(), [
+            'odometer' => 'required|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors());
+        }
+
+        if ($vehicle->update($request->all())) {
+            return $this->sendSuccess("Vehicle Odometer Updated Successfully");
+        } else {
+            return $this->sendError('Failed to Update Vehicle Odometer');
+        }
+    }
+    public function speed_update(Request $request, $id)
+    {
+        $vehicle = Configuration::where('vehicle_id', $id)->first();
+
+        if (!$vehicle) {
+            return $this->sendError('Vehicle Not Found');
+        }
+
+        $validator = Validator::make($request->all(), [
+            'speed_limit' => 'required|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors());
+        }
+
+        if ($vehicle->update($request->all())) {
+            return $this->sendSuccess("Vehicle Speed Limit Updated Successfully");
+        } else {
+            return $this->sendError('Failed to Update Vehicle Speed Limit');
         }
     }
 }
