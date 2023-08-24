@@ -26,10 +26,10 @@ class LiveDataController extends BaseController
                 ->get();
 
             if ($result->isEmpty()) {
-                $response = ["success" => true, "message" => 'No Live Data Found', "status_code" => 404];
+                $response = ["success" => false, "message" => 'No Live Data Found', "status_code" => 404];
                 return response($response, 404);
             }
-            $response = ["success" => false, "data" => $result, "status_code" => 200];
+            $response = ["success" => true, "data" => $result, "status_code" => 200];
             return response($response, 200);
         } else {
 

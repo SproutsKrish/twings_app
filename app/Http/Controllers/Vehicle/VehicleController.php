@@ -155,7 +155,7 @@ class VehicleController extends BaseController
 
                     $live_data = array(
                         'deviceimei' => $vehicleArray['device_imei'],
-                        'vehicle_id' => $vehicleArray['id'],
+                        'vehicle_id' => $client_vehicle_data['id'],
                         'client_id' => $vehicle->client_id,
                         'vehicle_current_status' => '1',
                         'vehicle_status' => '1'
@@ -285,7 +285,7 @@ class VehicleController extends BaseController
 
                     $live_data = array(
                         'deviceimei' => $vehicleArray['device_imei'],
-                        'vehicle_id' => $vehicleArray['id'],
+                        'vehicle_id' => $client_vehicle_data['id'],
                         'client_id' => $vehicle->client_id,
                         'vehicle_current_status' => '1',
                         'vehicle_status' => '1'
