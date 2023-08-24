@@ -290,6 +290,7 @@ class VehicleController extends BaseController
                         'vehicle_current_status' => '1',
                         'vehicle_status' => '1'
                     );
+
                     DB::connection($connectionName)->table('live_data')->insert($live_data);
 
                     // Close the dynamic connection and revert to the default connection
