@@ -24,11 +24,7 @@ class Client extends Model
         'client_state',
         'client_pincode',
 
-        'country_id',
-        'country_name',
-        'timezone_name',
-        'timezone_offset',
-        'timezone_minutes',
+        'user_id',
 
         'admin_id',
         'distributor_id',

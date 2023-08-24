@@ -17,17 +17,16 @@ class Distributor extends Model
         'distributor_email',
         'distributor_mobile',
         'distributor_address',
+
         'distributor_logo',
         'distributor_limit',
         'distributor_city',
         'distributor_state',
         'distributor_pincode',
-        'country_id',
-        'country_name',
-        'timezone_name',
-        'timezone_offset',
-        'timezone_minutes',
+
+        'user_id',
         'admin_id',
+
         'status',
         'created_by',
         'updated_by',

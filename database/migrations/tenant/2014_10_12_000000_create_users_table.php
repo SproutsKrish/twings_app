@@ -22,9 +22,13 @@ return new class extends Migration
             $table->string('secondary_password')->nullable();
             $table->bigInteger('role_id')->nullable();
 
-            // $table->bigInteger('client_id')->unsigned()->nullable();
-            // $table->bigInteger('dealer_id')->unsigned()->nullable();
-            // $table->bigInteger('subdealer_id')->unsigned()->nullable();
+            $table->bigInteger('admin_id')->nullable();
+            $table->bigInteger('distributor_id')->nullable();
+            $table->bigInteger('dealer_id')->nullable();
+            $table->bigInteger('subdealer_id')->nullable();
+            $table->bigInteger('client_id')->nullable();
+            $table->bigInteger('vehicle_owner_id')->nullable();
+            $table->bigInteger('staff_id')->nullable();
 
             $table->bigInteger('country_id')->nullable();
             $table->string('country_name')->nullable();
@@ -35,19 +39,12 @@ return new class extends Migration
             $table->tinyInteger('status')->default(1);
             $table->rememberToken();
             $table->timestamps();
-            $table->softDeletes(); // Use soft delete to handle deletion gracefully
+            $table->softDeletes();
 
             $table->integer('created_by')->unsigned()->nullable();
             $table->integer('updated_by')->unsigned()->nullable();
             $table->integer('deleted_by')->unsigned()->nullable();
-            $table->ipAddress('ip_address')->nullable(); // Use ipAddress for IP address column
-
-            // Foreign key constraints (if required)
-            // $table->foreign('client_id')->references('id')->on('clients')->onDelete('set null');
-            // $table->foreign('dealer_id')->references('id')->on('dealers')->onDelete('set null');
-            // $table->foreign('subdealer_id')->references('id')->on('subdealers')->onDelete('set null');
-            // $table->foreign('role_id')->references('id')->on('roles')->onDelete('set null');
-            // $table->foreign('country_id')->references('id')->on('countries')->onDelete('set null');
+            $table->ipAddress('ip_address')->nullable();
         });
     }
 

@@ -35,6 +35,12 @@ class User extends Authenticatable
         'vehicle_owner_id',
         'staff_id',
 
+        'country_id',
+        'country_name',
+        'timezone_name',
+        'timezone_offset',
+        'timezone_minutes',
+
         'status',
         'created_by',
         'updated_by',

@@ -241,5 +241,20 @@ class CreateAdminUserSeeder extends Seeder
 
         // Insert the data into the role_rights table
         DB::table('role_rights')->insert($data);
+
+
+        $data = [
+            [
+                'country_name' => 'India',
+                'short_name' => 'IND',
+                'phone_code' => '+91',
+                'timezone_name' => 'Asia/Kolkata',
+                'timezone_offset' => '5:30',
+                'timezone_minutes' => '330'
+            ]
+        ];
+
+        // Insert the data into the role_rights table
+        DB::table('countries')->insert($data);
     }
 }

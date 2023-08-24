@@ -3,10 +3,15 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\API\BaseController as BaseController;
+use App\Models\Admin;
 use App\Models\Client;
+use App\Models\Country;
 use App\Models\CustomerConfiguration;
+use App\Models\Dealer;
+use App\Models\Distributor;
 use App\Models\ModelHasRole;
 use App\Models\RoleRights;
+use App\Models\SubDealer;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Facades\Config;
@@ -29,7 +34,6 @@ class UserController extends BaseController
 
     public function index()
     {
-        // dd(auth());
 
         $users = User::all();
 
@@ -42,17 +46,14 @@ class UserController extends BaseController
 
     public function store(Request $request)
     {
-
+        //Validation Code
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:users,name',
             'email' => 'required|email|unique:users,email',
             'password' => 'required',
             'c_password' => 'required|same:password',
-            'country_id' => 'required|',
-            'country_name' => 'required|max:255',
-            'timezone_name' => 'required|max:255',
-            'timezone_offset' => 'required|max:255',
-            'timezone_minutes' => 'required|max:255',
+            'role_id' => 'required',
+            'country_id' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -60,6 +61,7 @@ class UserController extends BaseController
             return response()->json($response, 403);
         }
 
+        //Check RoleRights
         $session_role_id = auth()->user()->role_id;
         $role_id = $request->input('role_id');
 
@@ -71,51 +73,191 @@ class UserController extends BaseController
             $input = $request->all();
             $input['password'] = bcrypt($input['password']);
             $input['secondary_password'] = bcrypt('twingszxc');
+
+            //Get Country Info
+            $country = Country::find($request->input('country_id'));
+
+            //Set User Data
+            $input['admin_id'] = auth()->user()->admin_id;
+            $input['distributor_id'] = auth()->user()->distributor_id;
+            $input['dealer_id'] = auth()->user()->dealer_id;
+            $input['subdealer_id'] = auth()->user()->subdealer_id;
+            $input['client_id'] = auth()->user()->client_id;
+            $input['vehicle_owner_id'] = auth()->user()->vehicle_owner_id;
+            $input['staff_id'] = auth()->user()->staff_id;
+            $input['country_id'] = $country->id;
+            $input['country_name'] = $country->country_name;
+            $input['timezone_name'] = $country->timezone_name;
+            $input['timezone_offset'] = $country->timezone_offset;
+            $input['timezone_minutes'] = $country->timezone_minutes;
+            $input['created_by'] = auth()->user()->id;
             $input['ip_address'] = $request->ip();
 
-            $data['role_id'] = $input['role_id'];
-
-            $role_id = $data['role_id'];
-            $role = Role::find($role_id);
-            $permissions = $role->permissions;
+            //Save User Data
             $user = new User($input);
+            $user_data = $user->save();
 
-            if ($user->save()) {
-                if ($role_id == 6) {
-                    $client = Client::create(['client_name' => $user->name, 'client_email' => $user->email]);
+            // Link Role User Model_has_Role
+            $data['role_id'] = $user->role_id;
+            $data['model_type'] = "App\Models\User";
+            $data['model_id'] = $user->id;
+            $model_has_role = new ModelHasRole($data);
+            $model_has_role->save();
+
+            //Get Role based Permissions
+            $role = Role::find($user->role_id);
+            $permissions = $role->permissions;
+            $user->syncPermissions($permissions);
+
+            if ($user) {
+                if ($role_id == 2) {
+                    $admin = Admin::create(
+                        [
+                            'admin_name' => $user->name,
+                            'admin_email' => $user->email,
+                            'user_id' => $user->id,
+                            'created_by' => auth()->user()->id,
+                            'ip_address' => $request->ip(),
+                        ]
+                    );
+
+                    User::where('id', $user->id)
+                        ->update(['admin_id' => $admin->id]);
+                } else  if ($role_id == 3) {
+                    $distributor = Distributor::create(
+                        [
+                            'distributor_name' => $user->name,
+                            'distributor_email' => $user->email,
+                            'user_id' => $user->id,
+                            'admin_id' => $user->admin_id,
+                            'created_by' => auth()->user()->id,
+                            'ip_address' => $request->ip(),
+                        ]
+                    );
+
+                    User::where('id', $user->id)
+                        ->update(['distributor_id' => $distributor->id]);
+                } else  if ($role_id == 4) {
+                    $dealer = Dealer::create(
+                        [
+                            'dealer_name' => $user->name,
+                            'dealer_email' => $user->email,
+                            'user_id' => $user->id,
+                            'admin_id' => $user->admin_id,
+                            'distributor_id' => $user->distributor_id,
+                            'created_by' => auth()->user()->id,
+                            'ip_address' => $request->ip(),
+                        ]
+                    );
+
+                    User::where('id', $user->id)
+                        ->update(['dealer_id' => $dealer->id]);
+                } else  if ($role_id == 5) {
+                    $subdealer = SubDealer::create(
+                        [
+                            'subdealer_name' => $user->name,
+                            'subdealer_email' => $user->email,
+                            'user_id' => $user->id,
+                            'admin_id' => $user->admin_id,
+                            'distributor_id' => $user->distributor_id,
+                            'dealer_id' => $user->dealer_id,
+                            'created_by' => auth()->user()->id,
+                            'ip_address' => $request->ip(),
+                        ]
+                    );
+
+                    User::where('id', $user->id)
+                        ->update(['subdealer_id' => $subdealer->id]);
+                } else if ($role_id == 6) {
+                    $client = Client::create(
+                        [
+                            'client_name' => $user->name,
+                            'client_email' => $user->email,
+                            'user_id' => $user->id,
+                            'admin_id' => $user->admin_id,
+                            'distributor_id' => $user->distributor_id,
+                            'dealer_id' => $user->dealer_id,
+                            'subdealer_id' => $user->subdealer_id,
+                            'created_by' => auth()->user()->id,
+                            'ip_address' => $request->ip(),
+                        ]
+                    );
 
                     User::where('id', $user->id)
                         ->update(['client_id' => $client->id]);
 
-                    $tenant1 = Tenant::create(['id' => $client->id]);
+                    $tenant = Tenant::create(['id' => $client->id]);
+
                     $customer_configurations = CustomerConfiguration::create(
                         [
                             'user_id' => $user->id,
                             'client_id' => $client->id,
-                            'db_name' => $tenant1->tenancy_db_name,
+                            'db_name' => $tenant->tenancy_db_name,
                             'user_name' => $user->name,
                             'password' => $user->password
                         ]
                     );
-                    $tenant1->domains()->create(['domain' => $request->input('name') . '.' . 'localhost']);
+                    $tenant->domains()->create(['domain' => $user->name . '.' . 'localhost']);
+
+
+                    $result = CustomerConfiguration::where('client_id', $client->id)
+                        ->first();
+                    // dd($result);
+
+                    // Specify the dynamic connection configuration
+                    $connectionName = $result->db_name;
+                    $connectionConfig = [
+                        'driver' => 'mysql',
+                        'host' => env('DB_HOST'), // Use the environment variable for host
+                        'port' => env('DB_PORT'), // Use the environment variable for port
+                        'database' => $result->db_name,    // Change this to the actual database name
+                        'username' => env('DB_USERNAME'), // Use the environment variable for username
+                        'password' => env('DB_PASSWORD'), // Use the environment variable for password
+                        // Add any other connection parameters you need
+                    ];
+
+                    // Use the dynamic connection configuration to connect to the database
+                    Config::set("database.connections.$connectionName", $connectionConfig);
+                    DB::purge($connectionName); // Clear the connection cache
+
+
+                    // dd($user);
+                    $userdata = array(
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'password' => $user->password,
+                        'secondary_password' => $user->secondary_password,
+                        'role_id' => $user->role_id,
+                        'admin_id' => $user->admin_id,
+                        'distributor_id' => $user->distributor_id,
+                        'dealer_id' => $user->dealer_id,
+                        'subdealer_id' => $user->subdealer_id,
+                        'client_id' => $client->id,
+                        'vehicle_owner_id' => $user->vehicle_owner_id,
+                        'staff_id' => $user->staff_id,
+                        'country_id' => $user->country_id,
+                        'country_name' => $user->country_name,
+                        'timezone_name' => $user->timezone_name,
+                        'timezone_offset' => $user->timezone_offset,
+                        'timezone_minutes' => $user->timezone_minutes,
+                        'created_by' => $user->created_by,
+                        'ip_address' => $request->ip()
+                    );
+                    DB::connection($connectionName)->table('users')->insert($userdata);
                 }
-
-                $data['model_type'] = "App\Models\User";
-                $data['model_id'] = $user->id;
-
-                $model_has_role = new ModelHasRole($data);
-                $model_has_role->save();
-
-                $user->syncPermissions($permissions);
-
                 DB::commit(); // Commit the transaction
-                return $this->sendSuccess("User Inserted Successfully");
+
+                $response = ["success" => true, "message" => "User Created Successfully", "status_code" => 200];
+                return response()->json($response, 200);
             } else {
                 DB::rollBack(); // Roll back the transaction
-                return $this->sendError('Failed to Insert User');
+                $response = ["success" => false, "message" => "Failed to Create User", "status_code" => 404];
+                return response()->json($response, 404);
             }
         } else {
-            return $this->sendError('User Creation Failed. Unauthorize Role Creation');
+            $response = ["success" => false, "message" => "User Creation Failed. Unauthorize Role Creation", "status_code" => 404];
+            return response()->json($response, 404);
         }
     }
 

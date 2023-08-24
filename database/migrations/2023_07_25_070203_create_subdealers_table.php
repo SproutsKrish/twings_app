@@ -27,12 +27,7 @@ return new class extends Migration
             $table->string('subdealer_state')->nullable();
             $table->integer('subdealer_pincode')->nullable();
 
-            $table->bigInteger('country_id')->nullable();
-            $table->string('country_name')->nullable();
-            $table->string('timezone_name')->nullable();
-            $table->string('timezone_offset')->nullable();
-            $table->string('timezone_minutes')->nullable();
-
+            $table->bigInteger('user_id')->nullable();
             $table->bigInteger('admin_id')->nullable();
             $table->bigInteger('distributor_id')->nullable();
             $table->bigInteger('dealer_id')->nullable();
