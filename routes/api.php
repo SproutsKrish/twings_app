@@ -191,6 +191,10 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
         Route::resource('role', RoleController::class);
         Route::resource('role_right', RoleRightsController::class);
     });
+
+    Route::group(['middleware' => ['auth', 'checkrole:4,5']], function () {
+        Route::resource('vehicle', VehicleController::class);
+    });
 });
 
 //Role Has Permissions
@@ -233,7 +237,6 @@ Route::resource('sim', SimController::class);
 Route::resource('device', DeviceController::class);
 Route::resource('camera', CameraController::class);
 
-Route::resource('vehicle', VehicleController::class);
 Route::resource('vehicle_document', VehicleDocumentController::class);
 Route::resource('vehicle_service', VehicleServiceController::class);
 Route::resource('vehicle_type', VehicleTypeController::class);

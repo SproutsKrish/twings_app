@@ -72,5 +72,6 @@ class Kernel extends HttpKernel
         'localization' => \App\Http\Middleware\localization::class,
         'switch.database' => \App\Http\Middleware\SetDatabaseConnectionMiddleware::class,
         'cors' => \App\Http\Middleware\CorsMiddleware::class,
+        'checkrole' => \App\Http\Middleware\CheckRoleAccess::class,
     ];
 }

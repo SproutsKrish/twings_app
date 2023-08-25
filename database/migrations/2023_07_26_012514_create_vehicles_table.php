@@ -26,6 +26,8 @@ return new class extends Migration
             $table->bigInteger('sim_id')->nullable();
             $table->bigInteger('sim_mob_no')->nullable();
 
+            $table->string('license_no')->nullable();
+
             $table->string('insurance_company', 50)->nullable();
             $table->string('insurance_number', 50)->nullable();
             $table->date('insurance_start_date')->nullable();
