@@ -85,6 +85,10 @@ use App\Http\Controllers\VehicleSetting\ShareLinkController;
 |
 */
 
+Route::controller(VehicleController::class)->group(function () {
+    Route::get('vehicle_list', 'index');
+});
+
 
 Route::controller(LoginController::class)->group(function () {
     Route::post('login', 'login');

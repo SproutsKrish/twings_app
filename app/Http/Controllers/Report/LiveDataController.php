@@ -81,11 +81,11 @@ class LiveDataController extends BaseController
 
         // dd($total_vehicles);
 
-        $no_data = Vehicle::whereNotIn('id', function ($query) {
-            $query->select('vehicle_id')
-                ->from('live_data');
-        })
-            ->count();
+        // $no_data = Vehicle::whereNotIn('id', function ($query) {
+        //     $query->select('vehicle_id')
+        //         ->from('live_data');
+        // })
+        //     ->count();
 
 
         // dd($no_data);
@@ -113,6 +113,10 @@ class LiveDataController extends BaseController
 
         $inactive = DB::table('live_data')
             ->where('device_updatedtime', '<', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
+            ->count();
+
+        $no_data = DB::table('live_data')
+            ->where('device_updatedtime', null)
             ->count();
 
         // dd($parking);
