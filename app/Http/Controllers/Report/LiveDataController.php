@@ -112,7 +112,6 @@ class LiveDataController extends BaseController
             ->count();
 
         $inactive = DB::table('live_data')
-            ->where('vehicle_current_status', null)
             ->where('device_updatedtime', '<', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
             ->count();
 
