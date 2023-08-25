@@ -81,13 +81,16 @@ class VehicleController extends BaseController
             $data['installation_date'] = $installation_date->format('Y-m-d H:i:s');
             $newstart_date = Carbon::now();
             $newDateTime = $newstart_date->addDays($period->period_days);
-            $data['expiry_date'] = $newDateTime->format('Y-m-d H:i:s');
+            $data['expire_date'] = $newDateTime->format('Y-m-d H:i:s');
             $data['ip_address'] = $request->ip_address;
 
             $data['admin_id'] = $admin_id;
             $data['distributor_id'] = $distributor_id;
             $data['dealer_id'] = $dealer_id;
             $data['subdealer_id'] = $subdealer_id;
+
+            // dd($data);
+
             $vehicle = new Vehicle($data);
             $result = $vehicle->save();
 
