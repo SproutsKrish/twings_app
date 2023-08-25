@@ -132,6 +132,7 @@ class VehicleController extends BaseController
                 'device_imei' => $vehicleArray['device_imei'],
                 'sim_id' => $vehicleArray['sim_id'],
                 'sim_mob_no' => $vehicleArray['sim_mob_no'],
+                'license_no' => $vehicleArray['license_no'],
                 'insurance_company' => $vehicleArray['insurance_company'],
                 'insurance_number' => $vehicleArray['insurance_number'],
                 'insurance_start_date' => $vehicleArray['insurance_start_date'],
