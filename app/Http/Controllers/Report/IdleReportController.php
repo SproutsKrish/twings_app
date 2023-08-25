@@ -12,11 +12,11 @@ class IdleReportController extends BaseController
     public function get_idle_report(Request $request)
     {
         $idleReports = DB::table('idle_reports as A')
-            ->join('vehicles as B', 'A.vehicle_id', '=', 'B.id')
+            ->join('vehicles as B', 'A.device_imei', '=', 'B.device_imei')
             ->where('A.start_datetime', '>=', $request->input('start_day'))
             ->where('A.end_datetime', '<=', $request->input('end_day'))
-            ->when($request->input('vehicle_id') !== '0', function ($query) use ($request) {
-                return $query->where('A.vehicle_id', '=', $request->input('vehicle_id'));
+            ->when($request->input('device_imei') !== 'All', function ($query) use ($request) {
+                return $query->where('A.device_imei', '=', $request->input('device_imei'));
             })
             ->select('A.*', 'B.vehicle_name', DB::raw("TIME_FORMAT(TIMEDIFF(A.end_datetime, A.start_datetime), '%H:%i:%s') as idle_duration"))
             ->get();

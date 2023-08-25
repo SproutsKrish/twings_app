@@ -11,10 +11,12 @@ class ParkingReportController extends Controller
     public function get_parking_report(Request $request)
     {
         $parkingReports = DB::table('parking_reports as A')
-            ->join('vehicles as B', 'A.vehicle_id', '=', 'B.id')
+            ->join('vehicles as B', 'A.device_imei', '=', 'B.device_imei')
             ->where('A.start_datetime', '>=', $request->input('start_day'))
             ->where('A.end_datetime', '<=', $request->input('end_day'))
-            ->where('A.vehicle_id', '=', $request->input('vehicle_id'))
+            ->when($request->input('device_imei') !== 'All', function ($query) use ($request) {
+                return $query->where('A.device_imei', '=', $request->input('device_imei'));
+            })
             ->select('A.*', 'B.vehicle_name', DB::raw("TIME_FORMAT(TIMEDIFF(A.end_datetime, A.start_datetime), '%H:%i:%s') as parking_duration"))
             ->get();
 
