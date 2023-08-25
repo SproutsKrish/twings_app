@@ -14,9 +14,9 @@ class GeofenceReportController extends Controller
             ->from('geofence_reports as A')
             ->join('assign_geofences as B', 'A.assign_geofence_id', '=', 'B.id')
             ->join('geofences as C', 'B.geofence_id', '=', 'C.id')
-            ->join('vehicles as D', 'A.vehicle_id', '=', 'D.id')
+            ->join('vehicles as D', 'A.device_imei', '=', 'D.device_imei')
             ->whereBetween('A.created_at', [$request->input('start_day'), $request->input('end_day')])
-            ->where('A.vehicle_id', $request->input('vehicle_id'))
+            ->where('A.device_imei', $request->input('device_imei'))
             ->get();
 
         if ($geofence_reports->isEmpty()) {

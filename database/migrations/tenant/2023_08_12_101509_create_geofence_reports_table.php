@@ -27,6 +27,7 @@ return new class extends Migration
             $table->tinyInteger('ignition_status')->default(0)->comments('Ignition status represented by a small integer, default value is 0');
             $table->tinyInteger('ac_status')->default(0)->comments('AC status represented by a small integer, default value is 0');
             $table->bigInteger('vehicle_id')->nullable()->comments('Stores the ID of the associated vehicle, can be null');
+            $table->bigInteger('device_imei')->nullable()->comments('Stores the ID of the associated vehicle, can be null');
             $table->bigInteger('client_id')->nullable()->comments('Stores the ID of the associated client, can be null');
             $table->tinyInteger('location_status')->nullable()->comments('Status of location, represented by a small integer, can be null');
             $table->timestamps();
