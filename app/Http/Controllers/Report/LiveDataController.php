@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Report;
 use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
-
+use Carbon\Carbon;
 use App\Models\LiveData;
 use App\Models\PlayBackHistory;
 use App\Models\PlaybackReport;
@@ -64,7 +64,12 @@ class LiveDataController extends BaseController
 
         $deviceImei = Vehicle::where('id', $id)->value('device_imei');
 
-        $data['live'] = PlaybackReport::select('latitude', 'longitude', 'speed', 'angle')->where('device_imei', $deviceImei)->orderBy('id', 'desc')->get();
+        // $data['live'] = PlaybackReport::select('latitude', 'longitude', 'speed', 'angle')->where('device_imei', $deviceImei)->orderBy('id', 'desc')->get();
+
+        $data['live'] = PlaybackReport::select('latitude', 'longitude', 'speed', 'angle')
+            ->where('device_imei', $deviceImei)
+            ->where('device_datetime', '>=', Carbon::now()->subMinutes(2))
+            ->get();
 
         if (empty($deviceImei)) {
             $response = ["success" => false, "message" => 'No Live Data Found', "status_code" => 404];
