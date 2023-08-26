@@ -16,33 +16,32 @@ class DistanceReportController extends Controller
         $endDay = $request->input('end_day');
         $deviceImei = $request->input('device_imei');
 
-        $results = DB::select("
-    SELECT
-    temp.date,
-    temp.min_datetime AS start_date,
-    start_location.latitude AS start_latitude,
-    start_location.longitude AS start_longitude,
-    temp.min_odometer AS start_odometer,
-    temp.max_datetime AS end_date,
-    end_location.latitude AS end_latitude,
-    end_location.longitude AS end_longitude,
-    temp.max_odometer AS end_odometer,
-    temp.max_odometer - temp.min_odometer AS odometer_difference
-FROM (
-    SELECT
-        DATE(device_datetime) AS date,
-        MAX(device_datetime) AS max_datetime,
-        MAX(odometer) AS max_odometer,
-        MIN(device_datetime) AS min_datetime,
-        MIN(odometer) AS min_odometer
-    FROM play_back_histories
-    WHERE device_datetime BETWEEN '$startDay' AND '$endDay'
-        " . ($deviceImei !== 'All' ? "AND device_imei = '$deviceImei'" : "") . "
-    GROUP BY DATE(device_datetime)
-) AS temp
-JOIN play_back_histories AS start_location ON start_location.device_datetime = temp.min_datetime
-JOIN play_back_histories AS end_location ON end_location.device_datetime = temp.max_datetime;
-");
+        $results = DB::table('play_back_histories as pbh')
+            ->join('vehicles as v', 'pbh.device_imei', '=', 'v.device_imei')
+            ->select(
+                'pbh.device_imei',
+                'v.vehicle_name',
+                DB::raw('DATE(DATE_ADD(pbh.device_datetime, INTERVAL 330 MINUTE)) AS date'),
+                DB::raw('MIN(pbh.latitude) AS start_latitude'),
+                DB::raw('MIN(pbh.longitude) AS start_longitude'),
+                DB::raw('MIN(TIME(DATE_ADD(pbh.device_datetime, INTERVAL 330 MINUTE))) AS start_time'),
+                DB::raw('MIN(pbh.odometer) AS start_odometer'),
+                DB::raw('MAX(pbh.latitude) AS end_latitude'),
+                DB::raw('MAX(pbh.longitude) AS end_longitude'),
+                DB::raw('MAX(TIME(DATE_ADD(pbh.device_datetime, INTERVAL 330 MINUTE))) AS end_time'),
+                DB::raw('MAX(pbh.odometer) AS end_odometer'),
+                DB::raw('FORMAT(MAX(pbh.odometer) - MIN(pbh.odometer), 2) AS odometer_difference')
+            )
+            ->whereRaw('(DATE_ADD(pbh.device_datetime, INTERVAL 330 MINUTE)) >= ?', [$startDay])
+            ->whereRaw('(DATE_ADD(pbh.device_datetime, INTERVAL 330 MINUTE)) <= ?', [$endDay])
+            ->when($deviceImei !== 'All', function ($query) use ($deviceImei) {
+                return $query->where('pbh.device_imei', '=', $deviceImei);
+            })
+            ->groupBy('pbh.device_imei', 'v.vehicle_name', 'date')
+            ->orderBy('pbh.device_imei')
+            ->orderBy('date')
+            ->get();
+
 
 
         // dd($results);

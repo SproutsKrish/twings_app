@@ -64,7 +64,7 @@ class LiveDataController extends BaseController
 
         $deviceImei = Vehicle::where('id', $id)->value('device_imei');
 
-        $data['live'] = PlaybackReport::select('latitude', 'longitude', 'speed', 'angle')->where('device_imei', $deviceImei)->get();
+        $data['live'] = PlaybackReport::select('latitude', 'longitude', 'speed', 'angle')->where('device_imei', $deviceImei)->orderBy('id', 'desc')->get();
 
         if (empty($deviceImei)) {
             $response = ["success" => false, "message" => 'No Live Data Found', "status_code" => 404];
