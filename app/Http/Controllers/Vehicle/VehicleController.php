@@ -65,7 +65,6 @@ class VehicleController extends BaseController
             ->where('status', 1)
             ->first();
 
-
         if (!empty($result)) {
             $result->total_point = $result->total_point - 1;
             $result->save();
