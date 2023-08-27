@@ -53,7 +53,7 @@ class ShareLinkController extends Controller
         $sharelinks = DB::table('share_links as a')
             ->select('a.id', 'b.vehicle_name', 'a.link', 'a.expiry_date', 'a.created_at', DB::raw('(CASE WHEN a.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
             ->join('vehicles as b', 'a.vehicle_id', '=', 'b.id')
-            ->where('A.deleted_at', null)
+            ->where('a.deleted_at', null)
             ->get();
 
         if ($sharelinks->isEmpty()) {
@@ -70,7 +70,7 @@ class ShareLinkController extends Controller
         $sharelinks = DB::table('share_links as a')
             ->select('a.id', 'b.vehicle_name', 'a.link', 'a.expiry_date', 'a.created_at', DB::raw('(CASE WHEN a.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
             ->join('vehicles as b', 'a.vehicle_id', '=', 'b.id')
-            ->where('A.deleted_at', null)
+            ->where('a.deleted_at', null)
             ->where('a.id', $id)
             ->get();
 
