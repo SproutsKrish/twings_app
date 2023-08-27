@@ -159,7 +159,7 @@ class VehicleController extends BaseController
                 'client_id' => $vehicle->client_id,
                 'vehicle_id' => $vehicle->id,
                 'vehicle_name' => $vehicle->vehicle_name,
-                'vehicle_current_status' => '1',
+                'vehicle_current_status' => '4',
                 'vehicle_status' => '1',
                 'deviceimei' => $vehicle->device_imei
             );

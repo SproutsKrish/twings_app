@@ -12,19 +12,45 @@ use Illuminate\Support\Facades\Validator;
 
 class ConfigurationController extends BaseController
 {
+    public function store(Request $request)
+    {
+        $client_id = auth()->user()->client_id;
+
+        Configuration::create([
+            'client_id' => $client_id,
+            'vehicle_id' => $request->input('vehicle_id'),
+            'parking_alert_time' => $request->input('parking_alert_time'),
+            'idle_alert_time' => $request->input('idle_alert_time'),
+            'speed_limit' => $request->input('speed_limit'),
+            'expected_mileage' => $request->input('expected_mileage'),
+            'idle_rpm' => $request->input('idle_rpm'),
+            'max_rpm' => $request->input('max_rpm'),
+            'temp_low' => $request->input('temp_low'),
+            'temp_high' => $request->input('temp_high'),
+            'fuel_fill_limit' => $request->input('fuel_fill_limit'),
+            'fuel_dip_limit' => $request->input('fuel_dip_limit')
+        ]);
+
+        return $this->sendSuccess("Configuration Updated Successfully");
+    }
+
+
     public function show(Request $request)
     {
-        $configuration = Configuration::where('client_id', $request->input('client_id'))
+        $client_id = auth()->user()->client_id;
+
+        return $this->sendSuccess($client_id);
+
+        $configuration = Configuration::where('client_id', $client_id)
             ->where('vehicle_id', $request->input('vehicle_id'))
             ->get();
 
-
         if ($configuration->isEmpty()) {
             Configuration::create([
-                'client_id' => $request->input('client_id'),
+                'client_id' => $client_id,
                 'vehicle_id' => $request->input('vehicle_id'),
             ]);
-            $configuration = Configuration::where('client_id', $request->input('client_id'))->get();
+            $configuration = Configuration::where('client_id', $client_id)->get();
         }
 
         return $this->sendSuccess($configuration);

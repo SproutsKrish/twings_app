@@ -121,6 +121,7 @@ class LiveDataController extends BaseController
             ->count();
 
         $no_data = DB::table('live_data')
+            ->where('vehicle_current_status', 4)
             ->where('device_updatedtime', null)
             ->count();
 

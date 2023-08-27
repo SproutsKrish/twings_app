@@ -113,7 +113,6 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
         Route::get('live_link', [ShareLinkController::class, 'live_link']);
         Route::delete('delete_link/{id}', [ShareLinkController::class, 'destroy']);
 
-
         Route::controller(LiveDataController::class)->group(function () {
             Route::get('multi_dashboard', 'multi_dashboard');
             Route::get('single_dashboard/{id}', 'single_dashboard');
@@ -132,15 +131,12 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
         Route::controller(PlaybackReportController::class)->group(function () {
             Route::post('get_playback_report', 'get_playback_report');
         });
-
         Route::controller(DistanceReportController::class)->group(function () {
             Route::post('get_distance_report', 'get_distance_report');
         });
-
         Route::controller(RoutedeviationReportController::class)->group(function () {
             Route::post('route_deviation_report', 'route_deviation_report');
         });
-
         Route::controller(OverSpeedReportController::class)->group(function () {
             Route::post('speed_report', 'speed_report');
         });
@@ -162,6 +158,7 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
             Route::put('notify/update/{id}', 'update');
         });
         Route::controller(ConfigurationController::class)->group(function () {
+            Route::post('config/store', 'store');
             Route::get('config/show', 'show');
             Route::put('config/update/{id}', 'update');
             Route::put('config/immobilizer_option/{id}', 'immobilizer_option');
