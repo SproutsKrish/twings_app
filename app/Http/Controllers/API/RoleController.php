@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Models\Role;
 use App\Models\ModelHasRole;
+use Illuminate\Support\Facades\DB;
 
 class RoleController extends BaseController
 {
@@ -22,7 +23,7 @@ class RoleController extends BaseController
 
     public function index()
     {
-        $roles = Role::all();
+        $roles = DB::table('roles')->get();
 
         if ($roles->isEmpty()) {
             return $this->sendError('No Roles Found');

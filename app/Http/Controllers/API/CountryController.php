@@ -7,7 +7,7 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\Country;
-
+use Illuminate\Support\Facades\DB;
 
 class CountryController extends BaseController
 {
@@ -21,7 +21,7 @@ class CountryController extends BaseController
 
     public function index()
     {
-        $countries = Country::all();
+        $countries = DB::table('countries')->get();
 
         if ($countries->isEmpty()) {
             return $this->sendError('No Countries Found');

@@ -190,6 +190,8 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
         Route::resource('country', CountryController::class);
         Route::resource('permission', PermissionController::class);
         Route::resource('role', RoleController::class);
+
+
         Route::resource('role_right', RoleRightsController::class);
     });
 

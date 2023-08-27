@@ -48,6 +48,18 @@ class ShareLinkController extends Controller
         }
     }
 
+    public function link_list()
+    {
+        $sharelinks = ShareLink::all();
+
+        if ($sharelinks->isEmpty()) {
+            $response = ["success" => false, "message" => 'No Shared Links Found', "status_code" => 404];
+            return response()->json($response, 404);
+        }
+
+        $response = ["success" => true, "data" => $sharelinks, "status_code" => 200];
+        return response()->json($response, 200);
+    }
 
     public function live_link(Request $request)
     {
