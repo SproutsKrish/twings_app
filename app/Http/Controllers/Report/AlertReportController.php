@@ -11,7 +11,7 @@ class AlertReportController extends Controller
     public function all_alert()
     {
         $alertReports = DB::table('alert_reports')
-            ->select('vehicle_name', 'type_id', 'created_at')
+            ->select('vehicle_name', 'type_id', 'latitude', 'longitude', 'created_at')
             ->get();
 
         if ($alertReports->isEmpty()) {
@@ -25,7 +25,7 @@ class AlertReportController extends Controller
     {
         $alertReports = DB::table('alert_reports')
             ->where('vehicle_id', $id)
-            ->select('vehicle_name', 'type_id', 'created_at')
+            ->select('vehicle_name', 'type_id', 'latitude', 'longitude', 'created_at')
             ->get();
 
         if ($alertReports->isEmpty()) {

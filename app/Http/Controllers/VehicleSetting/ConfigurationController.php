@@ -4,6 +4,7 @@ namespace App\Http\Controllers\VehicleSetting;
 
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\Configuration;
+use App\Models\EnginePassword;
 use App\Models\LiveData;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
@@ -71,7 +72,6 @@ class ConfigurationController extends BaseController
             return $this->sendError('Failed to Update Configuration');
         }
     }
-
     public function safe_parking(Request $request, $id)
     {
         $vehicle = Vehicle::find($id);
@@ -96,25 +96,37 @@ class ConfigurationController extends BaseController
     }
     public function immobilizer_option(Request $request, $id)
     {
-
-        $vehicle = Vehicle::find($id);
-
-        if (!$vehicle) {
-            return $this->sendError('Vehicle Not Found');
-        }
-
         $validator = Validator::make($request->all(), [
-            'immobilizer_option' => 'required|max:255',
+            'engine_password' => 'required|max:255',
         ]);
 
-        if ($validator->fails()) {
-            return $this->sendError($validator->errors());
-        }
 
-        if ($vehicle->update($request->all())) {
-            return $this->sendSuccess("Vehicle Updated Successfully");
+
+        $engine_password = $request->input('engine_password');
+        $enginePasswords = EnginePassword::where('engine_password',  $engine_password)->first();
+
+        if (!empty($enginePasswords)) {
+            $vehicle = Vehicle::find($id);
+
+            if (!$vehicle) {
+                return $this->sendError('Vehicle Not Found');
+            }
+
+            $validator = Validator::make($request->all(), [
+                'immobilizer_option' => 'required|max:255',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors());
+            }
+
+            if ($vehicle->update($request->all())) {
+                return $this->sendSuccess("Vehicle Updated Successfully");
+            } else {
+                return $this->sendError('Failed to Update Vehicle');
+            }
         } else {
-            return $this->sendError('Failed to Update Vehicle');
+            return $this->sendError('Password Is Incorrect');
         }
     }
     public function odometer_update(Request $request, $id)

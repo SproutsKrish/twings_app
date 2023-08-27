@@ -29,8 +29,8 @@ class GeofenceController extends Controller
             'location_short_name' => 'required|max:255',
             'latitude' => 'required|max:255',
             'longitude' => 'required|max:255',
-            'circle_size' => 'required|max:255',
-            'radius' => 'required|max:255'
+            'radius' => 'required|max:255',
+            'client_id' => 'required|max:255'
         ]);
 
         if ($validator->fails()) {
@@ -73,8 +73,8 @@ class GeofenceController extends Controller
             'location_short_name' => 'required|max:255',
             'latitude' => 'required|max:255',
             'longitude' => 'required|max:255',
-            'circle_size' => 'required|max:255',
-            'radius' => 'required|max:255'
+            'radius' => 'required|max:255',
+            'client_id' => 'required|max:255'
         ]);
 
         if ($validator->fails()) {

@@ -111,7 +111,13 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
 
         Route::get('current_link/{id}', [ShareLinkController::class, 'current_link']);
         Route::get('live_link', [ShareLinkController::class, 'live_link']);
+
+        Route::get('link_list', [ShareLinkController::class, 'link_list']);
+        Route::get('link_show/{id}', [ShareLinkController::class, 'link_show']);
+        Route::post('link_save', [ShareLinkController::class, 'link_save']);
         Route::delete('delete_link/{id}', [ShareLinkController::class, 'destroy']);
+
+
 
         Route::controller(LiveDataController::class)->group(function () {
             Route::get('multi_dashboard', 'multi_dashboard');

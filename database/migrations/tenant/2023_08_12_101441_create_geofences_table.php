@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('circle_size')->nullable()->comments('Size of the circle associated with the location, can be null');
             $table->float('radius')->default(500)->comments('Radius of the circle in meters, default is 500 meters');
             $table->bigInteger('client_id')->comments('ID of the associated client');
-            $table->tinyInteger('active_code')->comments('Code indicating the active status of the location');
+            $table->tinyInteger('active_code')->default(1)->comments('Code indicating the active status of the location');
             $table->timestamps();
         });
     }
