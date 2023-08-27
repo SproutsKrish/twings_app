@@ -12,7 +12,7 @@ class GeofenceController extends Controller
 {
     public function index()
     {
-        $geofences = Geofence::all();
+        $geofences = Geofence::where('active_code', 1)->get();
 
         if ($geofences->isEmpty()) {
             $response = ["success" => false, "message" => 'No Geofences Found', "status_code" => 404];

@@ -55,28 +55,28 @@ class LiveDataController extends BaseController
 
     public function single_dashboard($id)
     {
-        $data['vehicle'] = DB::table('vehicles AS A')
+        $vehicle_data = DB::table('vehicles AS A')
             ->select('B.id', 'A.vehicle_type_id', 'A.vehicle_name', 'A.device_imei', 'A.expire_date', 'A.safe_parking', 'A.immobilizer_option', 'C.vehicle_type', 'B.vehicle_current_status',  'B.vehicle_status', 'B.lattitute', 'B.longitute', 'B.ignition', 'B.ac_status', 'B.speed', 'B.angle', 'B.odometer', DB::raw("DATE_ADD(B.device_updatedtime, INTERVAL '330' MINUTE) as device_updatedtime"), 'B.temperature', 'B.device_battery_volt', 'B.vehicle_battery_volt', 'B.battery_percentage', 'B.door_status', 'B.power_status', 'B.today_distance', DB::raw("DATE_ADD(B.last_ignition_on_time, INTERVAL '330' MINUTE) as last_ignition_on_time"), DB::raw("DATE_ADD(B.last_ignition_off_time, INTERVAL '330' MINUTE) as last_ignition_off_time"),  DB::raw("TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), '%H:%i:%s') as last_duration"),  'B.fuel_litre', 'B.immobilizer_status', 'B.gpssignal', 'B.gsm_status', 'B.rpm_value', 'B.sec_engine_status')
             ->join('live_data AS B', 'A.id', '=', 'B.vehicle_id')
             ->join('vehicle_types AS C', 'C.id', '=', 'A.vehicle_type_id')
             ->where('vehicle_id', $id)
             ->first();
 
-        $deviceImei = Vehicle::where('id', $id)->value('device_imei');
+        // $deviceImei = Vehicle::where('id', $id)->value('device_imei');
 
         // $data['live'] = PlaybackReport::select('latitude', 'longitude', 'speed', 'angle')->where('device_imei', $deviceImei)->orderBy('id', 'desc')->get();
 
-        $data['live'] = PlaybackReport::select('latitude', 'longitude', 'speed', 'angle')
-            ->where('device_imei', $deviceImei)
-            ->where('device_datetime', '>=', Carbon::now()->subMinutes(2))
-            ->get();
+        // $data['live'] = PlaybackReport::select('latitude', 'longitude', 'speed', 'angle')
+        //     ->where('device_imei', $deviceImei)
+        //     ->where('device_datetime', '>=', Carbon::now()->subMinutes(2))
+        //     ->get();
 
-        if (empty($deviceImei)) {
+        if (empty($vehicle_data)) {
             $response = ["success" => false, "message" => 'No Live Data Found', "status_code" => 404];
             return response()->json($response, 404);
         }
 
-        $response = ["success" => true, "data" => $data, "status_code" => 200];
+        $response = ["success" => true, "data" => $vehicle_data, "status_code" => 200];
         return response()->json($response, 200);
     }
 
