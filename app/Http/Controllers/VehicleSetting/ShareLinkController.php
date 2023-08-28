@@ -111,7 +111,7 @@ class ShareLinkController extends Controller
         $shareLink->save();
 
         if ($shareLink->save()) {
-            $response = ["success" => true, "data" => 'Link Created', "status_code" => 200];
+            $response = ["success" => true, "message" => 'Link Created', "status_code" => 200];
             return response()->json($response, 200);
         } else {
             $response = ["success" => false, "message" => 'Failed to Create Link', "status_code" => 404];
@@ -168,7 +168,7 @@ class ShareLinkController extends Controller
         }
 
         if ($link->delete()) {
-            $response = ["success" => true, "data" => 'Link Deleted', "status_code" => 200];
+            $response = ["success" => true, "message" => 'Link Deleted', "status_code" => 200];
             return response()->json($response, 200);
         } else {
             $response = ["success" => false, "message" => 'Failed to Delete Link', "status_code" => 404];

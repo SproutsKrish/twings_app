@@ -121,9 +121,11 @@ class ConfigurationController extends BaseController
             }
 
             if ($vehicle->update($request->all())) {
-                return $this->sendSuccess("Vehicle Updated Successfully");
+                $response = ["success" => true, "message" => 'Engine Status Updated', "status_code" => 200];
+                return response()->json($response, 200);
             } else {
-                return $this->sendError('Failed to Update Vehicle');
+                $response = ["success" => false, "message" => 'Failed to Update Engine Status', "status_code" => 404];
+                return response()->json($response, 404);
             }
         } else {
             return $this->sendError('Password Is Incorrect');

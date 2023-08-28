@@ -11,13 +11,13 @@ use Illuminate\Support\Facades\DB;
 
 class CountryController extends BaseController
 {
-    function __construct()
-    {
-        $this->middleware('permission:country-list|country-create|country-edit|country-delete', ['only' => ['index', 'show']]);
-        $this->middleware('permission:country-create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:country-edit', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:country-delete', ['only' => ['destroy']]);
-    }
+    // function __construct()
+    // {
+    //     $this->middleware('permission:country-list|country-create|country-edit|country-delete', ['only' => ['index', 'show']]);
+    //     $this->middleware('permission:country-create', ['only' => ['create', 'store']]);
+    //     $this->middleware('permission:country-edit', ['only' => ['edit', 'update']]);
+    //     $this->middleware('permission:country-delete', ['only' => ['destroy']]);
+    // }
 
     public function index()
     {
