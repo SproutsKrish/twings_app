@@ -11,19 +11,26 @@ class OverSpeedReportController extends Controller
 {
     public function speed_report(Request $request)
     {
+        $start_day =  $request->input('start_day');
+        $end_day =  $request->input('end_day');
+        $device_imei = $request->input('device_imei');
+        $speed = $request->input('speed');
+
         $query = "
         SELECT
             number,
-            MIN(latitude) AS s_lat,
-            MIN(longitude) AS s_lng,
-            MAX(latitude) AS e_lat,
-            MAX(longitude) AS e_lng,
-            MIN(speed) AS s_speed,
-            MAX(speed) AS e_speed,
-            MAX(speed) - MIN(speed) AS speed_diff,
-            MIN(device_datetime + INTERVAL 330 MINUTE) AS s_device_datetime,
-            MAX(device_datetime + INTERVAL 330 MINUTE) AS e_device_datetime,
-            SEC_TO_TIME(TIMESTAMPDIFF(SECOND, MIN(device_datetime), MAX(device_datetime))) AS time_diff
+            MIN(latitude) AS start_latitude,
+            MIN(longitude) AS start_longitude,
+            MAX(latitude) AS end_latitude,
+            MAX(longitude) AS end_longitude,
+            MIN(speed) AS start_speed,
+            MAX(speed) AS end_speed,
+            MIN(odometer) AS start_odometer,
+            MAX(odometer) AS end_odometer,
+            ROUND(MAX(odometer) - MIN(odometer), 2) AS odometer_difference,
+            MIN(device_datetime + INTERVAL 330 MINUTE) AS start_device_datetime,
+            MAX(device_datetime + INTERVAL 330 MINUTE) AS end_device_datetime,
+            SEC_TO_TIME(TIMESTAMPDIFF(SECOND, MIN(device_datetime), MAX(device_datetime))) AS time_difference
         FROM (
             SELECT id, latitude, longitude, device_datetime, speed, odometer, number,
                 ROW_NUMBER() OVER (PARTITION BY number ORDER BY id) AS row_num_asc,
@@ -40,7 +47,7 @@ class OverSpeedReportController extends Controller
                     @prev_id := id
                 FROM play_back_histories,
                     (SELECT @number := 1, @prev_id := 0) AS init
-                WHERE speed >= 10 and device_imei = '2109120102295' and device_datetime + INTERVAL 330 MINUTE BETWEEN '2023-08-01 00:00:00' and '2023-08-31 23:59:59'
+                WHERE speed >= $speed and device_imei = '$device_imei' and device_datetime + INTERVAL 330 MINUTE BETWEEN '$start_day' and '$end_day'
                 ORDER BY id
             ) AS numbered_records
         ) AS numbered_rows_with_ranks
