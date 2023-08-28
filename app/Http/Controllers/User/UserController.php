@@ -257,7 +257,7 @@ class UserController extends BaseController
             }
         } else {
             $response = ["success" => false, "message" => "User Creation Failed. Unauthorize Role Creation", "status_code" => 404];
-            return response()->json($response, 404);
+            return response()->json($response, 403);
         }
     }
 

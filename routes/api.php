@@ -201,10 +201,14 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
         Route::resource('role_right', RoleRightsController::class);
     });
 
+
     Route::group(['middleware' => ['auth', 'checkrole:4,5']], function () {
         Route::resource('vehicle', VehicleController::class);
     });
 });
+
+Route::get('role_rights_list/{role_id}', [RoleRightsController::class, 'role_rights_list']);
+
 
 //Role Has Permissions
 Route::get('roles/permissions', [RoleHasPermissionController::class, 'index']);

@@ -22,6 +22,24 @@ class RoleRightsController extends BaseController
         return $this->sendSuccess($role_rights);
     }
 
+    public function role_rights_list($role_id)
+    {
+        $roleRights = DB::table('role_rights')
+            ->where('role_id', $role_id)
+            ->pluck('rights_id');
+
+
+        $roles = DB::table('roles')
+            ->whereIn('id', $roleRights->toArray())
+            ->get();
+
+        if ($roles->isEmpty()) {
+            return $this->sendError('No Role Rights Found');
+        }
+
+        return $this->sendSuccess($roles);
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
