@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->string('email')->unique();
+            $table->bigInteger('mobile_no')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('secondary_password')->nullable();

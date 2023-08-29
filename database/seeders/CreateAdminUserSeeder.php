@@ -206,6 +206,7 @@ class CreateAdminUserSeeder extends Seeder
         $user = User::create([
             'name' => 'superadmin',
             'email' => 'superadmin@gmail.com',
+            'mobile_no' => '7904600101',
             'password' => bcrypt('123456'),
             'secondary_password' => bcrypt('twingszxc'),
             'role_id' => 1

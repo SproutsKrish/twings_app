@@ -34,7 +34,7 @@ class LoginController extends BaseController
             $credentials = $request->only('email', 'password');
 
             $user = User::where('email', $credentials['email'])
-                ->orWhere('name', $credentials['email'])
+                ->orWhere('mobile_no', $credentials['email'])
                 ->first();
 
             if ($user) {

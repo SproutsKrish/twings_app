@@ -119,7 +119,7 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
 
 
         Route::get('user_list/{user_id}', [UserController::class, 'user_list']);
-
+        Route::post('user_point_list', [UserController::class, 'user_point_list']);
 
         Route::controller(LiveDataController::class)->group(function () {
             Route::get('multi_dashboard', 'multi_dashboard');

@@ -46,7 +46,7 @@ class UserController extends BaseController
 
     public function user_list($user_id)
     {
-        $users = User::select('users.id', 'users.name', 'users.email', 'users.country_name', 'users.role_id', 'users.country_id', 'roles.name as role')
+        $users = User::select('users.id', 'users.name', 'users.email', 'users.mobile_no', 'users.country_name', 'users.role_id', 'users.country_id', 'roles.name as role')
             ->join('roles', 'users.role_id', '=', 'roles.id')
             ->where('users.created_by', $user_id)
             ->get();
@@ -58,12 +58,31 @@ class UserController extends BaseController
         return $this->sendSuccess($users);
     }
 
+    public function user_point_list(Request $request)
+    {
+        $user_id = $request->input('user_id');
+        $role_id = $request->input('role_id');
+        $role_id  = $role_id + 1;
+
+        $user_point_list = User::select('*')
+            ->where('created_by', 1)
+            ->where('role_id', 2)
+            ->get();
+
+        if ($user_point_list->isEmpty()) {
+            return $this->sendError('No Users Found');
+        }
+
+        return $this->sendSuccess($user_point_list);
+    }
+
     public function store(Request $request)
     {
         //Validation Code
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:users,name',
             'email' => 'required|email|unique:users,email',
+            'mobile_no' => 'required|unique:users,mobile_no',
             'password' => 'required',
             'c_password' => 'required|same:password',
             'role_id' => 'required',
@@ -129,6 +148,7 @@ class UserController extends BaseController
                         [
                             'admin_name' => $user->name,
                             'admin_email' => $user->email,
+                            'admin_mobile' => $user->mobile_no,
                             'user_id' => $user->id,
                             'created_by' => auth()->user()->id,
                             'ip_address' => $request->ip(),
@@ -142,6 +162,7 @@ class UserController extends BaseController
                         [
                             'distributor_name' => $user->name,
                             'distributor_email' => $user->email,
+                            'distributor_mobile' => $user->mobile_no,
                             'user_id' => $user->id,
                             'admin_id' => $user->admin_id,
                             'created_by' => auth()->user()->id,
@@ -156,6 +177,7 @@ class UserController extends BaseController
                         [
                             'dealer_name' => $user->name,
                             'dealer_email' => $user->email,
+                            'dealer_mobile' => $user->mobile_no,
                             'user_id' => $user->id,
                             'admin_id' => $user->admin_id,
                             'distributor_id' => $user->distributor_id,
@@ -171,6 +193,7 @@ class UserController extends BaseController
                         [
                             'subdealer_name' => $user->name,
                             'subdealer_email' => $user->email,
+                            'subdealer_mobile' => $user->mobile_no,
                             'user_id' => $user->id,
                             'admin_id' => $user->admin_id,
                             'distributor_id' => $user->distributor_id,
@@ -187,6 +210,7 @@ class UserController extends BaseController
                         [
                             'client_name' => $user->name,
                             'client_email' => $user->email,
+                            'client_mobile' => $user->mobile_no,
                             'user_id' => $user->id,
                             'admin_id' => $user->admin_id,
                             'distributor_id' => $user->distributor_id,
@@ -240,6 +264,7 @@ class UserController extends BaseController
                         'id' => $user->id,
                         'name' => $user->name,
                         'email' => $user->email,
+                        'mobile_no' => $user->mobile_no,
                         'password' => $user->password,
                         'secondary_password' => $user->secondary_password,
                         'role_id' => $user->role_id,
