@@ -16,13 +16,59 @@ class LiveDataController extends BaseController
 {
     public function multi_dashboard(Request $request)
     {
+        $startDate = date('Y-m-d') . ' 00:00:00';
+        $endDate = date('Y-m-d H:i:s');
+
         $search = $request->input('search');
         if ($search == null) {
-            $result = DB::table('vehicles AS A')
-                ->select('B.id', 'A.vehicle_type_id', 'A.vehicle_name', 'A.device_imei', 'A.expire_date', 'A.safe_parking', 'A.immobilizer_option', 'C.vehicle_type', 'D.speed_limit', 'B.vehicle_current_status', 'B.vehicle_status', 'B.lattitute', 'B.longitute', 'B.ignition', 'B.ac_status', 'B.speed', 'B.angle', 'B.odometer', DB::raw("DATE_ADD(B.device_updatedtime, INTERVAL '330' MINUTE) as device_updatedtime"), 'B.temperature', 'B.device_battery_volt', 'B.vehicle_battery_volt', 'B.battery_percentage', 'B.door_status', 'B.power_status', 'B.today_distance', DB::raw("DATE_ADD(B.last_ignition_on_time, INTERVAL '330' MINUTE) as last_ignition_on_time"), DB::raw("DATE_ADD(B.last_ignition_off_time, INTERVAL '330' MINUTE) as last_ignition_off_time"),  DB::raw("TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), '%H:%i:%s') as last_duration"),  'B.fuel_litre', 'B.immobilizer_status', 'B.gpssignal', 'B.gsm_status', 'B.rpm_value', 'B.sec_engine_status', 'B.expiry_status')
-                ->leftJoin('live_data AS B', 'A.id', '=', 'B.vehicle_id')
-                ->leftJoin('vehicle_types AS C', 'C.id', '=', 'A.vehicle_type_id')
-                ->leftJoin('configurations AS D', 'D.vehicle_id', '=', 'A.id')
+            $result = DB::table('live_data as B')
+                ->selectRaw('
+                B.id,
+                A.vehicle_type_id,
+                C.vehicle_type,
+                D.speed_limit,
+                A.vehicle_name,
+                A.device_imei,
+                A.expire_date,
+                A.safe_parking,
+                A.immobilizer_option,
+                B.vehicle_current_status,
+                B.vehicle_status,
+                B.lattitute,
+                B.longitute,
+                B.ignition,
+                B.ac_status,
+                B.speed,
+                B.angle,
+                B.odometer,
+                DATE_ADD(B.device_updatedtime, INTERVAL 330 MINUTE) as device_updatedtime,
+                B.temperature,
+                B.device_battery_volt,
+                B.vehicle_battery_volt,
+                B.battery_percentage,
+                B.door_status,
+                B.power_status,
+                DATE_ADD(B.last_ignition_on_time, INTERVAL 330 MINUTE) as last_ignition_on_time,
+                DATE_ADD(B.last_ignition_off_time, INTERVAL 330 MINUTE) as last_ignition_off_time,
+                TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), "%H:%i:%s") as last_duration,
+                B.fuel_litre,
+                B.immobilizer_status,
+                B.gpssignal,
+                B.gsm_status,
+                B.rpm_value,
+                B.sec_engine_status,
+                B.expiry_status,
+                E.today_distance,
+                F.device_type,
+                G.device_model
+
+            ')
+                ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
+                ->leftJoin('twings.vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
+                ->leftJoin('configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
+                ->leftJoin('twings.device_types as F', 'F.id', '=', 'A.device_make_id')
+                ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
+                ->leftJoin(DB::raw("(SELECT device_imei, max(odometer), min(odometer), round(max(odometer) - min(odometer), 2) AS today_distance FROM play_back_histories WHERE DATE_ADD(device_datetime, INTERVAL 330 MINUTE) >= '$startDate' AND DATE_ADD(device_datetime, INTERVAL 330 MINUTE) <= '$endDate' GROUP by device_imei) AS E"), 'E.device_imei', '=', 'A.device_imei')
                 ->get();
 
             if ($result->isEmpty()) {
@@ -33,15 +79,52 @@ class LiveDataController extends BaseController
             return response($response, 200);
         } else {
 
-            $deviceimei = Vehicle::where('vehicle_name', 'LIKE', "%$search%")->pluck('device_imei');
+            $device_imei = Vehicle::where('vehicle_name', 'LIKE', "%$search%")->pluck('device_imei');
 
-            $result = DB::table('vehicles AS A')
-                ->select('B.id', 'A.vehicle_type_id', 'A.vehicle_name', 'A.device_imei', 'A.expire_date', 'A.safe_parking', 'A.immobilizer_option', 'C.vehicle_type', 'D.speed_limit', 'B.vehicle_current_status', 'B.vehicle_status', 'B.lattitute', 'B.longitute', 'B.ignition', 'B.ac_status', 'B.speed', 'B.angle', 'B.odometer', DB::raw("DATE_ADD(B.device_updatedtime, INTERVAL '330' MINUTE) as device_updatedtime"), 'B.temperature', 'B.device_battery_volt', 'B.vehicle_battery_volt', 'B.battery_percentage', 'B.door_status', 'B.power_status', 'B.today_distance', DB::raw("DATE_ADD(B.last_ignition_on_time, INTERVAL '330' MINUTE) as last_ignition_on_time"), DB::raw("DATE_ADD(B.last_ignition_off_time, INTERVAL '330' MINUTE) as last_ignition_off_time"),  DB::raw("TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), '%H:%i:%s') as last_duration"),  'B.fuel_litre', 'B.immobilizer_status', 'B.gpssignal', 'B.gsm_status', 'B.rpm_value', 'B.sec_engine_status', 'B.expiry_status')
-                ->leftJoin('live_data AS B', 'A.id', '=', 'B.vehicle_id')
-                ->leftJoin('vehicle_types AS C', 'C.id', '=', 'A.vehicle_type_id')
-                ->leftJoin('configurations AS D', 'D.vehicle_id', '=', 'A.id')
-
-                ->whereIn('B.deviceimei', $deviceimei)
+            $result = DB::table('live_data as B')
+                ->selectRaw('
+            B.id,
+            A.vehicle_type_id,
+            C.vehicle_type,
+            D.speed_limit,
+            A.vehicle_name,
+            A.device_imei,
+            A.expire_date,
+            A.safe_parking,
+            A.immobilizer_option,
+            B.vehicle_current_status,
+            B.vehicle_status,
+            B.lattitute,
+            B.longitute,
+            B.ignition,
+            B.ac_status,
+            B.speed,
+            B.angle,
+            B.odometer,
+            DATE_ADD(B.device_updatedtime, INTERVAL 330 MINUTE) as device_updatedtime,
+            B.temperature,
+            B.device_battery_volt,
+            B.vehicle_battery_volt,
+            B.battery_percentage,
+            B.door_status,
+            B.power_status,
+            DATE_ADD(B.last_ignition_on_time, INTERVAL 330 MINUTE) as last_ignition_on_time,
+            DATE_ADD(B.last_ignition_off_time, INTERVAL 330 MINUTE) as last_ignition_off_time,
+            TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), "%H:%i:%s") as last_duration,
+            B.fuel_litre,
+            B.immobilizer_status,
+            B.gpssignal,
+            B.gsm_status,
+            B.rpm_value,
+            B.sec_engine_status,
+            B.expiry_status,
+            E.today_distance
+        ')
+                ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
+                ->leftJoin('vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
+                ->leftJoin('configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
+                ->leftJoin(DB::raw("(SELECT device_imei, max(odometer), min(odometer), round(max(odometer) - min(odometer), 2) AS today_distance FROM play_back_histories WHERE DATE_ADD(device_datetime, INTERVAL 330 MINUTE) >= '$startDate' AND DATE_ADD(device_datetime, INTERVAL 330 MINUTE) <= '$endDate' GROUP by device_imei) AS E"), 'E.device_imei', '=', 'A.device_imei')
+                ->whereIn('B.deviceimei', $device_imei)
                 ->get();
 
             if ($result->isEmpty()) {
@@ -55,45 +138,67 @@ class LiveDataController extends BaseController
 
     public function single_dashboard($device_imei)
     {
-        $vehicle_data = DB::table('vehicles AS A')
-            ->select('B.id', 'A.vehicle_type_id', 'A.vehicle_name', 'A.device_imei', 'A.expire_date', 'A.safe_parking', 'A.immobilizer_option', 'C.vehicle_type', 'B.vehicle_current_status',  'B.vehicle_status', 'B.lattitute', 'B.longitute', 'B.ignition', 'B.ac_status', 'B.speed', 'B.angle', 'B.odometer', DB::raw("DATE_ADD(B.device_updatedtime, INTERVAL '330' MINUTE) as device_updatedtime"), 'B.temperature', 'B.device_battery_volt', 'B.vehicle_battery_volt', 'B.battery_percentage', 'B.door_status', 'B.power_status', 'B.today_distance', DB::raw("DATE_ADD(B.last_ignition_on_time, INTERVAL '330' MINUTE) as last_ignition_on_time"), DB::raw("DATE_ADD(B.last_ignition_off_time, INTERVAL '330' MINUTE) as last_ignition_off_time"),  DB::raw("TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), '%H:%i:%s') as last_duration"),  'B.fuel_litre', 'B.immobilizer_status', 'B.gpssignal', 'B.gsm_status', 'B.rpm_value', 'B.sec_engine_status', 'B.expiry_status')
-            ->join('live_data AS B', 'A.id', '=', 'B.vehicle_id')
-            ->join('vehicle_types AS C', 'C.id', '=', 'A.vehicle_type_id')
+        $startDate = date('Y-m-d') . ' 00:00:00';
+        $endDate = date('Y-m-d H:i:s');
+
+        $result = DB::table('live_data as B')
+            ->selectRaw('
+            B.id,
+            A.vehicle_type_id,
+            C.vehicle_type,
+            D.speed_limit,
+            A.vehicle_name,
+            A.device_imei,
+            A.expire_date,
+            A.safe_parking,
+            A.immobilizer_option,
+            B.vehicle_current_status,
+            B.vehicle_status,
+            B.lattitute,
+            B.longitute,
+            B.ignition,
+            B.ac_status,
+            B.speed,
+            B.angle,
+            B.odometer,
+            DATE_ADD(B.device_updatedtime, INTERVAL 330 MINUTE) as device_updatedtime,
+            B.temperature,
+            B.device_battery_volt,
+            B.vehicle_battery_volt,
+            B.battery_percentage,
+            B.door_status,
+            B.power_status,
+            DATE_ADD(B.last_ignition_on_time, INTERVAL 330 MINUTE) as last_ignition_on_time,
+            DATE_ADD(B.last_ignition_off_time, INTERVAL 330 MINUTE) as last_ignition_off_time,
+            TIME_FORMAT(TIMEDIFF(NOW(), B.last_ignition_off_time), "%H:%i:%s") as last_duration,
+            B.fuel_litre,
+            B.immobilizer_status,
+            B.gpssignal,
+            B.gsm_status,
+            B.rpm_value,
+            B.sec_engine_status,
+            B.expiry_status,
+            E.today_distance
+        ')
+            ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
+            ->leftJoin('vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
+            ->leftJoin('configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
+            ->leftJoin(DB::raw("(SELECT device_imei, max(odometer), min(odometer), round(max(odometer) - min(odometer), 2) AS today_distance FROM play_back_histories WHERE DATE_ADD(device_datetime, INTERVAL 330 MINUTE) >= '$startDate' AND DATE_ADD(device_datetime, INTERVAL 330 MINUTE) <= '$endDate' GROUP by device_imei) AS E"), 'E.device_imei', '=', 'A.device_imei')
             ->where('B.deviceimei', $device_imei)
-            ->first();
+            ->get();
 
-        // $deviceImei = Vehicle::where('id', $id)->value('device_imei');
-
-        // $data['live'] = PlaybackReport::select('latitude', 'longitude', 'speed', 'angle')->where('device_imei', $deviceImei)->orderBy('id', 'desc')->get();
-
-        // $data['live'] = PlaybackReport::select('latitude', 'longitude', 'speed', 'angle')
-        //     ->where('device_imei', $deviceImei)
-        //     ->where('device_datetime', '>=', Carbon::now()->subMinutes(2))
-        //     ->get();
-
-        if (empty($vehicle_data)) {
+        if (empty($result)) {
             $response = ["success" => false, "message" => 'No Live Data Found', "status_code" => 404];
             return response()->json($response, 404);
         }
 
-        $response = ["success" => true, "data" => $vehicle_data, "status_code" => 200];
+        $response = ["success" => true, "data" => $result, "status_code" => 200];
         return response()->json($response, 200);
     }
 
     public function vehicle_count()
     {
         $total_vehicles = Vehicle::count();
-
-        // dd($total_vehicles);
-
-        // $no_data = Vehicle::whereNotIn('id', function ($query) {
-        //     $query->select('vehicle_id')
-        //         ->from('live_data');
-        // })
-        //     ->count();
-
-
-        // dd($no_data);
 
         $parking = DB::table('live_data')
             ->where('ignition', 0)
