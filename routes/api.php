@@ -118,6 +118,8 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
         Route::delete('delete_link/{id}', [ShareLinkController::class, 'destroy']);
 
 
+        Route::get('user_list/{user_id}', [UserController::class, 'user_list']);
+
 
         Route::controller(LiveDataController::class)->group(function () {
             Route::get('multi_dashboard', 'multi_dashboard');
@@ -145,6 +147,10 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
         });
         Route::controller(OverSpeedReportController::class)->group(function () {
             Route::post('speed_report', 'speed_report');
+        });
+
+        Route::controller(OverSpeedReportController::class)->group(function () {
+            Route::get('demo_app', 'demo_app');
         });
 
         Route::resource('geo_fence', GeofenceController::class);

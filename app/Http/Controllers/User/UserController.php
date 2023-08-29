@@ -44,6 +44,20 @@ class UserController extends BaseController
         return $this->sendSuccess($users);
     }
 
+    public function user_list($user_id)
+    {
+        $users = User::select('users.id', 'users.name', 'users.email', 'users.country_name', 'users.role_id', 'users.country_id', 'roles.name as role')
+            ->join('roles', 'users.role_id', '=', 'roles.id')
+            ->where('users.created_by', $user_id)
+            ->get();
+
+        if ($users->isEmpty()) {
+            return $this->sendError('No Users Found');
+        }
+
+        return $this->sendSuccess($users);
+    }
+
     public function store(Request $request)
     {
         //Validation Code

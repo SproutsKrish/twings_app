@@ -63,7 +63,8 @@ class LoginController extends BaseController
     {
         try {
             if ($request->user()) {
-                $request->user()->tokens()->delete();
+                $token_id = $request->user()->currentAccessToken()->id;
+                $request->user()->tokens()->where('id', $token_id)->delete();
             }
             $response = ["success" => true, "message" => 'Successfully Logged Out', "status_code" => 200];
             return response($response, 200);

@@ -27,7 +27,7 @@ class PointController extends BaseController
 
     public function store(Request $request)
     {
-        $super_admin_id = $request->input('created_by');
+        $super_admin_id = $request->input('id');
         $admin_id = $request->input('admin_id');
         $distributor_id = $request->input('distributor_id');
         $dealer_id = $request->input('dealer_id');

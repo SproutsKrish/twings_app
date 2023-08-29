@@ -7,12 +7,17 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\Plan;
+use Illuminate\Support\Facades\DB;
 
 class PlanController extends BaseController
 {
     public function index()
     {
-        $plans = Plan::all();
+        $plans = DB::table('plans as a')
+            ->join('packages as b', 'a.package_id', '=', 'b.id')
+            ->join('periods as c', 'a.period_id', '=', 'c.id')
+            ->select('a.id', 'b.package_name', 'c.period_name', 'c.period_days')
+            ->get();
 
         if ($plans->isEmpty()) {
             return $this->sendError('No Plans Found');
