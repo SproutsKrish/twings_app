@@ -34,7 +34,7 @@ class LoginController extends BaseController
             $credentials = $request->only('email', 'password');
 
             $user = User::where('email', $credentials['email'])
-                ->orWhere('mobile_no', $credentials['email'])
+                ->orWhere('name', $credentials['email'])
                 ->first();
 
             if ($user) {
@@ -61,6 +61,8 @@ class LoginController extends BaseController
 
     public function logout(Request $request)
     {
+
+
         try {
             if ($request->user()) {
                 $token_id = $request->user()->currentAccessToken()->id;
