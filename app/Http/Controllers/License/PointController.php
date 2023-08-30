@@ -406,4 +406,8 @@ class PointController extends BaseController
             default:
         }
     }
+
+    public function stock_points()
+    {
+    }
 }
