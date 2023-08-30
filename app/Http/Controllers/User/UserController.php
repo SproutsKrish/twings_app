@@ -60,14 +60,38 @@ class UserController extends BaseController
 
     public function user_point_list(Request $request)
     {
-        $user_id = $request->input('user_id');
-        $role_id = $request->input('role_id');
-        $role_id  = $role_id + 1;
+        $user_id = $request->input('0');
+        $role_id = $request->input('1');
 
-        $user_point_list = User::select('*')
-            ->where('created_by', 1)
-            ->where('role_id', 2)
-            ->get();
+        if ($role_id == 1) {
+            $role_id  = $role_id + 1;
+
+            $user_point_list = User::select('name', 'admin_id as id')
+                ->where('created_by', $user_id)
+                ->where('role_id', $role_id)
+                ->get();
+        } else if ($role_id == 2) {
+            $role_id  = $role_id + 1;
+
+            $user_point_list = User::select('name', 'distributor_id as id')
+                ->where('created_by', $user_id)
+                ->where('role_id', $role_id)
+                ->get();
+        } else if ($role_id == 3) {
+            $role_id  = $role_id + 1;
+
+            $user_point_list = User::select('name', 'dealer_id as id')
+                ->where('created_by', $user_id)
+                ->where('role_id', $role_id)
+                ->get();
+        } else if ($role_id == 4) {
+            $role_id  = $role_id + 1;
+
+            $user_point_list = User::select('name', 'subdealer_id as id')
+                ->where('created_by', $user_id)
+                ->where('role_id', $role_id)
+                ->get();
+        }
 
         if ($user_point_list->isEmpty()) {
             return $this->sendError('No Users Found');

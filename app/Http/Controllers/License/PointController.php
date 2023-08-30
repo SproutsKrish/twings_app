@@ -27,16 +27,21 @@ class PointController extends BaseController
 
     public function store(Request $request)
     {
-        $super_admin_id = $request->input('id');
+        $super_admin_id = $request->input('created_by');
         $admin_id = $request->input('admin_id');
         $distributor_id = $request->input('distributor_id');
         $dealer_id = $request->input('dealer_id');
-        $subdealer_id = $request->input('subdealer_id');
         $plan_id = $request->input('plan_id');
         $point_type_id = $request->input('point_type_id');
+        $subdealer_id = null;
+
+        if ($super_admin_id == 1) {
+            $admin_id = 1;
+        }
+
 
         //Super Admin to Admin
-        if ($super_admin_id == '1' && $admin_id != null && $distributor_id == null && $dealer_id == null && $subdealer_id == null) {
+        if ($super_admin_id == 1 && $admin_id != null && $distributor_id != null && $dealer_id != null && $subdealer_id == null) {
 
             $result = Point::where('admin_id', $admin_id)
                 ->where('distributor_id', null)
@@ -47,6 +52,8 @@ class PointController extends BaseController
                 ->where('point_type_id', $point_type_id)
                 ->where('status', 1)
                 ->first();
+
+            // return response()->json($result);
 
             if (!empty($result)) {
                 $result->total_point = $result->total_point + $request->input('total_point');
@@ -200,7 +207,7 @@ class PointController extends BaseController
                     return $this->sendSuccess("New Point Added Successfully");
                 }
             } else {
-                return $this->sendSuccess("Requested Point Not Available");
+                return $this->sendSuccess("Requested Point Not Availables");
             }
         }
         //Distributor to Dealer
@@ -215,6 +222,8 @@ class PointController extends BaseController
                 ->where('point_type_id', $point_type_id)
                 ->where('status', 1)
                 ->first();
+
+            // return response()->json($result);
 
             if (!empty($result)) {
                 $result->total_point = $result->total_point - $request->input('total_point');
@@ -278,7 +287,7 @@ class PointController extends BaseController
                     return $this->sendSuccess("New Point Added Successfully");
                 }
             } else {
-                return $this->sendSuccess("Requested Point Not Available");
+                return $this->sendSuccess("Requested Point Not Availabless");
             }
         }
         //Dealer to Sub Dealer
@@ -293,6 +302,8 @@ class PointController extends BaseController
                 ->where('point_type_id', $point_type_id)
                 ->where('status', 1)
                 ->first();
+
+            return response()->json($result);
 
             if (!empty($result)) {
                 $result->total_point = $result->total_point - $request->input('total_point');
@@ -358,7 +369,7 @@ class PointController extends BaseController
                     return $this->sendSuccess("New Point Added Successfully");
                 }
             } else {
-                return $this->sendSuccess("Requested Point Not Available");
+                return $this->sendSuccess("Requested Point Not Availablesss");
             }
         }
     }
