@@ -220,7 +220,7 @@ class LiveDataController extends BaseController
                 ->update(['vehicle_current_status' => 5]);
         }
 
-        $expired_datas = DB::table('live_data as a')
+        $expired_datas = DB::table('live_data as A')
             ->join('vehicles as B', 'A.device_imei', '=', 'B.device_imei')
             ->where('B.expire_date', '<=', DB::raw('DATE_ADD(NOW(), INTERVAL 15 DAY)'))
             ->get();
@@ -232,7 +232,7 @@ class LiveDataController extends BaseController
                 ->update(['vehicle_current_status' => 6]);
         }
 
-        $expiry_datas = DB::table('live_data as a')
+        $expiry_datas = DB::table('live_data as A')
             ->join('vehicles as B', 'A.device_imei', '=', 'B.device_imei')
             ->where('B.expire_date', '<=', now())
             ->get();
