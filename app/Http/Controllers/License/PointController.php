@@ -101,6 +101,9 @@ class PointController extends BaseController
 
                     $point = new Point($request->all());
                     $point['admin_id'] = $admin_id;
+                    $point['point_type_id'] = $point_type_id;
+                    $point['plan_id'] = $plan_id;
+                    $point['total_point'] = $total_point;
 
                     $point->save();
                     $transaction_head = new LicenseTransaction();

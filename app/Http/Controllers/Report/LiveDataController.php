@@ -207,7 +207,16 @@ class LiveDataController extends BaseController
 
     public function vehicle_count()
     {
-        echo $current_time = Carbon::now();
+        // echo $current_time = Carbon::now();
+
+        $live_datas = DB::table('live_data')
+            ->where('device_updatedtime', '>', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
+            ->get();
+
+        foreach ($live_datas as $live_data) {
+            print_r($live_data);
+        }
+
 
         // $total_vehicles = Vehicle::count();
 
