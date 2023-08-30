@@ -214,67 +214,69 @@ class LiveDataController extends BaseController
             ->get();
 
         foreach ($live_datas as $live_data) {
-            print_r($live_data);
+            // print_r($live_data);
+            DB::table('live_data')
+                ->where('id', $live_data->id)
+                ->update(['vehicle_current_status' => 5]);
         }
 
+        $total_vehicles = Vehicle::count();
 
-        // $total_vehicles = Vehicle::count();
+        $parking = DB::table('live_data')
+            ->where('ignition', 0)
+            ->where('speed', 0)
+            ->where('device_updatedtime', '>', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
+            ->count();
 
-        // $parking = DB::table('live_data')
-        //     ->where('ignition', 0)
-        //     ->where('speed', 0)
-        //     ->where('device_updatedtime', '>', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
-        //     ->count();
+        $idle = DB::table('live_data')
+            ->where('ignition', 1)
+            ->where('speed', 0)
+            ->where('device_updatedtime', '>', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
+            ->count();
 
-        // $idle = DB::table('live_data')
-        //     ->where('ignition', 1)
-        //     ->where('speed', 0)
-        //     ->where('device_updatedtime', '>', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
-        //     ->count();
+        $moving = DB::table('live_data')
+            ->where('ignition', 1)
+            ->where('speed', '>', 0)
+            ->where('device_updatedtime', '>', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
+            ->count();
 
-        // $moving = DB::table('live_data')
-        //     ->where('ignition', 1)
-        //     ->where('speed', '>', 0)
-        //     ->where('device_updatedtime', '>', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
-        //     ->count();
+        $inactive = DB::table('live_data')
+            ->where('device_updatedtime', '<', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
+            ->count();
 
-        // $inactive = DB::table('live_data')
-        //     ->where('device_updatedtime', '<', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
-        //     ->count();
+        $no_data = DB::table('live_data')
+            ->where('vehicle_current_status', 4)
+            ->where('device_updatedtime', null)
+            ->count();
 
-        // $no_data = DB::table('live_data')
-        //     ->where('vehicle_current_status', 4)
-        //     ->where('device_updatedtime', null)
-        //     ->count();
+        // dd($parking);
+        // dd($idle);
+        // dd($moving);
+        // dd($inactive);
 
-        // // dd($parking);
-        // // dd($idle);
-        // // dd($moving);
-        // // dd($inactive);
+        $expired_vehicles = Vehicle::where('expire_date', '<=', now())->count();
 
-        // $expired_vehicles = Vehicle::where('expire_date', '<=', now())->count();
+        $expiry_vehicles = Vehicle::where('expire_date', '>', now())
+            ->where('expire_date', '<=', DB::raw('DATE_ADD(NOW(), INTERVAL 15 DAY)'))
+            ->count();
 
-        // $expiry_vehicles = Vehicle::where('expire_date', '>', now())
-        //     ->where('expire_date', '<=', DB::raw('DATE_ADD(NOW(), INTERVAL 15 DAY)'))
-        //     ->count();
+        $vehicle_count = array(
+            'running' => $moving,
+            'idle' => $idle,
+            'stop' => $parking,
+            'no_data' => $no_data,
+            'inactive' => $inactive,
+            'total_vehicles' =>  $total_vehicles,
+            'expired_vehicles' => $expired_vehicles,
+            'expiry_vehicles' => $expiry_vehicles
+        );
 
-        // $vehicle_count = array(
-        //     'running' => $moving,
-        //     'idle' => $idle,
-        //     'stop' => $parking,
-        //     'no_data' => $no_data,
-        //     'inactive' => $inactive,
-        //     'total_vehicles' =>  $total_vehicles,
-        //     'expired_vehicles' => $expired_vehicles,
-        //     'expiry_vehicles' => $expiry_vehicles
-        // );
+        if (!$vehicle_count) {
+            $response = ["success" => false, "message" => 'No Live Data Found', "status_code" => 404];
+            return response()->json($response, 404);
+        }
 
-        // if (!$vehicle_count) {
-        //     $response = ["success" => false, "message" => 'No Live Data Found', "status_code" => 404];
-        //     return response()->json($response, 404);
-        // }
-
-        // $response = ["success" => true, "data" => $vehicle_count, "status_code" => 200];
-        // return response()->json($response, 200);
+        $response = ["success" => true, "data" => $vehicle_count, "status_code" => 200];
+        return response()->json($response, 200);
     }
 }
