@@ -222,7 +222,7 @@ class LiveDataController extends BaseController
 
         $expired_datas = DB::table('live_data as a')
             ->join('vehicles as B', 'A.device_imei', '=', 'B.device_imei')
-            ->where('b.expire_date', '<=', DB::raw('DATE_ADD(NOW(), INTERVAL 15 DAY)'))
+            ->where('B.expire_date', '<=', DB::raw('DATE_ADD(NOW(), INTERVAL 15 DAY)'))
             ->get();
 
         foreach ($expired_datas as $expired_data) {
