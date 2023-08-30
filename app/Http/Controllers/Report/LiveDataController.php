@@ -220,33 +220,50 @@ class LiveDataController extends BaseController
                 ->update(['vehicle_current_status' => 5]);
         }
 
+        $expired_datas = DB::table('live_data as a')
+            ->join('vehicles as B', 'A.device_imei', '=', 'B.device_imei')
+            ->where('b.expire_date', '<=', DB::raw('DATE_ADD(NOW(), INTERVAL 15 DAY)'))
+            ->get();
+
+        foreach ($expired_datas as $expired_data) {
+            // print_r($live_data);
+            DB::table('live_data')
+                ->where('id', $expired_data->id)
+                ->update(['vehicle_current_status' => 6]);
+        }
+
+        $expiry_datas = DB::table('live_data as a')
+            ->join('vehicles as B', 'A.device_imei', '=', 'B.device_imei')
+            ->where('b.expire_date', '<=', now())
+            ->get();
+
+        foreach ($expiry_datas as $expiry_data) {
+            // print_r($live_data);
+            DB::table('live_data')
+                ->where('id', $expiry_data->id)
+                ->update(['expiry_status' => 1]);
+        }
+
         $total_vehicles = Vehicle::count();
 
         $parking = DB::table('live_data')
-            ->where('ignition', 0)
-            ->where('speed', 0)
-            ->where('device_updatedtime', '>', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
+            ->where('vehicle_current_status', 1)
             ->count();
 
         $idle = DB::table('live_data')
-            ->where('ignition', 1)
-            ->where('speed', 0)
-            ->where('device_updatedtime', '>', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
+            ->where('vehicle_current_status', 2)
             ->count();
 
         $moving = DB::table('live_data')
-            ->where('ignition', 1)
-            ->where('speed', '>', 0)
-            ->where('device_updatedtime', '>', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
-            ->count();
-
-        $inactive = DB::table('live_data')
-            ->where('device_updatedtime', '<', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
+            ->where('vehicle_current_status', 3)
             ->count();
 
         $no_data = DB::table('live_data')
             ->where('vehicle_current_status', 4)
-            ->where('device_updatedtime', null)
+            ->count();
+
+        $inactive = DB::table('live_data')
+            ->where('vehicle_current_status', 5)
             ->count();
 
         // dd($parking);
