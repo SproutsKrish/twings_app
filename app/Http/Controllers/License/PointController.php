@@ -32,10 +32,10 @@ class PointController extends BaseController
 
 
         $created_by = $request->input('created_by');
-        // $admin_id = $request->input('admin_id');
-        // $distributor_id = $request->input('distributor_id');
-        // $dealer_id = $request->input('dealer_id');
-        // $subdealer_id = null;
+        $admin_id = $request->input('admin_id');
+        $distributor_id = $request->input('distributor_id');
+        $dealer_id = $request->input('dealer_id');
+        $subdealer_id = $request->input('dealer_id');
 
         $plan_id = $request->input('plan_id');
         $point_type_id = $request->input('point_type_id');
