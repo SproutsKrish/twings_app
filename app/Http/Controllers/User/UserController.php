@@ -656,4 +656,8 @@ class UserController extends BaseController
         // Close the dynamic connection and revert to the default connection
         DB::disconnect($connectionName);
     }
+
+    public function role_based_user_list(Request $request)
+    {
+    }
 }

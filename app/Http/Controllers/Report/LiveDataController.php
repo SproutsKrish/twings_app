@@ -234,7 +234,7 @@ class LiveDataController extends BaseController
         //expiry date
         $expiry_datas = DB::table('live_data as a')
             ->join('vehicles as b', 'a.deviceimei', '=', 'b.device_imei')
-            ->whereBetween('b.expiry_date', [DB::raw('CURDATE()'), DB::raw('DATE_ADD(CURDATE(), INTERVAL 15 DAY)')])
+            ->whereBetween('b.expire_date', [DB::raw('CURDATE()'), DB::raw('DATE_ADD(CURDATE(), INTERVAL 15 DAY)')])
             ->get();
 
         foreach ($expiry_datas as $expiry_data) {
