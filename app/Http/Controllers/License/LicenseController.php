@@ -122,4 +122,8 @@ class LicenseController extends BaseController
             return $this->sendError('Failed to insert license.', [], 500);
         }
     }
+
+    public function user_license_list()
+    {
+    }
 }

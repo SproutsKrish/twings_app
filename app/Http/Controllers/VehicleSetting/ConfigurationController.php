@@ -94,13 +94,12 @@ class ConfigurationController extends BaseController
             return $this->sendError('Failed to Update Vehicle');
         }
     }
+
     public function immobilizer_option(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
             'engine_password' => 'required|max:255',
         ]);
-
-
 
         $engine_password = $request->input('engine_password');
         $enginePasswords = EnginePassword::where('engine_password',  $engine_password)->first();

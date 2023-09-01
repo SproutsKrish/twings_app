@@ -104,7 +104,7 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
             Route::post('user/store', 'store');
             Route::get('user', 'index');
             Route::get('user/show/{id}', 'show');
-            Route::put('user/update/{id}', 'update');
+            Route::post('user/update', 'update');
             Route::delete('user/delete/{id}', 'destroy');
             Route::get('user/details', 'showdetails');
         });
@@ -118,10 +118,10 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
         Route::delete('delete_link/{id}', [ShareLinkController::class, 'destroy']);
 
 
-        Route::get('user_list/{user_id}', [UserController::class, 'user_list']);
+        Route::post('user_list', [UserController::class, 'user_list']);
         Route::post('user_point_list', [UserController::class, 'user_point_list']);
 
-        Route::get('stock_points', [PointController::class, 'stock_points']);
+        Route::post('point_stock_list', [PointController::class, 'point_stock_list']);
 
         Route::controller(LiveDataController::class)->group(function () {
             Route::get('multi_dashboard', 'multi_dashboard');

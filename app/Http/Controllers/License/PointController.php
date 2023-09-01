@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Models\Point;
 use App\Models\LicenseTransaction;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -91,7 +92,9 @@ class PointController extends BaseController
                             $prefix = "SWTLIC";
                             $date = Carbon::now()->format('Y');
                             $license_no = $prefix . $date . $maxId;
-                            License::create(['license_no' => $license_no, 'plan_id' => $plan_id, 'admin_id' => $admin_id]);
+                            License::create(
+                                ['license_no' => $license_no, 'plan_id' => $plan_id, 'admin_id' => $admin_id, 'created_by' => $created_by]
+                            );
                         }
                     }
                     return $this->sendSuccess("New Point Added Successfully");
@@ -136,7 +139,7 @@ class PointController extends BaseController
                             $prefix = "SWTLIC";
                             $date = Carbon::now()->format('Y');
                             $license_no = $prefix . $date . $maxId;
-                            License::create(['license_no' => $license_no, 'plan_id' => $plan_id, 'admin_id' => $admin_id]);
+                            License::create(['license_no' => $license_no, 'plan_id' => $plan_id, 'admin_id' => $admin_id, 'created_by' => $created_by]);
                         }
                     }
                     return $this->sendSuccess("New Point Added Successfully");
@@ -188,7 +191,10 @@ class PointController extends BaseController
                                 ->where('vehicle_id', null)
                                 ->orderBy('id', 'asc')
                                 ->limit($request->input('total_point'))
-                                ->update(['distributor_id' => $distributor_id]);
+                                ->update(
+                                    ['distributor_id' => $distributor_id],
+                                    ['created_by' => $created_by]
+                                );
                         }
 
                         return $this->sendSuccess("New Point Added Successfully");
@@ -224,7 +230,8 @@ class PointController extends BaseController
                         return $this->sendSuccess("New Point Added Successfully");
                     }
                 } else {
-                    return $this->sendSuccess("Requested Point Not Availables");
+                    $response = ["success" => false, "message" => "Requested Point Not Available", "status_code" => 403];
+                    return response()->json($response, 403);
                 }
                 break;
             case $role_id == 3:
@@ -305,13 +312,17 @@ class PointController extends BaseController
                                 ->where('vehicle_id', null)
                                 ->orderBy('id', 'asc')
                                 ->limit($request->input('total_point'))
-                                ->update(['dealer_id' => $dealer_id]);
+                                ->update(
+                                    ['dealer_id' => $dealer_id],
+                                    ['created_by' => $created_by]
+                                );
                         }
 
                         return $this->sendSuccess("New Point Added Successfully");
                     }
                 } else {
-                    return $this->sendSuccess("Requested Point Not Availabless");
+                    $response = ["success" => false, "message" => "Requested Point Not Available", "status_code" => 403];
+                    return response()->json($response, 403);
                 }
                 break;
             case $role_id == 4:
@@ -394,20 +405,64 @@ class PointController extends BaseController
                                 ->where('vehicle_id', null)
                                 ->orderBy('id', 'asc')
                                 ->limit($request->input('total_point'))
-                                ->update(['subdealer_id' => $subdealer_id]);
+                                ->update(
+                                    ['subdealer_id' => $subdealer_id],
+                                    ['created_by' => $created_by]
+                                );
                         }
 
                         return $this->sendSuccess("New Point Added Successfully");
                     }
                 } else {
-                    return $this->sendSuccess("Requested Point Not Availablesss");
+                    $response = ["success" => false, "message" => "Requested Point Not Available", "status_code" => 403];
+                    return response()->json($response, 403);
                 }
                 break;
             default:
         }
     }
 
-    public function stock_points()
+    public function point_stock_list(Request $request)
     {
+        $user_id = $request->input('0');
+        $role_id = $request->input('1');
+
+        if ($role_id == 1) {
+            $result = DB::select("SELECT c.point_type, d.package_code, d.package_name, e.period_name, e.period_days, f.admin_name as name, a.total_point FROM points a
+            INNER JOIN plans b ON a.plan_id = b.id
+            INNER JOIN point_types c ON a.point_type_id = c.id
+            INNER JOIN packages d ON d.id = b.package_id
+            INNER JOIN periods e ON e.id = b.period_id
+            INNER JOIN admins f ON f.id = a.admin_id WHERE a.created_by =  $user_id");
+        } else  if ($role_id == 2) {
+            $result = DB::select("SELECT c.point_type, d.package_code, d.package_name, e.period_name, e.period_days, f.distributor_name as name, a.total_point FROM points a
+            INNER JOIN plans b ON a.plan_id = b.id
+            INNER JOIN point_types c ON a.point_type_id = c.id
+            INNER JOIN packages d ON d.id = b.package_id
+            INNER JOIN periods e ON e.id = b.period_id
+            INNER JOIN distributors f ON f.id = a.distributor_id WHERE a.created_by =  $user_id");
+        } else  if ($role_id == 3) {
+            $result = DB::select("SELECT c.point_type, d.package_code, d.package_name, e.period_name, e.period_days, f.dealer_name as name, a.total_point FROM points a
+            INNER JOIN plans b ON a.plan_id = b.id
+            INNER JOIN point_types c ON a.point_type_id = c.id
+            INNER JOIN packages d ON d.id = b.package_id
+            INNER JOIN periods e ON e.id = b.period_id
+            INNER JOIN dealers f ON f.id = a.dealer_id WHERE a.created_by =  $user_id");
+        } else  if ($role_id == 3) {
+            $result = DB::select("SELECT c.point_type, d.package_code, d.package_name, e.period_name, e.period_days, f.subdealer_name as name, a.total_point FROM points a
+            INNER JOIN plans b ON a.plan_id = b.id
+            INNER JOIN point_types c ON a.point_type_id = c.id
+            INNER JOIN packages d ON d.id = b.package_id
+            INNER JOIN periods e ON e.id = b.period_id
+            INNER JOIN sub_dealers f ON f.id = a.subdealer_id WHERE a.created_by =  $user_id");
+        }
+
+
+
+        if (empty($result)) {
+            return $this->sendError('No Users Found');
+        }
+
+        return $this->sendSuccess($result);
     }
 }

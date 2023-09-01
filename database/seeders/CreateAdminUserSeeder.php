@@ -255,7 +255,71 @@ class CreateAdminUserSeeder extends Seeder
             ]
         ];
 
-        // Insert the data into the role_rights table
         DB::table('countries')->insert($data);
+
+
+        $data = [
+            [
+                'point_type' => 'New Point'
+            ],
+            [
+                'point_type' => 'Recharge Point'
+            ]
+        ];
+
+        // Insert the data into the role_rights table
+        DB::table('point_types')->insert($data);
+
+        DB::table('device_types')->insert([
+            ['device_type' => 'TELTONIKA', 'status' => 1],
+            ['device_type' => 'ACUTE', 'status' => 1],
+            ['device_type' => 'CONCOX', 'status' => 1],
+            ['device_type' => 'PROTRACK', 'status' => 1],
+            ['device_type' => 'BENWAY', 'status' => 1],
+            ['device_type' => 'LIBITECH', 'status' => 1],
+            ['device_type' => 'COBAL', 'status' => 1],
+            ['device_type' => 'CABTRACK', 'status' => 1],
+            ['device_type' => 'SEAWORLD', 'status' => 1],
+            ['device_type' => 'ROADPOINT', 'status' => 1],
+            ['device_type' => 'TELTONIKA', 'status' => 1],
+            ['device_type' => 'RDM', 'status' => 1]
+        ]);
+
+        DB::table('device_models')->insert([
+            ['device_model' => 'FMB910',  'status' => 1],
+            ['device_model' => 'FMB920',  'status' => 1],
+            ['device_model' => 'FMB120',  'status' => 1],
+            ['device_model' => 'FMB125',  'status' => 1],
+            ['device_model' => 'FMB130',  'status' => 1],
+            ['device_model' => 'FMB140',  'status' => 1],
+            ['device_model' => 'AC104',  'status' => 1],
+            ['device_model' => 'AC106',  'status' => 1],
+            ['device_model' => 'AC109',  'status' => 1],
+            ['device_model' => 'AC140',  'status' => 1],
+            ['device_model' => 'V5',  'status' => 1],
+            ['device_model' => 'VT05C',  'status' => 1],
+            ['device_model' => 'VT08S',  'status' => 1],
+            ['device_model' => 'VT05S',  'status' => 1],
+            ['device_model' => 'VT05R',  'status' => 1],
+            ['device_model' => 'BW08',  'status' => 1],
+            ['device_model' => 'BW09',  'status' => 1],
+            ['device_model' => 'ET300',  'status' => 1],
+            ['device_model' => 'MT100',  'status' => 1],
+            ['device_model' => 'MT02',  'status' => 1],
+            ['device_model' => 'MT200',  'status' => 1],
+            ['device_model' => 'TK103',  'status' => 1],
+            ['device_model' => '303F',  'status' => 1],
+            ['device_model' => '306A',  'status' => 1],
+            ['device_model' => 'G05',  'status' => 1],
+            ['device_model' => 'S102',  'status' => 1],
+            ['device_model' => 'S106',  'status' => 1],
+            ['device_model' => 'GAGAN140',  'status' => 1],
+            ['device_model' => 'RP01',  'status' => 1],
+            ['device_model' => '140',  'status' => 1],
+            ['device_model' => '104',  'status' => 1],
+            ['device_model' => '106',  'status' => 1],
+            ['device_model' => '109',  'status' => 1],
+            ['device_model' => 'S116',  'status' => 1],
+        ]);
     }
 }

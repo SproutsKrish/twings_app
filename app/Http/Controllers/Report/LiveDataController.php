@@ -16,8 +16,18 @@ class LiveDataController extends BaseController
 {
     public function multi_dashboard(Request $request)
     {
-        $startDate = date('Y-m-d') . ' 00:00:00';
-        $endDate = date('Y-m-d H:i:s');
+        // Get the current date and time
+        $startFormatted = Carbon::now();
+        $endFormatted = Carbon::now();
+
+        // Adding 330 minutes to both start and end dates
+        $startFormatted->addMinutes(330);
+        $endFormatted->addMinutes(330);
+
+        // Formatting the dates as 'Y-m-d H:i:s'
+        $startDate = $startFormatted->format('Y-m-d H:i:s');
+        $endDate = $endFormatted->format('Y-m-d H:i:s');
+
 
         $search = $request->input('search');
         if ($search == null) {
@@ -209,6 +219,7 @@ class LiveDataController extends BaseController
     {
         // echo $current_time = Carbon::now();
 
+        //inactive
         $live_datas = DB::table('live_data')
             ->where('device_updatedtime', '<', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
             ->get();
@@ -220,21 +231,10 @@ class LiveDataController extends BaseController
                 ->update(['vehicle_current_status' => 5]);
         }
 
-        $expired_datas = DB::table('live_data as a')
-            ->join('vehicles as b', 'a.deviceimei', '=', 'b.device_imei')
-            ->where('b.expire_date', '<=', DB::raw('DATE_ADD(NOW(), INTERVAL 15 DAY)'))
-            ->get();
-
-        foreach ($expired_datas as $expired_data) {
-            // print_r($live_data);
-            DB::table('live_data')
-                ->where('id', $expired_data->id)
-                ->update(['vehicle_current_status' => 6]);
-        }
-
+        //expiry date
         $expiry_datas = DB::table('live_data as a')
             ->join('vehicles as b', 'a.deviceimei', '=', 'b.device_imei')
-            ->where('b.expire_date', '<=', now())
+            ->whereBetween('b.expiry_date', [DB::raw('CURDATE()'), DB::raw('DATE_ADD(CURDATE(), INTERVAL 15 DAY)')])
             ->get();
 
         foreach ($expiry_datas as $expiry_data) {
@@ -242,6 +242,18 @@ class LiveDataController extends BaseController
             DB::table('live_data')
                 ->where('id', $expiry_data->id)
                 ->update(['expiry_status' => 1]);
+        }
+
+        $expired_datas = DB::table('live_data as a')
+            ->join('vehicles as b', 'a.deviceimei', '=', 'b.device_imei')
+            ->where('b.expire_date', '<', DB::raw('CURDATE()'))
+            ->get();
+
+        foreach ($expired_datas as $expired_data) {
+            // print_r($live_data);
+            DB::table('live_data')
+                ->where('id', $expired_data->id)
+                ->update(['vehicle_current_status' => 6]);
         }
 
         $total_vehicles = Vehicle::count();
@@ -271,10 +283,9 @@ class LiveDataController extends BaseController
         // dd($moving);
         // dd($inactive);
 
-        $expired_vehicles = Vehicle::where('expire_date', '<=', now())->count();
+        $expired_vehicles = Vehicle::where('expire_date', '<', now())->count();
 
-        $expiry_vehicles = Vehicle::where('expire_date', '>', now())
-            ->where('expire_date', '<=', DB::raw('DATE_ADD(NOW(), INTERVAL 15 DAY)'))
+        $expiry_vehicles = Vehicle::whereBetween('expiry_date', [DB::raw('CURDATE()'), DB::raw('DATE_ADD(CURDATE(), INTERVAL 15 DAY)')])
             ->count();
 
         $vehicle_count = array(

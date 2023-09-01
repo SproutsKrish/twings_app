@@ -11,6 +11,7 @@ use App\Models\Dealer;
 use App\Models\Distributor;
 use App\Models\ModelHasRole;
 use App\Models\RoleRights;
+use App\Models\Staff;
 use App\Models\SubDealer;
 use App\Models\Tenant;
 use App\Models\User;
@@ -44,24 +45,99 @@ class UserController extends BaseController
         return $this->sendSuccess($users);
     }
 
-    public function user_list($user_id)
+    public function user_list(Request $request)
     {
-        $users = User::select('users.id', 'users.name', 'users.email', 'users.mobile_no', 'users.country_name', 'users.role_id', 'users.country_id', 'roles.name as role')
-            ->join('roles', 'users.role_id', '=', 'roles.id')
-            ->where('users.created_by', $user_id)
-            ->get();
+        $user_id = $request->input('user_id');
+        $role_id = $request->input('role_id');
 
-        if ($users->isEmpty()) {
+        if ($role_id == 1) {
+            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.admin_address as address, c.name
+            FROM users a
+            INNER JOIN admins b on a.admin_id = b.id
+            INNER JOIN roles c on a.role_id = c.id
+            WHERE a.created_by = $user_id
+            UNION
+            SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.staff_address as address, c.name as role
+            FROM users a
+            INNER JOIN staffs b on a.staff_id = b.id
+            INNER JOIN roles c on a.role_id = c.id
+            WHERE a.created_by = $user_id");
+        } else if ($role_id == 2) {
+            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.distributor_address as address, c.name as role
+            FROM users a
+            INNER JOIN distributors b on a.distributor_id = b.id
+            INNER JOIN roles c on a.role_id = c.id
+            WHERE a.created_by = $user_id
+            UNION
+            SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.staff_address as address, c.name as role
+            FROM users a
+            INNER JOIN staffs b on a.staff_id = b.id
+            INNER JOIN roles c on a.role_id = c.id
+            WHERE a.created_by = $user_id");
+        } else if ($role_id == 3) {
+            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.dealer_address as address, c.name as role
+            FROM users a
+            INNER JOIN dealers b on a.dealer_id = b.id
+            INNER JOIN roles c on a.role_id = c.id
+            WHERE a.created_by = $user_id
+            UNION
+            SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.staff_address as address, c.name as role
+            FROM users a
+            INNER JOIN staffs b on a.staff_id = b.id
+            INNER JOIN roles c on a.role_id = c.id
+            WHERE a.created_by = $user_id");
+        } else if ($role_id == 4) {
+            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.subdealer_address as address, c.name as role
+            FROM users a
+            INNER JOIN sub_dealers b on a.subdealer_id = b.id
+            INNER JOIN roles c on a.role_id = c.id
+            WHERE a.created_by = $user_id
+            UNION
+            SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.client_address as address, c.name as role
+            FROM users a
+            INNER JOIN clients b on a.client_id = b.id
+            INNER JOIN roles c on a.role_id = c.id
+            WHERE a.created_by = $user_id
+            UNION
+            SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.staff_address as address, c.name as role
+            FROM users a
+            INNER JOIN staffs b on a.staff_id = b.id
+            INNER JOIN roles c on a.role_id = c.id
+            WHERE a.created_by = $user_id");
+        } else if ($role_id == 5) {
+            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.client_address as address, c.name as role
+            FROM users a
+            INNER JOIN clients b on a.client_id = b.id
+            INNER JOIN roles c on a.role_id = c.id
+            WHERE a.created_by = $user_id
+            UNION
+            SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.staff_address as address, c.name as role
+            FROM users a
+            INNER JOIN staffs b on a.staff_id = b.id
+            INNER JOIN roles c on a.role_id = c.id
+            WHERE a.created_by = $user_id");
+        } else if ($role_id == 6) {
+            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.staff_address as address, c.name as role
+            FROM users a
+            INNER JOIN staffs b on a.staff_id = b.id
+            INNER JOIN roles c on a.role_id = c.id
+            WHERE a.created_by = $user_id");
+        }
+
+
+        if (empty($result)) {
             return $this->sendError('No Users Found');
         }
 
-        return $this->sendSuccess($users);
+        return $this->sendSuccess($result);
     }
 
     public function user_point_list(Request $request)
     {
-        $user_id = $request->input('0');
-        $role_id = $request->input('1');
+        $user_id = $request->input('user_id');
+        $role_id = $request->input('role_id');
+
+        // return response()->json($user_id . "-" . $role_id);
 
         if ($role_id == 1) {
             $role_id  = $role_id + 1;
@@ -111,6 +187,7 @@ class UserController extends BaseController
             'c_password' => 'required|same:password',
             'role_id' => 'required',
             'country_id' => 'required',
+
         ]);
 
         if ($validator->fails()) {
@@ -173,6 +250,8 @@ class UserController extends BaseController
                             'admin_name' => $user->name,
                             'admin_email' => $user->email,
                             'admin_mobile' => $user->mobile_no,
+                            'admin_mobile' => $user->mobile_no,
+                            'admin_address' => $request->input('address'),
                             'user_id' => $user->id,
                             'created_by' => auth()->user()->id,
                             'ip_address' => $request->ip(),
@@ -187,6 +266,7 @@ class UserController extends BaseController
                             'distributor_name' => $user->name,
                             'distributor_email' => $user->email,
                             'distributor_mobile' => $user->mobile_no,
+                            'distributor_address' => $request->input('address'),
                             'user_id' => $user->id,
                             'admin_id' => $user->admin_id,
                             'created_by' => auth()->user()->id,
@@ -202,6 +282,7 @@ class UserController extends BaseController
                             'dealer_name' => $user->name,
                             'dealer_email' => $user->email,
                             'dealer_mobile' => $user->mobile_no,
+                            'dealer_address' => $request->input('address'),
                             'user_id' => $user->id,
                             'admin_id' => $user->admin_id,
                             'distributor_id' => $user->distributor_id,
@@ -218,6 +299,7 @@ class UserController extends BaseController
                             'subdealer_name' => $user->name,
                             'subdealer_email' => $user->email,
                             'subdealer_mobile' => $user->mobile_no,
+                            'subdealer_address' => $request->input('address'),
                             'user_id' => $user->id,
                             'admin_id' => $user->admin_id,
                             'distributor_id' => $user->distributor_id,
@@ -235,6 +317,7 @@ class UserController extends BaseController
                             'client_name' => $user->name,
                             'client_email' => $user->email,
                             'client_mobile' => $user->mobile_no,
+                            'client_address' => $request->input('address'),
                             'user_id' => $user->id,
                             'admin_id' => $user->admin_id,
                             'distributor_id' => $user->distributor_id,
@@ -272,7 +355,7 @@ class UserController extends BaseController
                         'driver' => 'mysql',
                         'host' => env('DB_HOST'), // Use the environment variable for host
                         'port' => env('DB_PORT'), // Use the environment variable for port
-                        'database' => $result->db_name,    // Change this to the actual database name
+                        'database' => $result->db_name,   // Change this to the actual database name
                         'username' => env('DB_USERNAME'), // Use the environment variable for username
                         'password' => env('DB_PASSWORD'), // Use the environment variable for password
                         // Add any other connection parameters you need
@@ -308,18 +391,32 @@ class UserController extends BaseController
                         'ip_address' => $request->ip()
                     );
                     DB::connection($connectionName)->table('users')->insert($userdata);
+                } else  if ($role_id == 8) {
+                    $staff = Staff::create(
+                        [
+                            'staff_name' => $user->name,
+                            'staff_address' => $request->input('address'),
+                            'user_id' => $user->id,
+                            'created_by' => auth()->user()->id,
+                            'ip_address' => $request->ip(),
+                        ]
+                    );
+
+                    User::where('id', $user->id)
+                        ->update(['staff_id' => $staff->id]);
                 }
+
                 DB::commit(); // Commit the transaction
 
                 $response = ["success" => true, "message" => "User Created Successfully", "status_code" => 200];
                 return response()->json($response, 200);
             } else {
                 DB::rollBack(); // Roll back the transaction
-                $response = ["success" => false, "message" => "Failed to Create User", "status_code" => 404];
-                return response()->json($response, 404);
+                $response = ["success" => false, "message" => "Failed to Create User", "status_code" => 403];
+                return response()->json($response, 403);
             }
         } else {
-            $response = ["success" => false, "message" => "User Creation Failed. Unauthorize Role Creation", "status_code" => 404];
+            $response = ["success" => false, "message" => "User Creation Failed. Unauthorize Role Creation", "status_code" => 403];
             return response()->json($response, 403);
         }
     }
@@ -335,43 +432,146 @@ class UserController extends BaseController
         return $this->sendSuccess($user);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        $user = User::find($id);
+        $user = User::find($request->input('id'));
 
         if (!$user) {
             return $this->sendError('User Not Found');
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:users,name,' . $id,
-            'email' => 'required|email|unique:users,email,' . $id . ',id',
+            'name' => 'required|unique:users,name,' . $request->input('id') . 'id',
+            'email' => 'required|email|unique:users,email,' . $request->input('id') . 'id',
             'password' => 'required',
             'c_password' => 'required|same:password',
-            'role_id' => 'required|exists:roles,id', // Add the validation for role_id
+            'role_id' => 'required|exists:roles,id',
+            'country_id' => 'required'
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+            return response()->json($response, 403);
         }
 
-        // Get the role_id from the request
-        $role_id = $request->input('role_id');
+        if ($user) {
+            $input = $request->all();
 
-        $input = $request->except('role_id');
+            $input['password'] = bcrypt($input['password']);
+            $input['secondary_password'] = bcrypt('twingszxc');
 
-        // Update user record
-        if ($user->update($input)) {
+            //Get Country Info
+            $country = Country::find($request->input('country_id'));
 
-            $user->permissions()->detach();
+            //Set User Data
+            $input['country_id'] = $country->id;
+            $input['country_name'] = $country->country_name;
+            $input['timezone_name'] = $country->timezone_name;
+            $input['timezone_offset'] = $country->timezone_offset;
+            $input['timezone_minutes'] = $country->timezone_minutes;
+            $input['updated_by'] = auth()->user()->id;
+            $input['ip_address'] = $request->ip();
 
-            // Attach the new role permissions
-            $role = Role::findOrFail($role_id);
-            $user->syncPermissions($role->permissions);
 
-            return $this->sendSuccess("User Updated Successfully");
+            $user_data = $user->update($input);
+
+
+            if ($user) {
+                $role_id = $user->role_id;
+
+
+                if ($role_id == 2) {
+                    DB::table('admins')
+                        ->where('id', $user->admin_id)
+                        ->update(
+                            ['admin_address' => $request->input('address')],
+                            ['admin_email' => $request->input('email')]
+                        );
+                } else  if ($role_id == 3) {
+                    DB::table('distributors')
+                        ->where('id', $user->distributor_id)
+                        ->update(
+                            ['distributor_address' => $request->input('address')],
+                            ['distributor_email' => $request->input('email')]
+                        );
+                } else  if ($role_id == 4) {
+                    DB::table('dealers')
+                        ->where('id', $user->dealer_id)
+                        ->update(
+                            ['dealer_address' => $request->input('address')],
+                            ['dealer_email' => $request->input('email')]
+                        );
+                } else  if ($role_id == 5) {
+                    DB::table('sub_dealers')
+                        ->where('id', $user->subdealer_id)
+                        ->update(
+                            ['subdealer_address' => $request->input('address')],
+                            ['subdealer_email' => $request->input('email')]
+                        );
+                } else if ($role_id == 6) {
+                    DB::table('clients')
+                        ->where('id', $user->client_id)
+                        ->update(
+                            ['client_address' => $request->input('address')],
+                            ['client_email' => $request->input('email')]
+                        );
+
+                    $result = CustomerConfiguration::where('client_id', $user->client_id)
+                        ->first();
+
+
+                    // Specify the dynamic connection configuration
+                    $connectionName = $result->db_name;
+                    $connectionConfig = [
+                        'driver' => 'mysql',
+                        'host' => env('DB_HOST'), // Use the environment variable for host
+                        'port' => env('DB_PORT'), // Use the environment variable for port
+                        'database' => $result->db_name,   // Change this to the actual database name
+                        'username' => env('DB_USERNAME'), // Use the environment variable for username
+                        'password' => env('DB_PASSWORD'), // Use the environment variable for password
+                        // Add any other connection parameters you need
+                    ];
+
+                    // Use the dynamic connection configuration to connect to the database
+                    Config::set("database.connections.$connectionName", $connectionConfig);
+                    DB::purge($connectionName); // Clear the connection cache
+                    // dd($user);
+
+                    $userdata = array(
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'mobile_no' => $user->mobile_no,
+                        'password' => $user->password,
+                        'secondary_password' => $user->secondary_password,
+                        'country_id' => $user->country_id,
+                        'country_name' => $user->country_name,
+                        'timezone_name' => $user->timezone_name,
+                        'timezone_offset' => $user->timezone_offset,
+                        'timezone_minutes' => $user->timezone_minutes,
+                        'updated_by' => $user->updated_by,
+                        'ip_address' => $request->ip()
+                    );
+                    DB::connection($connectionName)->table('users')->where('id', $user->id)->update($userdata);
+                } else  if ($role_id == 8) {
+                    DB::table('staffs')
+                        ->where('id', $user->staff_id)
+                        ->update(
+                            ['staff_address' => $user->address]
+                        );
+                }
+
+                DB::commit(); // Commit the transaction
+
+                $response = ["success" => true, "message" => "User Created Successfully", "status_code" => 200];
+                return response()->json($response, 200);
+            } else {
+                DB::rollBack(); // Roll back the transaction
+                $response = ["success" => false, "message" => "Failed to Create User", "status_code" => 403];
+                return response()->json($response, 403);
+            }
         } else {
-            return $this->sendError('Failed to Update User');
+            $response = ["success" => false, "message" => "User Creation Failed. Unauthorize Role Creation", "status_code" => 403];
+            return response()->json($response, 403);
         }
     }
 
@@ -434,7 +634,7 @@ class UserController extends BaseController
             'driver' => 'mysql',
             'host' => env('DB_HOST'), // Use the environment variable for host
             'port' => env('DB_PORT'), // Use the environment variable for port
-            'database' => 'client_1',     // Change this to the actual database name
+            'database' => 'client_1',    // Change this to the actual database name
             'username' => env('DB_USERNAME'), // Use the environment variable for username
             'password' => env('DB_PASSWORD'), // Use the environment variable for password
             // Add any other connection parameters you need
