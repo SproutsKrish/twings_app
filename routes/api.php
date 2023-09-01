@@ -120,7 +120,7 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
 
         Route::post('user_list', [UserController::class, 'user_list']);
         Route::post('user_point_list', [UserController::class, 'user_point_list']);
-
+        Route::post('role_based_user_list', [UserController::class, 'role_based_user_list']);
         Route::post('point_stock_list', [PointController::class, 'point_stock_list']);
 
         Route::controller(LiveDataController::class)->group(function () {
