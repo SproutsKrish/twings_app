@@ -76,7 +76,7 @@ class ConfigurationController extends BaseController
 
     public function safe_parking(Request $request, $id)
     {
-        $vehicle = Vehicle::where('device_imei', '=', $id)->get();
+        $vehicle = Vehicle::where('device_imei', '=', $id)->first();
 
         if (!$vehicle) {
             return $this->sendError('Vehicle Not Found');
@@ -91,7 +91,7 @@ class ConfigurationController extends BaseController
         }
 
         if ($vehicle->update($request->all())) {
-            return $this->sendSuccess("Vehicle Updated Successfully");
+            return $this->sendSuccess("Vehicle Safe Parking Successfully");
         } else {
             return $this->sendError('Failed to Update Vehicle');
         }
@@ -106,7 +106,7 @@ class ConfigurationController extends BaseController
         $enginePasswords = EnginePassword::where('engine_password',  $engine_password)->first();
 
         if (!empty($enginePasswords)) {
-            $vehicle = Vehicle::where('device_imei', '=', $id)->get();
+            $vehicle = Vehicle::where('device_imei', '=', $id)->first();
 
             if (!$vehicle) {
                 return $this->sendError('Vehicle Not Found');
@@ -131,6 +131,7 @@ class ConfigurationController extends BaseController
             return $this->sendError('Password Is Incorrect');
         }
     }
+
     public function odometer_update(Request $request, $id)
     {
         $vehicle = LiveData::where('deviceimei', $id)->first();
@@ -155,7 +156,7 @@ class ConfigurationController extends BaseController
     }
     public function speed_update(Request $request, $id)
     {
-        $vehicle = Configuration::where('device_imei', $id)->get();
+        $vehicle = Configuration::where('device_imei', $id)->first();
 
         if (!$vehicle) {
             return $this->sendError('Vehicle Not Found');

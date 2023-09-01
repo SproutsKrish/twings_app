@@ -256,7 +256,8 @@ class VehicleController extends BaseController
 
     public function change_vehicletype(Request $request, $id)
     {
-        $vehicle = Vehicle::find($id);
+        $vehicle = Vehicle::where('device_imei', $id)->first();
+
         if (!$vehicle) {
             return $this->sendError('Vehicle Not Found');
         }
@@ -270,20 +271,19 @@ class VehicleController extends BaseController
 
         if ($vehicle->update($request->all())) {
 
-            //     $dbName = 'twings';
+            // $dbName = 'twings';
 
-            //     // Use the database name to specify the table
-            //     $updatedCount = DB::connection($dbName)
-            //         ->table('vehicles')
-            //         ->where('id', $id)
-            //         ->update(['vehicle_type_id' => $request->input('vehicle_type_id')]);
+            // // Use the database name to specify the table
+            // $updatedCount = DB::connection($dbName)
+            //     ->table('vehicles')
+            //     ->where('id', $id)
+            //     ->update(['vehicle_type_id' => $request->input('vehicle_type_id')]);
 
-            //     if ($updatedCount) {
-            //         return $this->sendSuccess("Vehicle Type Updated Successfully");
-            //     } else {
-            //         return $this->sendError('Failed to Update Vehicle Type');
-            //     }
-
+            // if ($updatedCount) {
+            //     return $this->sendSuccess("Vehicle Type Updated Successfully");
+            // } else {
+            //     return $this->sendError('Failed to Update Vehicle Type');
+            // }
             return $this->sendSuccess("Vehicle Type Updated Successfully");
         } else {
             return $this->sendError('Failed to Update Vehicle Type');
