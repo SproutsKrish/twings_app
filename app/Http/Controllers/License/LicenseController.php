@@ -9,7 +9,9 @@ use App\Models\License;
 use App\Models\Period;
 use App\Models\Plan;
 use App\Models\Point;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class LicenseController extends BaseController
 {
@@ -123,7 +125,38 @@ class LicenseController extends BaseController
         }
     }
 
-    public function user_license_list()
+    public function user_license_list(Request $request)
     {
+        $user_id = $request->input('user_id');
+        $role_id = $request->input('role_id');
+        $plan_id = $request->input('plan_id');
+
+        $data = User::find($user_id);
+        $dealer_id = null;
+        $subdealer_id = null;
+
+        if ($role_id == 4) {
+            $dealer_id = $data->dealer_id;
+
+            $licenses = DB::table('licenses as a')
+                ->select('*')
+                ->join('plans as b', 'b.id', '=', 'a.plan_id')
+                ->join('periods as c', 'c.id', '=', 'b.period_id')
+                ->join('packages as d', 'd.id', '=', 'b.package_id')
+                ->where('dealer_id', $dealer_id)
+                ->where('subdealer_id', $subdealer_id)
+                ->get();
+        } else if ($role_id == 5) {
+            $subdealer_id = $data->subdealer_id;
+
+            $licenses = DB::table('licenses as a')
+                ->select('*')
+                ->join('plans as b', 'b.id', '=', 'a.plan_id')
+                ->join('periods as c', 'c.id', '=', 'b.period_id')
+                ->join('packages as d', 'd.id', '=', 'b.package_id')
+                ->where('subdealer_id', $subdealer_id)
+                ->get();
+        }
+        return response()->json($licenses);
     }
 }

@@ -32,10 +32,11 @@ class PointController extends BaseController
         $role_id = $request->input('role_id');
 
         $created_by = $request->input('created_by');
+
         $admin_id = $request->input('admin_id');
         $distributor_id = $request->input('distributor_id');
         $dealer_id = $request->input('dealer_id');
-        $subdealer_id = $request->input('dealer_id');
+        $subdealer_id = $request->input('subdealer_id');
 
         $plan_id = $request->input('plan_id');
         $point_type_id = $request->input('point_type_id');
@@ -53,10 +54,6 @@ class PointController extends BaseController
                     ->where('point_type_id', $point_type_id)
                     ->where('status', 1)
                     ->first();
-
-
-                // return response()->json($admin_id);
-
 
                 if (!empty($result)) {
                     $result->total_point = $result->total_point + $request->input('total_point');
@@ -225,7 +222,10 @@ class PointController extends BaseController
                                 ->where('vehicle_id', null)
                                 ->orderBy('id', 'asc')
                                 ->limit($request->input('total_point'))
-                                ->update(['distributor_id' => $distributor_id]);
+                                ->update([
+                                    'distributor_id' => $distributor_id,
+                                    'created_by' => $request->input('created_by')
+                                ]);
                         }
                         return $this->sendSuccess("New Point Added Successfully");
                     }
@@ -281,7 +281,10 @@ class PointController extends BaseController
                                 ->where('vehicle_id', null)
                                 ->orderBy('id', 'asc')
                                 ->limit($request->input('total_point'))
-                                ->update(['dealer_id' => $dealer_id]);
+                                ->update([
+                                    'dealer_id' => $dealer_id,
+                                    'created_by' => $request->input('created_by')
+                                ]);
                         }
                         return $this->sendSuccess("New Point Added Successfully");
                     } else {
@@ -370,10 +373,11 @@ class PointController extends BaseController
                                 ->where('vehicle_id', null)
                                 ->orderBy('id', 'asc')
                                 ->limit($request->input('total_point'))
-                                ->update(['subdealer_id' => $subdealer_id]);
+                                ->update([
+                                    'subdealer_id' => $subdealer_id,
+                                    'created_by' => $request->input('created_by')
+                                ]);
                         }
-
-
 
                         return $this->sendSuccess("New Point Added Successfully");
                     } else {
@@ -448,7 +452,7 @@ class PointController extends BaseController
             INNER JOIN packages d ON d.id = b.package_id
             INNER JOIN periods e ON e.id = b.period_id
             INNER JOIN dealers f ON f.id = a.dealer_id WHERE a.created_by =  $user_id");
-        } else  if ($role_id == 3) {
+        } else  if ($role_id == 4) {
             $result = DB::select("SELECT c.point_type, d.package_code, d.package_name, e.period_name, e.period_days, f.subdealer_name as name, a.total_point FROM points a
             INNER JOIN plans b ON a.plan_id = b.id
             INNER JOIN point_types c ON a.point_type_id = c.id

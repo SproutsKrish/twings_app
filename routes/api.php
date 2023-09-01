@@ -217,6 +217,9 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
 
 Route::get('role_rights_list/{role_id}', [RoleRightsController::class, 'role_rights_list']);
 
+Route::controller(LicenseController::class)->group(function () {
+    Route::post('user_license_list', 'user_license_list');
+});
 
 //Role Has Permissions
 Route::get('roles/permissions', [RoleHasPermissionController::class, 'index']);

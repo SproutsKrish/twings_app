@@ -659,8 +659,8 @@ class UserController extends BaseController
     public function role_based_user_list(Request $request)
     {
         $user_id = $request->input('user_id');
-        $role_id = $request->input('role_id');
-
+        $data = User::where('id', $user_id)->first();
+        $role_id = $data->role_id;
         $user_list = $subdealer_list = [];
 
         if ($role_id == 1) {
