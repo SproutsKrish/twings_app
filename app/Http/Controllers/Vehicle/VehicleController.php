@@ -163,6 +163,15 @@ class VehicleController extends BaseController
                 'deviceimei' => $vehicle->device_imei
             );
             DB::connection($connectionName)->table('live_data')->insert($live_data);
+
+            $config_details = array(
+                'client_id' => $vehicle->client_id,
+                'vehicle_id' => $vehicle->id,
+                'vehicle_name' => $vehicle->vehicle_name,
+                'device_imei' => $vehicle->device_imei
+            );
+            DB::connection($connectionName)->table('configurations')->insert($config_details);
+
             DB::disconnect($connectionName);
 
             Sim::where('id', $vehicle->sim_id)->update(['client_id' => $vehicle->client_id]);
