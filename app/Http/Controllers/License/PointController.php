@@ -424,8 +424,8 @@ class PointController extends BaseController
 
     public function point_stock_list(Request $request)
     {
-        $user_id = $request->input('0');
-        $role_id = $request->input('1');
+        $user_id = $request->input('user_id');
+        $role_id = $request->input('role_id');
 
         if ($role_id == 1) {
             $result = DB::select("SELECT c.point_type, d.package_code, d.package_name, e.period_name, e.period_days, f.admin_name as name, a.total_point FROM points a
