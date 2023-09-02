@@ -221,6 +221,10 @@ Route::controller(LicenseController::class)->group(function () {
     Route::post('user_license_list', 'user_license_list');
 });
 
+Route::controller(PlanController::class)->group(function () {
+    Route::post('user_plan_list', 'user_plan_list');
+});
+
 //Role Has Permissions
 Route::get('roles/permissions', [RoleHasPermissionController::class, 'index']);
 Route::get('roles/permissions/{role}', [RoleHasPermissionController::class, 'show']);

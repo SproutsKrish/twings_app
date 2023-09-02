@@ -7,6 +7,7 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\Plan;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class PlanController extends BaseController
@@ -24,6 +25,53 @@ class PlanController extends BaseController
         }
 
         return $this->sendSuccess($plans);
+    }
+
+    public function user_plan_list(Request $request)
+    {
+        $user_id = $request->input('user_id');
+        $role_id = $request->input('role_id');
+        $plan_id = $request->input('plan_id');
+
+        $data = User::find($user_id);
+        $dealer_id = null;
+        $subdealer_id = null;
+
+        if ($role_id == 4) {
+            $dealer_id = $data->dealer_id;
+
+            $results = DB::table('plans as a')
+                ->select('a.id', 'b.package_name', 'c.period_days')
+                ->join('packages as b', 'a.package_id', '=', 'b.id')
+                ->join('periods as c', 'a.period_id', '=', 'c.id')
+                ->whereIn('a.id', function ($query) use ($dealer_id, $plan_id) {
+                    $query->select('plan_id')
+                        ->from('points')
+                        ->where('total_point', '>=', 1)
+                        ->where('point_type_id', 1)
+                        ->where('plan_id', $plan_id)
+                        ->where('dealer_id', $dealer_id)
+                        ->whereNull('subdealer_id');
+                })
+                ->get();
+        } else if ($role_id == 5) {
+            $subdealer_id = $data->subdealer_id;
+
+            $results = DB::table('plans as a')
+                ->select('a.id', 'b.package_name', 'c.period_days')
+                ->join('packages as b', 'a.package_id', '=', 'b.id')
+                ->join('periods as c', 'a.period_id', '=', 'c.id')
+                ->whereIn('a.id', function ($query) use ($subdealer_id, $plan_id) {
+                    $query->select('plan_id')
+                        ->from('points')
+                        ->where('total_point', '>=', 1)
+                        ->where('point_type_id', 1)
+                        ->where('plan_id', $plan_id)
+                        ->where('subdealer_id', $subdealer_id);
+                })
+                ->get();
+        }
+        return response()->json($results);
     }
 
     public function store(Request $request)

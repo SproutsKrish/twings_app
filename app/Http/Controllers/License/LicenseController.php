@@ -145,6 +145,8 @@ class LicenseController extends BaseController
                 ->join('packages as d', 'd.id', '=', 'b.package_id')
                 ->where('dealer_id', $dealer_id)
                 ->where('subdealer_id', $subdealer_id)
+                ->where('b.id', $plan_id)
+
                 ->get();
         } else if ($role_id == 5) {
             $subdealer_id = $data->subdealer_id;
@@ -155,6 +157,7 @@ class LicenseController extends BaseController
                 ->join('periods as c', 'c.id', '=', 'b.period_id')
                 ->join('packages as d', 'd.id', '=', 'b.package_id')
                 ->where('subdealer_id', $subdealer_id)
+                ->where('b.id', $plan_id)
                 ->get();
         }
         return response()->json($licenses);

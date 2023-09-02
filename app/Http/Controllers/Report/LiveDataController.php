@@ -69,14 +69,16 @@ class LiveDataController extends BaseController
                 B.sec_engine_status,
                 B.expiry_status,
                 IFNULL(E.today_distance, 0) as today_distance,
-                F.device_type,
-                G.device_model
-
+                F.device_make,
+                G.device_model,
+                A.device_make_id,
+                A.device_model_id,
+                B.vehicle_id
             ')
                 ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
                 ->leftJoin('twings.vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
                 ->leftJoin('configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
-                ->leftJoin('twings.device_types as F', 'F.id', '=', 'A.device_make_id')
+                ->leftJoin('twings.device_makes as F', 'F.id', '=', 'A.device_make_id')
                 ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
                 ->leftJoin(DB::raw("(SELECT device_imei, max(odometer), min(odometer), round(max(odometer) - min(odometer), 2) AS today_distance FROM play_back_histories WHERE DATE_ADD(device_datetime, INTERVAL 330 MINUTE) >= '$startDate' AND DATE_ADD(device_datetime, INTERVAL 330 MINUTE) <= '$endDate' GROUP by device_imei) AS E"), 'E.device_imei', '=', 'A.device_imei')
                 ->get();
@@ -129,14 +131,17 @@ class LiveDataController extends BaseController
                 B.sec_engine_status,
                 B.expiry_status,
                 IFNULL(E.today_distance, 0) as today_distance,
-                F.device_type,
-                G.device_model
+                F.device_make,
+                G.device_model,
+                A.device_make_id,
+                A.device_model_id,
+                B.vehicle_id
         ')
                 ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
                 ->leftJoin('vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
                 ->leftJoin('configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
                 ->leftJoin(DB::raw("(SELECT device_imei, max(odometer), min(odometer), round(max(odometer) - min(odometer), 2) AS today_distance FROM play_back_histories WHERE DATE_ADD(device_datetime, INTERVAL 330 MINUTE) >= '$startDate' AND DATE_ADD(device_datetime, INTERVAL 330 MINUTE) <= '$endDate' GROUP by device_imei) AS E"), 'E.device_imei', '=', 'A.device_imei')
-                ->leftJoin('twings.device_types as F', 'F.id', '=', 'A.device_make_id')
+                ->leftJoin('twings.device_makes as F', 'F.id', '=', 'A.device_make_id')
                 ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
                 ->whereIn('B.deviceimei', $device_imei)
                 ->get();
@@ -193,15 +198,17 @@ class LiveDataController extends BaseController
             B.sec_engine_status,
             B.expiry_status,
             IFNULL(E.today_distance, 0) as today_distance,
-            F.device_type,
-            G.device_model
-
+            F.device_make,
+            G.device_model,
+            A.device_make_id,
+            A.device_model_id,
+            B.vehicle_id
         ')
             ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
             ->leftJoin('vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
             ->leftJoin('configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
             ->leftJoin(DB::raw("(SELECT device_imei, max(odometer), min(odometer), round(max(odometer) - min(odometer), 2) AS today_distance FROM play_back_histories WHERE DATE_ADD(device_datetime, INTERVAL 330 MINUTE) >= '$startDate' AND DATE_ADD(device_datetime, INTERVAL 330 MINUTE) <= '$endDate' GROUP by device_imei) AS E"), 'E.device_imei', '=', 'A.device_imei')
-            ->leftJoin('twings.device_types as F', 'F.id', '=', 'A.device_make_id')
+            ->leftJoin('twings.device_makes as F', 'F.id', '=', 'A.device_make_id')
             ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
             ->where('B.deviceimei', $device_imei)
             ->first();
