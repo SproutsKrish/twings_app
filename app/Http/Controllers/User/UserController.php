@@ -698,10 +698,19 @@ class UserController extends BaseController
             INNER JOIN clients b on a.client_id = b.id
             INNER JOIN roles c on a.role_id = c.id
             WHERE a.created_by = $user_id");
+        } else {
+            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
         $result = ['user_list' => $user_list, 'subdealer_list' => $subdealer_list];
 
-        return response()->json($result);
+        if (empty($result['user_list']) && empty($result['subdealer_list'])) {
+            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => $result, "status_code" => 200];
+            return response()->json($response, 200);
+        }
     }
 }
