@@ -34,8 +34,6 @@ class ConfigurationController extends BaseController
 
         return $this->sendSuccess("Configuration Updated Successfully");
     }
-
-
     public function show(Request $request)
     {
         $client_id = auth()->user()->client_id;
@@ -56,8 +54,6 @@ class ConfigurationController extends BaseController
 
         return $this->sendSuccess($configuration);
     }
-
-
     public function update(Request $request, $id)
     {
         $configuration = Configuration::find($id);
@@ -72,8 +68,6 @@ class ConfigurationController extends BaseController
             return $this->sendError('Failed to Update Configuration');
         }
     }
-
-
     public function safe_parking(Request $request, $id)
     {
         $vehicle = Vehicle::where('device_imei', '=', $id)->first();
@@ -131,7 +125,6 @@ class ConfigurationController extends BaseController
             return $this->sendError('Password Is Incorrect');
         }
     }
-
     public function odometer_update(Request $request, $id)
     {
         $vehicle = LiveData::where('deviceimei', $id)->first();

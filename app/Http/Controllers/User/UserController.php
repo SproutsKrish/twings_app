@@ -660,40 +660,46 @@ class UserController extends BaseController
     {
         $user_id = $request->input('user_id');
         $data = User::where('id', $user_id)->first();
+
+        if (empty($data)) {
+            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
+            return response()->json($response, 404);
+        }
         $role_id = $data->role_id;
+
         $user_list = $subdealer_list = [];
 
         if ($role_id == 1) {
-            $user_list = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.admin_address as address, c.name
+            $user_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
             FROM users a
             INNER JOIN admins b on a.admin_id = b.id
             INNER JOIN roles c on a.role_id = c.id
             WHERE a.created_by = $user_id");
         } else if ($role_id == 2) {
-            $user_list = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.distributor_address as address, c.name as role
+            $user_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
             FROM users a
             INNER JOIN distributors b on a.distributor_id = b.id
             INNER JOIN roles c on a.role_id = c.id
             WHERE a.created_by = $user_id");
         } else if ($role_id == 3) {
-            $user_list = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.dealer_address as address, c.name as role
+            $user_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
             FROM users a
             INNER JOIN dealers b on a.dealer_id = b.id
             INNER JOIN roles c on a.role_id = c.id
             WHERE a.created_by = $user_id");
         } else if ($role_id == 4) {
-            $user_list = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.client_address as address, c.name as role
+            $user_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
             FROM users a
             INNER JOIN clients b on a.client_id = b.id
             INNER JOIN roles c on a.role_id = c.id
             WHERE a.created_by = $user_id");
-            $subdealer_list = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.subdealer_address as address, c.name as role
+            $subdealer_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
             FROM users a
             INNER JOIN sub_dealers b on a.subdealer_id = b.id
             INNER JOIN roles c on a.role_id = c.id
             WHERE a.created_by = $user_id");
         } else if ($role_id == 5) {
-            $user_list = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.client_address as address, c.name as role
+            $user_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
             FROM users a
             INNER JOIN clients b on a.client_id = b.id
             INNER JOIN roles c on a.role_id = c.id
@@ -706,7 +712,7 @@ class UserController extends BaseController
         $result = ['user_list' => $user_list, 'subdealer_list' => $subdealer_list];
 
         if (empty($result['user_list']) && empty($result['subdealer_list'])) {
-            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
+            $response = ["success" => false, "message" => "No Datas Found", "status_code" => 404];
             return response()->json($response, 404);
         } else {
             $response = ["success" => true, "data" => $result, "status_code" => 200];
