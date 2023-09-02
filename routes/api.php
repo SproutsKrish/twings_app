@@ -310,3 +310,4 @@ Route::post('recharge', [RechargeController::class, 'recharge']);
 
 Route::put('sim_assign/{id}', [SimController::class, 'sim_assign']);
 Route::put('device_assign/{id}', [DeviceController::class, 'device_assign']);
+Route::get('contact_address/{id}', [ClientController::class, 'contact_address']);
