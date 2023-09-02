@@ -43,6 +43,23 @@ class SetDatabaseConnectionMiddleware
             DB::purge('mysql');
             DB::reconnect('mysql');
             DB::setDefaultConnection('mysql');
+        } else {
+            $tenantData = json_decode(Tenant::find($request->client_id), true);
+            $tenantDbName = $tenantData['tenancy_db_name'];
+            // dd($tenantDbName);
+
+            // Assuming the tenant model has a `tenancy_db_name` attribute to get the tenant's database name
+            // $tenantDbName = $tenant->tenancy_db_name;
+
+            // Switch the database connection to the tenant's database
+            config([
+                'database.connections.mysql.database' => $tenantDbName,
+            ]);
+
+            // Purge the connection, reconnect, and set the default connection to the tenant's database
+            DB::purge('mysql');
+            DB::reconnect('mysql');
+            DB::setDefaultConnection('mysql');
         }
 
         return $next($request);

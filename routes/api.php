@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Middleware\CorsMiddleware;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\API\LoginController;
@@ -9,16 +8,14 @@ use App\Http\Controllers\API\PermissionController;
 use App\Http\Controllers\API\RoleHasPermissionController;
 use App\Http\Controllers\API\ModelHasRoleController;
 use App\Http\Controllers\API\ModelHasPermissionController;
-
 use App\Http\Controllers\API\ModuleController;
 use App\Http\Controllers\API\ParentMenuController;
 use App\Http\Controllers\API\ChildMenuController;
 use App\Http\Controllers\API\LanguageController;
 use App\Http\Controllers\API\ImportController;
-
 use App\Http\Controllers\API\CountryController;
 use App\Http\Controllers\API\RoleRightsController;
-use App\Http\Controllers\DemoReportController;
+
 use App\Http\Controllers\User\AdminController;
 use App\Http\Controllers\User\DistributorController;
 use App\Http\Controllers\User\DealerController;
@@ -47,12 +44,12 @@ use App\Http\Controllers\Vehicle\VehicleTypeController;
 use App\Http\Controllers\License\PointTypeController;
 use App\Http\Controllers\License\PointController;
 use App\Http\Controllers\License\LicenseController;
-
 use App\Http\Controllers\License\FeatureController;
 use App\Http\Controllers\License\PackageController;
 use App\Http\Controllers\License\PeriodController;
 use App\Http\Controllers\License\PlanController;
 use App\Http\Controllers\License\RechargeController;
+
 use App\Http\Controllers\Report\AcReportController;
 use App\Http\Controllers\Report\AlertReportController;
 use App\Http\Controllers\Report\AssignGeofenceController;
@@ -64,12 +61,11 @@ use App\Http\Controllers\Report\KeyOnKeyOffReportController;
 use App\Http\Controllers\Report\LiveDataController;
 use App\Http\Controllers\Report\OverSpeedReportController;
 use App\Http\Controllers\Report\ParkingReportController;
-use App\Http\Controllers\Report\PlaybackHistoryController;
 use App\Http\Controllers\Report\PlaybackReportController;
-use App\Http\Controllers\Report\RouteDeviationController;
 use App\Http\Controllers\Report\RoutedeviationReportController;
 use App\Http\Controllers\Report\TemperatureReportController;
 use App\Http\Controllers\Report\TripPlanReportController;
+
 use App\Http\Controllers\VehicleSetting\ConfigurationController;
 use App\Http\Controllers\VehicleSetting\NotificationController;
 use App\Http\Controllers\VehicleSetting\ShareLinkController;
@@ -85,30 +81,42 @@ use App\Http\Controllers\VehicleSetting\ShareLinkController;
 |
 */
 
-Route::controller(VehicleController::class)->group(function () {
-    Route::get('vehicle_list', 'index');
-});
+// Route::controller(VehicleController::class)->group(function () {
+//     Route::get('vehicle_list', 'index');
+// });
 
 
 Route::controller(LoginController::class)->group(function () {
     Route::post('login', 'login');
 });
 
-Route::middleware(['cors', 'auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::controller(UserController::class)->group(function () {
         Route::get('user/yourMethod', 'yourMethod');
     });
 
-    Route::middleware('switch.database')->group(function () {
-        Route::controller(UserController::class)->group(function () {
-            Route::post('user/store', 'store');
-            Route::get('user', 'index');
-            Route::get('user/show/{id}', 'show');
-            Route::post('user/update', 'update');
-            Route::delete('user/delete/{id}', 'destroy');
-            Route::get('user/details', 'showdetails');
-        });
+    Route::controller(UserController::class)->group(function () {
+        Route::post('user/store', 'store');
+        Route::get('user', 'index');
+        Route::get('user/show/{id}', 'show');
+        Route::post('user/update', 'update');
+        Route::delete('user/delete/{id}', 'destroy');
+        Route::get('user/details', 'showdetails');
+    });
+    Route::post('user_list', [UserController::class, 'user_list']);
+    Route::post('user_point_list', [UserController::class, 'user_point_list']);
+    Route::post('role_based_user_list', [UserController::class, 'role_based_user_list']);
+    Route::post('point_stock_list', [PointController::class, 'point_stock_list']);
+    Route::get('role_rights_list/{role_id}', [RoleRightsController::class, 'role_rights_list']);
+    Route::controller(LicenseController::class)->group(function () {
+        Route::post('user_license_list', 'user_license_list');
+    });
 
+    Route::controller(PlanController::class)->group(function () {
+        Route::post('user_plan_list', 'user_plan_list');
+    });
+
+    Route::middleware('switch.database')->group(function () {
         Route::get('current_link/{id}', [ShareLinkController::class, 'current_link']);
         Route::get('live_link', [ShareLinkController::class, 'live_link']);
 
@@ -117,18 +125,11 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
         Route::post('link_save', [ShareLinkController::class, 'link_save']);
         Route::delete('delete_link/{id}', [ShareLinkController::class, 'destroy']);
 
-
-        Route::post('user_list', [UserController::class, 'user_list']);
-        Route::post('user_point_list', [UserController::class, 'user_point_list']);
-        Route::post('role_based_user_list', [UserController::class, 'role_based_user_list']);
-        Route::post('point_stock_list', [PointController::class, 'point_stock_list']);
-
         Route::controller(LiveDataController::class)->group(function () {
             Route::get('multi_dashboard', 'multi_dashboard');
             Route::get('single_dashboard/{id}', 'single_dashboard');
             Route::get('vehicle_count', 'vehicle_count');
         });
-
         Route::controller(IdleReportController::class)->group(function () {
             Route::post('get_idle_report', 'get_idle_report');
         });
@@ -150,22 +151,28 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
         Route::controller(OverSpeedReportController::class)->group(function () {
             Route::post('speed_report', 'speed_report');
         });
-
-        Route::controller(OverSpeedReportController::class)->group(function () {
-            Route::get('demo_app', 'demo_app');
-        });
-
-        Route::resource('geo_fence', GeofenceController::class);
-        Route::resource('assign_geo_fence', AssignGeofenceController::class);
         Route::controller(GeofenceReportController::class)->group(function () {
             Route::post('geofence_report', 'geofence_report');
         });
-
         Route::controller(TripPlanReportController::class)->group(function () {
             Route::post('trip_plan_report', 'trip_plan_report');
         });
+        Route::controller(AcReportController::class)->group(function () {
+            Route::post('ac_report', 'ac_report');
+        });
+        Route::controller(AlertReportController::class)->group(function () {
+            Route::get('all_alert', 'all_alert');
+            Route::get('device_alert/{id}', 'device_alert');
+        });
+        Route::controller(TemperatureReportController::class)->group(function () {
+            Route::post('temperature_report', 'temperature_report');
+        });
+        Route::controller(VehicleController::class)->group(function () {
+            Route::put('change_vehicletype/{id}', 'change_vehicletype');
+        });
+        Route::resource('geo_fence', GeofenceController::class);
+        Route::resource('assign_geo_fence', AssignGeofenceController::class);
         Route::resource('trip_plan', TripPlanReportController::class);
-
 
         Route::controller(NotificationController::class)->group(function () {
             Route::get('notify/show', 'show');
@@ -180,20 +187,6 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
             Route::put('config/odometer_update/{id}', 'odometer_update');
             Route::put('config/speed_update/{id}', 'speed_update');
         });
-
-        Route::controller(AcReportController::class)->group(function () {
-            Route::post('ac_report', 'ac_report');
-        });
-        Route::controller(AlertReportController::class)->group(function () {
-            Route::get('all_alert', 'all_alert');
-            Route::get('device_alert/{id}', 'device_alert');
-        });
-        Route::controller(TemperatureReportController::class)->group(function () {
-            Route::post('temperature_report', 'temperature_report');
-        });
-        Route::controller(VehicleController::class)->group(function () {
-            Route::put('change_vehicletype/{id}', 'change_vehicletype');
-        });
     });
 
     Route::controller(LoginController::class)->group(function () {
@@ -204,25 +197,11 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
         Route::resource('country', CountryController::class);
         Route::resource('permission', PermissionController::class);
         Route::resource('role', RoleController::class);
-
-
         Route::resource('role_right', RoleRightsController::class);
     });
-
-
     Route::group(['middleware' => ['auth', 'checkrole:4,5']], function () {
         Route::resource('vehicle', VehicleController::class);
     });
-});
-
-Route::get('role_rights_list/{role_id}', [RoleRightsController::class, 'role_rights_list']);
-
-Route::controller(LicenseController::class)->group(function () {
-    Route::post('user_license_list', 'user_license_list');
-});
-
-Route::controller(PlanController::class)->group(function () {
-    Route::post('user_plan_list', 'user_plan_list');
 });
 
 //Role Has Permissions
@@ -253,8 +232,6 @@ Route::resource('vehicle_owner', VehicleOwnerController::class);
 Route::resource('network', NetworkProviderController::class);
 Route::resource('supplier', SupplierController::class);
 
-Route::resource('device_type', DeviceTypeController::class);
-Route::resource('device_category', DeviceCategoryController::class);
 Route::resource('device_model', DeviceModelController::class);
 
 Route::resource('camera_type', CameraTypeController::class);
@@ -297,17 +274,18 @@ Route::resource('module', ModuleController::class);
 Route::resource('parent_menu', ParentMenuController::class);
 Route::resource('child_menu', ChildMenuController::class);
 
-Route::get('greeting', [LanguageController::class, 'index'])
-    ->middleware('localization');
-
-
 Route::post('sim_import', [ImportController::class, 'sim_import']);
 Route::post('device_import', [ImportController::class, 'device_import']);
 Route::post('camera_import', [ImportController::class, 'camera_import']);
 Route::post('user_import', [ImportController::class, 'user_import']);
-
 Route::post('recharge', [RechargeController::class, 'recharge']);
 
 Route::put('sim_assign/{id}', [SimController::class, 'sim_assign']);
 Route::put('device_assign/{id}', [DeviceController::class, 'device_assign']);
+
+//App Contact
 Route::get('contact_address/{id}', [ClientController::class, 'contact_address']);
+
+//Not Use
+Route::get('greeting', [LanguageController::class, 'index'])
+    ->middleware('localization');
