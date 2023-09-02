@@ -262,7 +262,22 @@ Route::resource('camera_category', CameraCategoryController::class);
 Route::resource('camera_model', CameraModelController::class);
 
 Route::resource('sim', SimController::class);
+Route::controller(SimController::class)->group(function () {
+    Route::post('sim_transfer', 'sim_transfer');
+});
+Route::controller(SimController::class)->group(function () {
+    Route::post('sim_list', 'sim_list');
+});
+
+
 Route::resource('device', DeviceController::class);
+Route::controller(DeviceController::class)->group(function () {
+    Route::post('device_transfer', 'device_transfer');
+});
+Route::controller(DeviceController::class)->group(function () {
+    Route::post('device_list', 'device_list');
+});
+
 Route::resource('camera', CameraController::class);
 
 Route::resource('vehicle_document', VehicleDocumentController::class);
