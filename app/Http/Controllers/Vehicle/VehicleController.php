@@ -152,7 +152,6 @@ class VehicleController extends BaseController
                 'dealer_id' => $vehicleArray['dealer_id'],
                 'subdealer_id' => $vehicleArray['subdealer_id'],
                 'client_id' => $vehicleArray['client_id'],
-                'created_at' => $vehicleArray['created_at'],
                 'created_by' => $vehicleArray['created_by']
             );
             DB::connection($connectionName)->table('vehicles')->insert($client_vehicle_data);
@@ -162,8 +161,7 @@ class VehicleController extends BaseController
                 'vehicle_name' => $vehicle->vehicle_name,
                 'vehicle_current_status' => '4',
                 'vehicle_status' => '1',
-                'deviceimei' => $vehicle->device_imei,
-                'created_at' => $vehicleArray['created_at']
+                'deviceimei' => $vehicle->device_imei
             );
             DB::connection($connectionName)->table('live_data')->insert($live_data);
 
@@ -171,8 +169,7 @@ class VehicleController extends BaseController
                 'client_id' => $vehicle->client_id,
                 'vehicle_id' => $vehicle->id,
                 'vehicle_name' => $vehicle->vehicle_name,
-                'device_imei' => $vehicle->device_imei,
-                'created_at' => $vehicleArray['created_at'],
+                'device_imei' => $vehicle->device_imei
             );
             DB::connection($connectionName)->table('configurations')->insert($config_details);
 
