@@ -14,7 +14,7 @@ class PlaybackReportController extends Controller
             ->join('vehicles as B', 'A.device_imei', '=', 'B.device_imei')
             ->whereBetween(DB::raw('DATE_ADD(A.device_datetime, INTERVAL 330 MINUTE)'), [$request->input('start_day'), $request->input('end_day')])
             ->where('A.device_imei', $request->input('deviceimei'))
-            ->select('A.*', 'B.vehicle_name') // You can select specific columns if needed
+            ->select('A.id', 'A.device_imei', 'A.latitude', 'A.longitude', 'A.speed', 'A.odometer', 'A.angle', DB::raw("DATE_ADD(A.device_datetime, INTERVAL '330' MINUTE) as device_datetime"), 'A.ignition', 'A.ac_status', 'B.vehicle_name')
             ->get();
 
         if ($playbackReports->isEmpty()) {
