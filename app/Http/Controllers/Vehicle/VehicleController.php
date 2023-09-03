@@ -260,39 +260,39 @@ class VehicleController extends BaseController
         }
     }
 
-    public function change_vehicletype(Request $request, $id)
+    public function change_vehicletype(Request $request, $device_imei)
     {
-        $vehicle = Vehicle::where('device_imei', $id)->first();
+        $vehicle = Vehicle::where('device_imei', $device_imei)->first();
 
         if (!$vehicle) {
-            return $this->sendError('Vehicle Not Found');
+            $response = ["success" => false, "message" => "Vehicle Not Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
         $validator = Validator::make($request->all(), [
-            'vehicle_type_id' => 'required|max:255',
+            'vehicle_type_id' => 'required',
         ]);
+
         if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+            return response()->json($response, 403);
         }
 
         if ($vehicle->update($request->all())) {
 
-            // $dbName = 'twings';
-
-            // // Use the database name to specify the table
-            // $updatedCount = DB::connection($dbName)
-            //     ->table('vehicles')
-            //     ->where('id', $id)
-            //     ->update(['vehicle_type_id' => $request->input('vehicle_type_id')]);
-
-            // if ($updatedCount) {
-            //     return $this->sendSuccess("Vehicle Type Updated Successfully");
-            // } else {
-            //     return $this->sendError('Failed to Update Vehicle Type');
-            // }
-            return $this->sendSuccess("Vehicle Type Updated Successfully");
+            $updatedCount = DB::table('twings.vehicles')
+                ->where('device_imei', $device_imei)
+                ->update(['vehicle_type_id' => $request->input('vehicle_type_id')]);
+            if ($updatedCount) {
+                $response = ["success" => true, "message" => "Vehicle Type Updated Successfully", "status_code" => 200];
+                return response()->json($response, 200);
+            } else {
+                $response = ["success" => false, "message" => "Failed to Update Vehicle Type", "status_code" => 404];
+                return response()->json($response, 404);
+            }
         } else {
-            return $this->sendError('Failed to Update Vehicle Type');
+            $response = ["success" => false, "message" => "Failed to Update Vehicle Type", "status_code" => 404];
+            return response()->json($response, 404);
         }
     }
 }

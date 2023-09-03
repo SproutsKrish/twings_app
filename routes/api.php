@@ -29,9 +29,7 @@ use App\Http\Controllers\Stock\SupplierController;
 use App\Http\Controllers\Stock\CameraCategoryController;
 use App\Http\Controllers\Stock\CameraModelController;
 use App\Http\Controllers\Stock\CameraTypeController;
-use App\Http\Controllers\Stock\DeviceCategoryController;
 use App\Http\Controllers\Stock\DeviceModelController;
-use App\Http\Controllers\Stock\DeviceTypeController;
 use App\Http\Controllers\Stock\SimController;
 use App\Http\Controllers\Stock\DeviceController;
 use App\Http\Controllers\Stock\CameraController;
@@ -103,6 +101,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('user/delete/{id}', 'destroy');
         Route::get('user/details', 'showdetails');
     });
+
     Route::post('user_list', [UserController::class, 'user_list']);
     Route::post('user_point_list', [UserController::class, 'user_point_list']);
     Route::post('role_based_user_list', [UserController::class, 'role_based_user_list']);

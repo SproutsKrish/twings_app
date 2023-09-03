@@ -243,6 +243,27 @@ class CreateAdminUserSeeder extends Seeder
         // Insert the data into the role_rights table
         DB::table('role_rights')->insert($data);
 
+        $data = [
+            ['vehicle_type' => "Bike"],
+            ['vehicle_type' => "Car"],
+            ['vehicle_type' => "Van"],
+            ['vehicle_type' => "Bus"],
+            ['vehicle_type' => "Truck"],
+            ['vehicle_type' => "Container Truck"],
+            ['vehicle_type' => "RMC Truck"],
+            ['vehicle_type' => "Cylinder Truck"],
+            ['vehicle_type' => "Long Chassis Container Truck"],
+            ['vehicle_type' => "JCB"],
+            ['vehicle_type' => "Loader"],
+            ['vehicle_type' => "Ace"],
+            ['vehicle_type' => "Tipper"],
+            ['vehicle_type' => "Tractor"],
+            ['vehicle_type' => "Generator"]
+        ];
+
+        // Insert the data into the role_rights table
+        DB::table('vehicle_types')->insert($data);
+
 
         $data = [
             [
@@ -256,6 +277,35 @@ class CreateAdminUserSeeder extends Seeder
         ];
 
         DB::table('countries')->insert($data);
+
+        $data = [
+            [
+                'network_provider_name' => 'Airtel'
+            ],
+            [
+                'network_provider_name' => 'Jio'
+            ],
+            [
+                'network_provider_name' => 'BSNL'
+            ]
+        ];
+
+        DB::table('network_providers')->insert($data);
+
+
+        $data = [
+            [
+                'supplier_name' => 'No Metioned'
+            ],
+            [
+                'supplier_name' => 'KK PVT LTD'
+            ],
+            [
+                'supplier_name' => 'KABIL CORP'
+            ]
+        ];
+
+        DB::table('suppliers')->insert($data);
 
 
         $data = [

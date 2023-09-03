@@ -68,69 +68,77 @@ class ConfigurationController extends BaseController
             return $this->sendError('Failed to Update Configuration');
         }
     }
-    public function safe_parking(Request $request, $id)
+
+
+    public function safe_parking(Request $request, $device_imei)
     {
-        $vehicle = Vehicle::where('device_imei', '=', $id)->first();
+        $vehicle = Vehicle::where('device_imei', $device_imei)->first();
 
         if (!$vehicle) {
-            return $this->sendError('Vehicle Not Found');
+            $response = ["success" => false, "message" => "Vehicle Not Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
         $validator = Validator::make($request->all(), [
-            'safe_parking' => 'required|max:255',
+            'safe_parking' => 'required',
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+            return response()->json($response, 403);
         }
 
         if ($vehicle->update($request->all())) {
-            return $this->sendSuccess("Vehicle Safe Parking Successfully");
+            $response = ["success" => false, "message" => "Safe Parking Successfully", "status_code" => 200];
+            return response()->json($response, 200);
         } else {
-            return $this->sendError('Failed to Update Vehicle');
+            $response = ["success" => false, "message" => "Failed to Update Safe Parking", "status_code" => 404];
+            return response()->json($response, 404);
         }
     }
-    public function immobilizer_option(Request $request, $id)
+    public function immobilizer_option(Request $request, $device_imei)
     {
         $validator = Validator::make($request->all(), [
-            'engine_password' => 'required|max:255',
+            'engine_password' => 'required',
         ]);
 
-        $engine_password = $request->input('engine_password');
-        $enginePasswords = EnginePassword::where('engine_password',  $engine_password)->first();
+        $enginePasswords = EnginePassword::where('engine_password', $request->input('engine_password'))->first();
 
         if (!empty($enginePasswords)) {
-            $vehicle = Vehicle::where('device_imei', '=', $id)->first();
-
+            $vehicle = Vehicle::where('device_imei', $device_imei)->first();
             if (!$vehicle) {
-                return $this->sendError('Vehicle Not Found');
+                $response = ["success" => false, "message" => "Vehicle Not Found", "status_code" => 404];
+                return response()->json($response, 404);
             }
 
             $validator = Validator::make($request->all(), [
-                'immobilizer_option' => 'required|max:255',
+                'immobilizer_option' => 'required',
             ]);
 
             if ($validator->fails()) {
-                return $this->sendError($validator->errors());
+                $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+                return response()->json($response, 403);
             }
 
             if ($vehicle->update($request->all())) {
-                $response = ["success" => true, "message" => 'Engine Status Updated', "status_code" => 200];
+                $response = ["success" => true, "message" => 'Engine Status Updated Successfully', "status_code" => 200];
                 return response()->json($response, 200);
             } else {
                 $response = ["success" => false, "message" => 'Failed to Update Engine Status', "status_code" => 404];
                 return response()->json($response, 404);
             }
         } else {
-            return $this->sendError('Password Is Incorrect');
+            $response = ["success" => false, "message" => 'Password Is Incorrect', "status_code" => 404];
+            return response()->json($response, 404);
         }
     }
-    public function odometer_update(Request $request, $id)
+    public function odometer_update(Request $request, $deviceimei)
     {
-        $vehicle = LiveData::where('deviceimei', $id)->first();
+        $vehicle = LiveData::where('deviceimei', $deviceimei)->first();
 
         if (!$vehicle) {
-            return $this->sendError('Vehicle Not Found');
+            $response = ["success" => false, "message" => "Vehicle Not Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
         $validator = Validator::make($request->all(), [
@@ -138,21 +146,26 @@ class ConfigurationController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+            return response()->json($response, 403);
         }
 
         if ($vehicle->update($request->all())) {
-            return $this->sendSuccess("Vehicle Odometer Updated Successfully");
+            $response = ["success" => true, "message" => 'Vehicle Odometer Updated Successfully', "status_code" => 200];
+            return response()->json($response, 200);
         } else {
-            return $this->sendError('Failed to Update Vehicle Odometer');
+
+            $response = ["success" => false, "message" => 'Failed to Update Vehicle Odometer', "status_code" => 404];
+            return response()->json($response, 404);
         }
     }
-    public function speed_update(Request $request, $id)
+    public function speed_update(Request $request, $device_imei)
     {
-        $vehicle = Configuration::where('device_imei', $id)->first();
+        $vehicle = Configuration::where('device_imei', $device_imei)->first();
 
         if (!$vehicle) {
-            return $this->sendError('Vehicle Not Found');
+            $response = ["success" => false, "message" => "Vehicle Not Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
         $validator = Validator::make($request->all(), [
@@ -160,13 +173,16 @@ class ConfigurationController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+            return response()->json($response, 403);
         }
 
         if ($vehicle->update($request->all())) {
-            return $this->sendSuccess("Vehicle Speed Limit Updated Successfully");
+            $response = ["success" => true, "message" => 'Vehicle Speed Limit Updated Successfully', "status_code" => 200];
+            return response()->json($response, 200);
         } else {
-            return $this->sendError('Failed to Update Vehicle Speed Limit');
+            $response = ["success" => true, "message" => 'Failed to Update Vehicle Speed Limit', "status_code" => 404];
+            return response()->json($response, 404);
         }
     }
 }

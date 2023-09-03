@@ -26,10 +26,9 @@ class AssignGeofenceController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'vehicle_id' => 'required|max:255',
-            'client_id' => 'required|max:255',
-            'geofence_id' => 'required|max:255',
-            'fence_type' => 'required|max:255',
+            'device_imei' => 'required',
+            'geofence_id' => 'required',
+            'fence_type' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -38,6 +37,7 @@ class AssignGeofenceController extends Controller
         }
 
         $assign_geofence = new AssignGeofence($request->all());
+
         if ($assign_geofence->save()) {
             $response = ["success" => true, "message" => 'Geofence Assigned Successfully', "status_code" => 200];
             return response()->json($response, 200);

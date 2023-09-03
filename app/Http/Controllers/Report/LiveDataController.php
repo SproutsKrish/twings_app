@@ -2,17 +2,14 @@
 
 namespace App\Http\Controllers\Report;
 
-use App\Http\Controllers\API\BaseController as BaseController;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
-use App\Models\LiveData;
-use App\Models\PlayBackHistory;
-use App\Models\PlaybackReport;
-use App\Models\Vehicle;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
-class LiveDataController extends BaseController
+use App\Models\Vehicle;
+use Carbon\Carbon;
+
+class LiveDataController extends Controller
 {
     public function multi_dashboard(Request $request)
     {
@@ -27,7 +24,6 @@ class LiveDataController extends BaseController
         // Formatting the dates as 'Y-m-d H:i:s'
         $startDate = $startFormatted->format('Y-m-d H:i:s');
         $endDate = $endFormatted->format('Y-m-d H:i:s');
-
 
         $search = $request->input('search');
         if ($search == null) {
@@ -90,7 +86,6 @@ class LiveDataController extends BaseController
             $response = ["success" => true, "data" => $result, "status_code" => 200];
             return response($response, 200);
         } else {
-
             $device_imei = Vehicle::where('vehicle_name', 'LIKE', "%$search%")->pluck('device_imei');
 
             $result = DB::table('live_data as B')
@@ -224,8 +219,6 @@ class LiveDataController extends BaseController
 
     public function vehicle_count()
     {
-        // echo $current_time = Carbon::now();
-
         //inactive
         $live_datas = DB::table('live_data')
             ->where('device_updatedtime', '<', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
