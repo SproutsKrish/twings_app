@@ -133,7 +133,7 @@ class LiveDataController extends Controller
                 B.vehicle_id
         ')
                 ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
-                ->leftJoin('vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
+                ->leftJoin('twings.vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
                 ->leftJoin('configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
                 ->leftJoin(DB::raw("(SELECT device_imei, max(odometer), min(odometer), round(max(odometer) - min(odometer), 2) AS today_distance FROM play_back_histories WHERE DATE_ADD(device_datetime, INTERVAL 330 MINUTE) >= '$startDate' AND DATE_ADD(device_datetime, INTERVAL 330 MINUTE) <= '$endDate' GROUP by device_imei) AS E"), 'E.device_imei', '=', 'A.device_imei')
                 ->leftJoin('twings.device_makes as F', 'F.id', '=', 'A.device_make_id')
@@ -200,7 +200,7 @@ class LiveDataController extends Controller
             B.vehicle_id
         ')
             ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
-            ->leftJoin('vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
+            ->leftJoin('twings.vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
             ->leftJoin('configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
             ->leftJoin(DB::raw("(SELECT device_imei, max(odometer), min(odometer), round(max(odometer) - min(odometer), 2) AS today_distance FROM play_back_histories WHERE DATE_ADD(device_datetime, INTERVAL 330 MINUTE) >= '$startDate' AND DATE_ADD(device_datetime, INTERVAL 330 MINUTE) <= '$endDate' GROUP by device_imei) AS E"), 'E.device_imei', '=', 'A.device_imei')
             ->leftJoin('twings.device_makes as F', 'F.id', '=', 'A.device_make_id')
