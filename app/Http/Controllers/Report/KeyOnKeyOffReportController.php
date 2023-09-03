@@ -18,10 +18,10 @@ class KeyOnKeyOffReportController extends Controller
         $result = DB::select("SELECT
         dt.vehicle_id,
         c.vehicle_name AS vehicle_name,
-        DATE_ADD(dt.start_datetime, INTERVAL 330 MINUTE) AS start_datetime,
+        DATE_ADD(dt.start_datetime) AS start_datetime,
         dt.start_latitude,
         dt.start_longitude,
-        DATE_ADD(dt.end_datetime, INTERVAL 330 MINUTE) AS end_datetime,
+        DATE_ADD(dt.end_datetime) AS end_datetime,
         dt.end_latitude,
         dt.end_longitude,
         FORMAT(MAX(t.speed), 2) AS max_speed,
