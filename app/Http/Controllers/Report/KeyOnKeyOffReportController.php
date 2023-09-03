@@ -32,6 +32,7 @@ class KeyOnKeyOffReportController extends Controller
         (
             SELECT
                 vehicle_id,
+                device_imei,
                 start_latitude,
                 start_longitude,
                 end_latitude,
@@ -49,6 +50,7 @@ class KeyOnKeyOffReportController extends Controller
     JOIN
         play_back_histories AS t
         ON DATE_ADD(t.device_datetime, INTERVAL 330 MINUTE) >= dt.start_datetime AND DATE_ADD(t.device_datetime, INTERVAL 330 MINUTE) <= dt.end_datetime
+        AND dt.device_imei = t.device_imei
     JOIN
         vehicles AS c
         ON c.id = dt.vehicle_id
