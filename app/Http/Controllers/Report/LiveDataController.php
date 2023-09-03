@@ -13,17 +13,8 @@ class LiveDataController extends Controller
 {
     public function multi_dashboard(Request $request)
     {
-        // Get the current date and time
-        $startFormatted = Carbon::now();
-        $endFormatted = Carbon::now();
-
-        // Adding 330 minutes to both start and end dates
-        $startFormatted->addMinutes(330);
-        $endFormatted->addMinutes(330);
-
-        // Formatting the dates as 'Y-m-d H:i:s'
-        $startDate = $startFormatted->format('Y-m-d H:i:s');
-        $endDate = $endFormatted->format('Y-m-d H:i:s');
+        $startDate = date('Y-m-d') . ' 00:00:00';
+        $endDate = date('Y-m-d H:i:s');
 
         $search = $request->input('search');
         if ($search == null) {
