@@ -7,6 +7,7 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\Device;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -82,11 +83,11 @@ class DeviceController extends BaseController
 
             if ($requestKeys->contains('admin_id')) {
                 $admin_id = User::find($request->input('admin_id'));
-                $data['admin_id']  = $admin_id->admin_id
+                $data['admin_id']  = $admin_id->admin_id;
             }
             if ($requestKeys->contains('distributor_id')) {
                 $distributor_id = User::find($request->input('distributor_id'));
-                $data['distributor_id']  = $distributor_id->distributor_id
+                $data['distributor_id']  = $distributor_id->distributor_id;
             }
             if ($requestKeys->contains('dealer_id')) {
                 $dealer_id = User::find($request->input('dealer_id'));
