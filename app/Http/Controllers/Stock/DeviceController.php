@@ -68,9 +68,7 @@ class DeviceController extends BaseController
     {
         try {
             $validator = Validator::make($request->all(), [
-                'device_id' => 'required|max:255',
-                'role_id' => 'required|max:255',
-                'user_id' => 'required|max:255'
+                'id' => 'required|max:255',
             ]);
 
             if ($validator->fails()) {
@@ -78,68 +76,28 @@ class DeviceController extends BaseController
                 return response()->json($response, 403);
             }
 
-            $role_id = $request->input('role_id');
-            $device_id = $request->input('device_id');
+            $device = Device::find($request->input('id'));
 
-            $admin_id = $request->input('admin_id');
-            $distributor_id = $request->input('distributor_id');
-            $dealer_id = $request->input('dealer_id');
-            $subdealer_id = $request->input('subdealer_id');
+            $requestKeys = collect($request->all())->keys();
 
-            switch ($role_id) {
-                case $role_id == 1:
-                    $admin_id = $request->input('user_id');
-                    $device_data =  Device::where('admin_id', null)
-                        ->where('distributor_id', null)
-                        ->where('dealer_id', null)
-                        ->where('subdealer_id', null)
-                        ->where('id', $device_id)
-                        ->update([
-                            'admin_id' => $admin_id
-                        ]);
-                    break;
-                case $role_id == 2:
-                    $distributor_id = $request->input('user_id');
-                    $device_data =  Device::where('admin_id', $admin_id)
-                        ->where('distributor_id', null)
-                        ->where('dealer_id', null)
-                        ->where('subdealer_id', null)
-                        ->where('id', $device_id)
-                        ->update([
-                            'distributor_id' => $distributor_id
-                        ]);
-                    break;
-                case $role_id == 3:
-                    $dealer_id = $request->input('user_id');
-                    $device_data = Device::where('admin_id', $admin_id)
-                        ->where('distributor_id', $distributor_id)
-                        ->where('dealer_id', null)
-                        ->where('subdealer_id', null)
-                        ->where('id', $device_id)
-                        ->update([
-                            'dealer_id' => $dealer_id
-                        ]);
-                    break;
-                case $role_id == 4:
-                    $subdealer_id = $request->input('user_id');
-                    $device_data = Device::where('admin_id', $admin_id)
-                        ->where('distributor_id', $distributor_id)
-                        ->where('dealer_id', $dealer_id)
-                        ->where('subdealer_id', null)
-                        ->where('id', $device_id)
-                        ->update([
-                            'subdealer_id' => $subdealer_id
-                        ]);
-                    break;
-                default:
+            if ($requestKeys->contains('admin_id')) {
+                $admin_id = User::find($request->input('admin_id'));
+                $data['admin_id']  = $admin_id->admin_id
             }
-            if ($device_data) {
-                $response = ["success" => true, "message" => "Device Transferred Successfully", "status_code" => 200];
-                return response()->json($response, 200);
-            } else {
-                $response = ["success" => false, "message" => "Failed to Transfer Device", "status_code" => 404];
-                return response()->json($response, 404);
+            if ($requestKeys->contains('distributor_id')) {
+                $distributor_id = User::find($request->input('distributor_id'));
+                $data['distributor_id']  = $distributor_id->distributor_id
             }
+            if ($requestKeys->contains('dealer_id')) {
+                $dealer_id = User::find($request->input('dealer_id'));
+                $data['dealer_id']  = $dealer_id->dealer_id;
+            }
+            if ($requestKeys->contains('subdealer_id')) {
+                $subdealer_id = User::find($request->input('subdealer_id'));
+                $data['subdealer_id']  = $subdealer_id->subdealer_id;
+            }
+            $device = $device->update($data);
+            return response()->json($device);
         } catch (\Exception $e) {
 
             return $e->getMessage();

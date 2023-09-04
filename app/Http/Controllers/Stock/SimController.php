@@ -7,6 +7,7 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\Sim;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class SimController extends BaseController
@@ -81,84 +82,23 @@ class SimController extends BaseController
             $requestKeys = collect($request->all())->keys();
 
             if ($requestKeys->contains('admin_id')) {
-                $data['admin_id'] = $request->input('admin_id');
+                $admin_id = User::find($request->input('admin_id'));
+                $data['admin_id']  = $admin_id->admin_id;
             }
             if ($requestKeys->contains('distributor_id')) {
-                $data['distributor_id'] = $request->input('distributor_id');
+                $distributor_id = User::find($request->input('distributor_id'));
+                $data['distributor_id']  = $distributor_id->distributor_id;
             }
             if ($requestKeys->contains('dealer_id')) {
-                $data['dealer_id'] = $request->input('dealer_id');
+                $dealer_id = User::find($request->input('dealer_id'));
+                $data['dealer_id']  = $dealer_id->dealer_id;
             }
             if ($requestKeys->contains('subdealer_id')) {
-                $data['subdealer_id'] = $request->input('subdealer_id');
+                $subdealer_id = User::find($request->input('subdealer_id'));
+                $data['subdealer_id']  = $subdealer_id->subdealer_id;
             }
             $sim = $sim->update($data);
             return response()->json($sim);
-
-
-
-            $role_id = $request->input('role_id');
-            $sim_id = $request->input('id');
-
-            $admin_id = $request->input('admin_id');
-            $distributor_id = $request->input('distributor_id');
-            $dealer_id = $request->input('dealer_id');
-            $subdealer_id = $request->input('subdealer_id');
-
-            switch ($role_id) {
-                case $role_id == 1:
-                    $admin_id = $request->input('user_id');
-                    $sim_data =  Sim::where('admin_id', null)
-                        ->where('distributor_id', null)
-                        ->where('dealer_id', null)
-                        ->where('subdealer_id', null)
-                        ->where('id', $sim_id)
-                        ->update([
-                            'admin_id' => $admin_id
-                        ]);
-                    break;
-                case $role_id == 2:
-                    $distributor_id = $request->input('user_id');
-                    $sim_data =  Sim::where('admin_id', $admin_id)
-                        ->where('distributor_id', null)
-                        ->where('dealer_id', null)
-                        ->where('subdealer_id', null)
-                        ->where('id', $sim_id)
-                        ->update([
-                            'distributor_id' => $distributor_id
-                        ]);
-                    break;
-                case $role_id == 3:
-                    $dealer_id = $request->input('user_id');
-                    $sim_data = Sim::where('admin_id', $admin_id)
-                        ->where('distributor_id', $distributor_id)
-                        ->where('dealer_id', null)
-                        ->where('subdealer_id', null)
-                        ->where('id', $sim_id)
-                        ->update([
-                            'dealer_id' => $dealer_id
-                        ]);
-                    break;
-                case $role_id == 4:
-                    $subdealer_id = $request->input('user_id');
-                    $sim_data = Sim::where('admin_id', $admin_id)
-                        ->where('distributor_id', $distributor_id)
-                        ->where('dealer_id', $dealer_id)
-                        ->where('subdealer_id', null)
-                        ->where('id', $sim_id)
-                        ->update([
-                            'subdealer_id' => $subdealer_id
-                        ]);
-                    break;
-                default:
-            }
-            if ($sim_data) {
-                $response = ["success" => true, "message" => "Sim Transferred Successfully", "status_code" => 200];
-                return response()->json($response, 200);
-            } else {
-                $response = ["success" => false, "message" => "Failed to Transfer Sim", "status_code" => 404];
-                return response()->json($response, 404);
-            }
         } catch (\Exception $e) {
 
             return $e->getMessage();
