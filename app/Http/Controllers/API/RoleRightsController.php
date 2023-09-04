@@ -24,14 +24,20 @@ class RoleRightsController extends BaseController
 
     public function role_rights_list($role_id)
     {
-        $roleRights = DB::table('role_rights')
-            ->where('role_id', $role_id)
-            ->pluck('rights_id');
+        // $roleRights = DB::table('role_rights')
+        //     ->where('role_id', $role_id)
+        //     ->pluck('rights_id');
+
+
+        // $roles = DB::table('roles')
+        //     ->whereIn('id', $roleRights->toArray())
+        //     ->get();
 
 
         $roles = DB::table('roles')
-            ->whereIn('id', $roleRights->toArray())
+            ->where('id', '>', $role_id)
             ->get();
+
 
         if ($roles->isEmpty()) {
             return $this->sendError('No Role Rights Found');
