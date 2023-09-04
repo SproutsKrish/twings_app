@@ -298,6 +298,8 @@ Route::put('device_assign/{id}', [DeviceController::class, 'device_assign']);
 
 //App Contact
 Route::get('contact_address/{id}', [ClientController::class, 'contact_address']);
+Route::post('sim_new', [SimController::class, 'sim_new']);
+
 
 //Not Use
 Route::get('greeting', [LanguageController::class, 'index'])

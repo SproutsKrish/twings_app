@@ -68,9 +68,7 @@ class SimController extends BaseController
     {
         try {
             $validator = Validator::make($request->all(), [
-                'sim_id' => 'required|max:255',
-                'role_id' => 'required|max:255',
-                'user_id' => 'required|max:255'
+                'id' => 'required|max:255',
             ]);
 
             if ($validator->fails()) {
@@ -78,8 +76,29 @@ class SimController extends BaseController
                 return response()->json($response, 403);
             }
 
+            $sim = Sim::find($request->input('id'));
+
+            $requestKeys = collect($request->all())->keys();
+
+            if ($requestKeys->contains('admin_id')) {
+                $data['admin_id'] = $request->input('admin_id');
+            }
+            if ($requestKeys->contains('distributor_id')) {
+                $data['distributor_id'] = $request->input('distributor_id');
+            }
+            if ($requestKeys->contains('dealer_id')) {
+                $data['dealer_id'] = $request->input('dealer_id');
+            }
+            if ($requestKeys->contains('subdealer_id')) {
+                $data['subdealer_id'] = $request->input('subdealer_id');
+            }
+            $sim = $sim->update($data);
+            return response()->json($sim);
+
+
+
             $role_id = $request->input('role_id');
-            $sim_id = $request->input('sim_id');
+            $sim_id = $request->input('id');
 
             $admin_id = $request->input('admin_id');
             $distributor_id = $request->input('distributor_id');
@@ -202,6 +221,7 @@ class SimController extends BaseController
             return $this->sendError('Sim Not Found');
         }
 
+
         $validator = Validator::make($request->all(), [
             'network_id' => 'required|max:255',
             'sim_imei_no' => 'required|unique:sims,sim_imei_no,' . $request->input('id') . 'id',
@@ -258,5 +278,11 @@ class SimController extends BaseController
         } else {
             return $this->sendError('Failed to Update Sim');
         }
+    }
+
+    public function sim_new(Request $request)
+    {
+        $requestKeys = collect($request->all())->keys();
+        return response()->json($requestKeys);
     }
 }
