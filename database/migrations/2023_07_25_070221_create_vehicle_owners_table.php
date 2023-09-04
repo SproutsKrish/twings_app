@@ -33,6 +33,9 @@ return new class extends Migration
             $table->string('timezone_offset')->nullable();
             $table->integer('timezone_minutes')->nullable();
 
+            $table->string('vehicle_owner_domain')->nullable();
+
+            $table->bigInteger('user_id')->nullable();
             $table->bigInteger('admin_id')->nullable();
             $table->bigInteger('distributor_id')->nullable();
             $table->bigInteger('dealer_id')->nullable();

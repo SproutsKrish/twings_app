@@ -63,7 +63,7 @@ use App\Http\Controllers\Report\PlaybackReportController;
 use App\Http\Controllers\Report\RoutedeviationReportController;
 use App\Http\Controllers\Report\TemperatureReportController;
 use App\Http\Controllers\Report\TripPlanReportController;
-
+use App\Http\Controllers\Stock\DeviceMakeController;
 use App\Http\Controllers\VehicleSetting\ConfigurationController;
 use App\Http\Controllers\VehicleSetting\NotificationController;
 use App\Http\Controllers\VehicleSetting\ShareLinkController;
@@ -89,6 +89,34 @@ Route::controller(LoginController::class)->group(function () {
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
+
+    Route::controller(SimController::class)->group(function () {
+        Route::post('sim_transfer', 'sim_transfer');
+    });
+    Route::controller(SimController::class)->group(function () {
+        Route::post('sim_list', 'sim_list');
+    });
+    Route::controller(SimController::class)->group(function () {
+        Route::post('sim/store', 'store');
+    });
+    Route::controller(SimController::class)->group(function () {
+        Route::post('sim/update', 'update');
+    });
+
+    Route::controller(DeviceController::class)->group(function () {
+        Route::post('device_transfer', 'device_transfer');
+    });
+    Route::controller(DeviceController::class)->group(function () {
+        Route::post('device_list', 'device_list');
+    });
+    Route::controller(DeviceController::class)->group(function () {
+        Route::post('device/store', 'store');
+    });
+    Route::controller(DeviceController::class)->group(function () {
+        Route::post('device/update', 'update');
+    });
+
+
     Route::controller(UserController::class)->group(function () {
         Route::get('user/yourMethod', 'yourMethod');
     });
@@ -232,28 +260,14 @@ Route::resource('network', NetworkProviderController::class);
 Route::resource('supplier', SupplierController::class);
 
 Route::resource('device_model', DeviceModelController::class);
+Route::resource('device_make', DeviceMakeController::class);
 
 Route::resource('camera_type', CameraTypeController::class);
 Route::resource('camera_category', CameraCategoryController::class);
 Route::resource('camera_model', CameraModelController::class);
 
 Route::resource('sim', SimController::class);
-Route::controller(SimController::class)->group(function () {
-    Route::post('sim_transfer', 'sim_transfer');
-});
-Route::controller(SimController::class)->group(function () {
-    Route::post('sim_list', 'sim_list');
-});
-
-
 Route::resource('device', DeviceController::class);
-Route::controller(DeviceController::class)->group(function () {
-    Route::post('device_transfer', 'device_transfer');
-});
-Route::controller(DeviceController::class)->group(function () {
-    Route::post('device_list', 'device_list');
-});
-
 Route::resource('camera', CameraController::class);
 
 Route::resource('vehicle_document', VehicleDocumentController::class);
@@ -278,7 +292,7 @@ Route::post('device_import', [ImportController::class, 'device_import']);
 Route::post('camera_import', [ImportController::class, 'camera_import']);
 Route::post('user_import', [ImportController::class, 'user_import']);
 Route::post('recharge', [RechargeController::class, 'recharge']);
-
+Route::post('generate_fcm_token', [LoginController::class, 'generate_fcm_token']);
 Route::put('sim_assign/{id}', [SimController::class, 'sim_assign']);
 Route::put('device_assign/{id}', [DeviceController::class, 'device_assign']);
 

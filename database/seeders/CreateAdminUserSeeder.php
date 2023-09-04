@@ -320,19 +320,19 @@ class CreateAdminUserSeeder extends Seeder
         // Insert the data into the role_rights table
         DB::table('point_types')->insert($data);
 
-        DB::table('device_types')->insert([
-            ['device_type' => 'TELTONIKA', 'status' => 1],
-            ['device_type' => 'ACUTE', 'status' => 1],
-            ['device_type' => 'CONCOX', 'status' => 1],
-            ['device_type' => 'PROTRACK', 'status' => 1],
-            ['device_type' => 'BENWAY', 'status' => 1],
-            ['device_type' => 'LIBITECH', 'status' => 1],
-            ['device_type' => 'COBAL', 'status' => 1],
-            ['device_type' => 'CABTRACK', 'status' => 1],
-            ['device_type' => 'SEAWORLD', 'status' => 1],
-            ['device_type' => 'ROADPOINT', 'status' => 1],
-            ['device_type' => 'TELTONIKA', 'status' => 1],
-            ['device_type' => 'RDM', 'status' => 1]
+        DB::table('device_makes')->insert([
+            ['device_make' => 'TELTONIKA', 'status' => 1],
+            ['device_make' => 'ACUTE', 'status' => 1],
+            ['device_make' => 'CONCOX', 'status' => 1],
+            ['device_make' => 'PROTRACK', 'status' => 1],
+            ['device_make' => 'BENWAY', 'status' => 1],
+            ['device_make' => 'LIBITECH', 'status' => 1],
+            ['device_make' => 'COBAL', 'status' => 1],
+            ['device_make' => 'CABTRACK', 'status' => 1],
+            ['device_make' => 'SEAWORLD', 'status' => 1],
+            ['device_make' => 'ROADPOINT', 'status' => 1],
+            ['device_make' => 'TELTONIKA', 'status' => 1],
+            ['device_make' => 'RDM', 'status' => 1]
         ]);
 
         DB::table('device_models')->insert([

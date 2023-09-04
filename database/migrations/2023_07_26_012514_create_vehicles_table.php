@@ -21,10 +21,12 @@ return new class extends Migration
             $table->string('vehicle_model', 50)->nullable();
             $table->bigInteger('vehicle_year')->nullable();
 
-            $table->bigInteger('device_id')->nullable();
-            $table->bigInteger('device_imei')->nullable();
             $table->bigInteger('sim_id')->nullable();
             $table->bigInteger('sim_mob_no')->nullable();
+            $table->bigInteger('device_make_id')->nullable();
+            $table->bigInteger('device_model_id')->nullable();
+            $table->bigInteger('device_id')->nullable();
+            $table->bigInteger('device_imei')->nullable();
 
             $table->string('license_no')->nullable();
 

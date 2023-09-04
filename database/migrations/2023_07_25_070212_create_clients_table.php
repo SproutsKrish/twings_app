@@ -27,6 +27,8 @@ return new class extends Migration
             $table->string('client_state')->nullable();
             $table->integer('client_pincode')->nullable();
 
+            $table->string('client_domain')->nullable();
+
             $table->bigInteger('user_id')->nullable();
 
             $table->bigInteger('admin_id')->nullable();

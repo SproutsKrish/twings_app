@@ -27,13 +27,24 @@ class SimController extends BaseController
         try {
             $validator = Validator::make($request->all(), [
                 'network_id' => 'required|max:255',
-                'sim_imei_no' => 'required|unique:sims,sim_imei_no'
+                'sim_imei_no' => 'required|unique:sims,sim_imei_no',
+                'sim_mob_no1' => 'required|unique:sims,sim_mob_no1'
             ]);
 
             if ($validator->fails()) {
                 $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
                 return response()->json($response, 403);
             }
+
+            $request['admin_id'] = auth()->user()->admin_id;
+            $request['distributor_id'] = auth()->user()->distributor_id;
+            $request['dealer_id'] = auth()->user()->dealer_id;
+            $request['subdealer_id'] = auth()->user()->subdealer_id;
+            $request['created_by'] = auth()->user()->id;
+            $request['purchase_date'] = date('Y-m-d');
+
+            // return response()->json($request->all());
+
 
             $sim = new Sim($request->all());
 
@@ -142,17 +153,18 @@ class SimController extends BaseController
     {
         try {
 
-            $admin_id = $request->input('admin_id');
-            $distributor_id = $request->input('distributor_id');
-            $dealer_id = $request->input('dealer_id');
-            $subdealer_id = $request->input('subdealer_id');
+            $admin_id = auth()->user()->admin_id;
+            $distributor_id = auth()->user()->distributor_id;
+            $dealer_id = auth()->user()->dealer_id;
+            $subdealer_id = auth()->user()->subdealer_id;
 
-            $sim_data = DB::table('sims')
-                ->select('id', 'sim_imei_no', 'sim_mob_no1', 'sim_mob_no2')
-                ->where('admin_id', $admin_id)
-                ->where('distributor_id', $distributor_id)
-                ->where('dealer_id', $dealer_id)
-                ->where('subdealer_id', $subdealer_id)
+            $sim_data = DB::table('sims as a')
+                ->join('network_providers as b', 'a.network_id', '=', 'b.id')
+                ->select('a.id', 'a.network_id', 'a.sim_imei_no', 'a.sim_mob_no1', 'a.sim_mob_no2', 'a.valid_from', 'a.valid_to', 'b.network_provider_name')
+                ->where('a.admin_id', $admin_id)
+                ->where('a.distributor_id', $distributor_id)
+                ->where('a.dealer_id', $dealer_id)
+                ->where('a.subdealer_id', $subdealer_id)
                 ->get();
 
             if ($sim_data->isEmpty()) {
@@ -182,9 +194,9 @@ class SimController extends BaseController
         return $this->sendSuccess($sim);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        $sim = Sim::find($id);
+        $sim = Sim::find($request->id);
 
         if (!$sim) {
             return $this->sendError('Sim Not Found');
@@ -192,8 +204,8 @@ class SimController extends BaseController
 
         $validator = Validator::make($request->all(), [
             'network_id' => 'required|max:255',
-            'sim_imei_no' => 'required|max:255',
-            'sim_mob_no' => 'required|max:255',
+            'sim_imei_no' => 'required|unique:sims,sim_imei_no,' . $request->input('id') . 'id',
+            'sim_mob_no1' => 'required|unique:sims,sim_mob_no1,' . $request->input('id') . 'id',
         ]);
 
         if ($validator->fails()) {

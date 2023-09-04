@@ -16,6 +16,8 @@ return new class extends Migration
         Schema::create('share_links', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('client_id');
+            $table->bigInteger('vehicle_id')->nullable();
+            $table->bigInteger('device_imei')->nullable();
             $table->string('link');
             $table->string('link_type');
             $table->timestamp('expiry_date')->nullable();

@@ -28,6 +28,8 @@ return new class extends Migration
             $table->string('dealer_state')->nullable();
             $table->integer('dealer_pincode')->nullable();
 
+            $table->string('dealer_domain')->nullable();
+
             $table->bigInteger('user_id')->nullable();
             $table->bigInteger('admin_id')->nullable();
             $table->bigInteger('distributor_id')->nullable();

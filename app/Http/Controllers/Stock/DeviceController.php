@@ -7,6 +7,7 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\Device;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class DeviceController extends BaseController
@@ -32,10 +33,18 @@ class DeviceController extends BaseController
                 'device_imei_no' => 'required|unique:devices,device_imei_no'
             ]);
 
+
             if ($validator->fails()) {
                 $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
                 return response()->json($response, 403);
             }
+
+            $request['admin_id'] = auth()->user()->admin_id;
+            $request['distributor_id'] = auth()->user()->distributor_id;
+            $request['dealer_id'] = auth()->user()->dealer_id;
+            $request['subdealer_id'] = auth()->user()->subdealer_id;
+            $request['created_by'] = auth()->user()->id;
+            $request['purchase_date'] = date('Y-m-d');
 
             $device = new Device($request->all());
 
@@ -144,17 +153,20 @@ class DeviceController extends BaseController
     {
         try {
 
-            $admin_id = $request->input('admin_id');
-            $distributor_id = $request->input('distributor_id');
-            $dealer_id = $request->input('dealer_id');
-            $subdealer_id = $request->input('subdealer_id');
+            $admin_id = auth()->user()->admin_id;
+            $distributor_id = auth()->user()->distributor_id;
+            $dealer_id = auth()->user()->dealer_id;
+            $subdealer_id = auth()->user()->subdealer_id;
 
-            $device_data = DB::table('devices')
-                ->select('id', 'device_imei_no', 'ccid', 'uid')
-                ->where('admin_id', $admin_id)
-                ->where('distributor_id', $distributor_id)
-                ->where('dealer_id', $dealer_id)
-                ->where('subdealer_id', $subdealer_id)
+            $device_data = DB::table('devices as a')
+                ->select('a.id', 'a.device_imei_no', 'a.ccid', 'a.uid', 'a.device_make_id', 'a.device_model_id', 'a.supplier_id', 'b.device_make', 'c.device_model', 'd.supplier_name')
+                ->join('device_makes as b', 'a.device_make_id', '=', 'b.id')
+                ->join('device_models as c', 'a.device_model_id', '=', 'c.id')
+                ->join('suppliers as d', 'a.supplier_id', '=', 'd.id')
+                ->where('a.admin_id', $admin_id)
+                ->where('a.distributor_id', $distributor_id)
+                ->where('a.dealer_id', $dealer_id)
+                ->where('a.subdealer_id', $subdealer_id)
                 ->get();
 
             if ($device_data->isEmpty()) {
@@ -185,16 +197,16 @@ class DeviceController extends BaseController
         return $this->sendSuccess($device);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        $device = Device::find($id);
+        $device = Device::find($request->input('id'));
 
         if (!$device) {
             return $this->sendError('Device Not Found');
         }
 
         $validator = Validator::make($request->all(), [
-            'device_imei_no' => 'required|max:255',
+            'device_imei_no' => 'required|unique:devices,device_imei_no,' . $request->input('id') . 'id',
         ]);
 
         if ($validator->fails()) {

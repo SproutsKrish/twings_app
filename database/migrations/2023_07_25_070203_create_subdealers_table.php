@@ -27,6 +27,8 @@ return new class extends Migration
             $table->string('subdealer_state')->nullable();
             $table->integer('subdealer_pincode')->nullable();
 
+            $table->string('subdealer_domain')->nullable();
+
             $table->bigInteger('user_id')->nullable();
             $table->bigInteger('admin_id')->nullable();
             $table->bigInteger('distributor_id')->nullable();
