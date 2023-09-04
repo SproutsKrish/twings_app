@@ -17,7 +17,6 @@ return new class extends Migration
         DB::unprepared("
         CREATE TRIGGER `live_data_update` AFTER INSERT ON `new_location_history`
  FOR EACH ROW BEGIN
- BEGIN
  DECLARE current_odometer DECIMAL(10,2) DEFAULT 0; /* Declare Current Odometer Variable */
  DECLARE current_distance DECIMAL(10,2) DEFAULT 0;
  /* Start Inserting deviceimei Current Details Get From Livedata Table */
@@ -282,8 +281,6 @@ return new class extends Migration
                  );
  END IF;
  /* END - PLAYBACK HISTORY*/
-
- END
 
 END
 
