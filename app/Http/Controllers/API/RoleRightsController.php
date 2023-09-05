@@ -36,6 +36,8 @@ class RoleRightsController extends BaseController
 
         $roles = DB::table('roles')
             ->where('id', '>', $role_id)
+            ->where('id', '!=', 7)
+            ->where('id', '!=', 8)
             ->get();
 
 
