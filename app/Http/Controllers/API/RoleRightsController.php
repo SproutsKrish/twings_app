@@ -33,12 +33,19 @@ class RoleRightsController extends BaseController
         //     ->whereIn('id', $roleRights->toArray())
         //     ->get();
 
+        if ($role_id <= 5) {
+            $roles = DB::table('roles')
+                ->where('id', '>', $role_id)
+                ->where('id', '!=', 7)
+                ->where('id', '!=', 8)
+                ->get();
+        } else {
+            $roles = DB::table('roles')
+                ->where('id', '>', $role_id)
+                ->get();
+        }
 
-        $roles = DB::table('roles')
-            ->where('id', '>', $role_id)
-            ->where('id', '!=', 7)
-            ->where('id', '!=', 8)
-            ->get();
+
 
 
         if ($roles->isEmpty()) {

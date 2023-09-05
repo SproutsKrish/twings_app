@@ -34,7 +34,7 @@ return new class extends Migration
             $table->tinyInteger('ignition')->nullable();
             $table->tinyInteger('ac_status')->default(0);
 
-            $table->double('speed', 8, 2)->default(0.00);
+            $table->double('speed')->default(0);
             $table->integer('angle')->nullable(); // Removed unnecessary length parameter
             $table->double('odometer')->default(0);
             $table->datetime('device_updatedtime')->nullable();

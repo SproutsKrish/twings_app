@@ -51,79 +51,34 @@ class UserController extends BaseController
         $role_id = $request->input('role_id');
 
         if ($role_id == 1) {
-            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.admin_address as address, c.name
-            FROM users a
-            INNER JOIN admins b on a.admin_id = b.id
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id
-            UNION
-            SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.staff_address as address, c.name as role
-            FROM users a
-            INNER JOIN staffs b on a.staff_id = b.id
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id");
+            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.name as role
+            FROM users a INNER JOIN roles b ON a.role_id = b.id WHERE a.role_id > 1;");
         } else if ($role_id == 2) {
-            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.distributor_address as address, c.name as role
-            FROM users a
-            INNER JOIN distributors b on a.distributor_id = b.id
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id
-            UNION
-            SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.staff_address as address, c.name as role
-            FROM users a
-            INNER JOIN staffs b on a.staff_id = b.id
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id");
+            $data = User::find($user_id);
+            $admin_id  = $data->admin_id;
+            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.name as role
+            FROM users a INNER JOIN roles b ON a.role_id = b.id WHERE a.role_id > 2 AND a.admin_id = $admin_id");
         } else if ($role_id == 3) {
-            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.dealer_address as address, c.name as role
-            FROM users a
-            INNER JOIN dealers b on a.dealer_id = b.id
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id
-            UNION
-            SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.staff_address as address, c.name as role
-            FROM users a
-            INNER JOIN staffs b on a.staff_id = b.id
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id");
+            $data = User::find($user_id);
+            $distributor_id  = $data->distributor_id;
+            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.name as role
+            FROM users a INNER JOIN roles b ON a.role_id = b.id WHERE a.role_id > 3 AND a.distributor_id = $distributor_id");
         } else if ($role_id == 4) {
-            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.subdealer_address as address, c.name as role
-            FROM users a
-            INNER JOIN sub_dealers b on a.subdealer_id = b.id
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id
-            UNION
-            SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.client_address as address, c.name as role
-            FROM users a
-            INNER JOIN clients b on a.client_id = b.id
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id
-            UNION
-            SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.staff_address as address, c.name as role
-            FROM users a
-            INNER JOIN staffs b on a.staff_id = b.id
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id");
+            $data = User::find($user_id);
+            $dealer_id  = $data->dealer_id;
+            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.name as role
+            FROM users a INNER JOIN roles b ON a.role_id = b.id WHERE a.role_id > 4 AND a.dealer_id = $dealer_id");
         } else if ($role_id == 5) {
-            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.client_address as address, c.name as role
-            FROM users a
-            INNER JOIN clients b on a.client_id = b.id
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id
-            UNION
-            SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.staff_address as address, c.name as role
-            FROM users a
-            INNER JOIN staffs b on a.staff_id = b.id
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id");
+            $data = User::find($user_id);
+            $subdealer_id  = $data->subdealer_id;
+            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.name as role
+            FROM users a INNER JOIN roles b ON a.role_id = b.id WHERE a.role_id > 5 AND a.subdealer_id = $subdealer_id");
         } else if ($role_id == 6) {
-            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.staff_address as address, c.name as role
-            FROM users a
-            INNER JOIN staffs b on a.staff_id = b.id
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id");
+            $data = User::find($user_id);
+            $client_id  = $data->client_id;
+            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.name as role
+            FROM users a INNER JOIN roles b ON a.role_id = b.id WHERE a.role_id > 6 AND a.client_id = $client_id");
         }
-
 
         if (empty($result)) {
             return $this->sendError('No Users Found');
@@ -195,13 +150,9 @@ class UserController extends BaseController
             return response()->json($response, 403);
         }
 
-        //Check RoleRights
-        $session_role_id = auth()->user()->role_id;
         $role_id = $request->input('role_id');
 
-        $result = RoleRights::where('role_id', $session_role_id)
-            ->where('rights_id', $role_id)
-            ->first();
+        $result = true;
 
         if ($result) {
             $input = $request->all();
@@ -212,13 +163,35 @@ class UserController extends BaseController
             $country = Country::find($request->input('country_id'));
 
             //Set User Data
+            $requestKeys = collect($request->all())->keys();
+            // return response()->json($requestKeys);
+
             $input['admin_id'] = auth()->user()->admin_id;
             $input['distributor_id'] = auth()->user()->distributor_id;
             $input['dealer_id'] = auth()->user()->dealer_id;
             $input['subdealer_id'] = auth()->user()->subdealer_id;
+
+            if ($requestKeys->contains('admin_id')) {
+                $admin_id = User::find($request->input('admin_id'));
+                $input['admin_id']  = $admin_id->admin_id;
+            }
+            if ($requestKeys->contains('distributor_id')) {
+                $distributor_id = User::find($request->input('distributor_id'));
+                $input['distributor_id']  = $distributor_id->distributor_id;
+            }
+            if ($requestKeys->contains('dealer_id')) {
+                $dealer_id = User::find($request->input('dealer_id'));
+                $input['dealer_id']  = $dealer_id->dealer_id;
+            }
+            if ($requestKeys->contains('subdealer_id')) {
+                $subdealer_id = User::find($request->input('subdealer_id'));
+                $input['subdealer_id']  = $subdealer_id->subdealer_id;
+            }
+
             $input['client_id'] = auth()->user()->client_id;
             $input['vehicle_owner_id'] = auth()->user()->vehicle_owner_id;
             $input['staff_id'] = auth()->user()->staff_id;
+
             $input['country_id'] = $country->id;
             $input['country_name'] = $country->country_name;
             $input['timezone_name'] = $country->timezone_name;
@@ -226,6 +199,8 @@ class UserController extends BaseController
             $input['timezone_minutes'] = $country->timezone_minutes;
             $input['created_by'] = auth()->user()->id;
             $input['ip_address'] = $request->ip();
+
+            // return response()->json($input);
 
             //Save User Data
             $user = new User($input);
