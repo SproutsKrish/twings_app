@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AlertTypeController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\API\LoginController;
@@ -114,6 +115,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
     Route::controller(DeviceController::class)->group(function () {
         Route::post('device/update', 'update');
+    });
+    Route::controller(AlertTypeController::class)->group(function () {
+        Route::get('get_alert_list', 'get_alert_list');
     });
 
 
