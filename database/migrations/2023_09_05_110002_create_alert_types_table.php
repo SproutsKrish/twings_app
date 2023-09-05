@@ -15,6 +15,8 @@ return new class extends Migration
     {
         Schema::create('alert_types', function (Blueprint $table) {
             $table->id();
+            $table->string('alert_type');
+            $table->tinyInteger('status')->nullable()->default(1);
             $table->timestamps();
         });
     }

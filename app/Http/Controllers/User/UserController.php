@@ -649,15 +649,12 @@ class UserController extends BaseController
             FROM users
             WHERE role_id = 2");
         } else if ($role_id == 2) {
-            $user_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
+            $data = User::find($user_id);
+            $admin_id  = $data->admin_id;
+            $user_list = DB::select("SELECT id, name, email, role_id
             FROM users a
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id");
+            WHERE role_id = 3 AND admin_id = $admin_id");
         } else if ($role_id == 3) {
-            $user_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
-            FROM users a
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id");
         } else if ($role_id == 4) {
             $user_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
             FROM users a
