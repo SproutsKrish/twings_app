@@ -645,38 +645,31 @@ class UserController extends BaseController
         $user_list = $subdealer_list = [];
 
         if ($role_id == 1) {
-            $user_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
-            FROM users a
-            INNER JOIN admins b on a.admin_id = b.id
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id");
+            $user_list = DB::select("SELECT id, name, email, role_id
+            FROM users
+            WHERE role_id = 2");
         } else if ($role_id == 2) {
             $user_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
             FROM users a
-            INNER JOIN distributors b on a.distributor_id = b.id
             INNER JOIN roles c on a.role_id = c.id
             WHERE a.created_by = $user_id");
         } else if ($role_id == 3) {
             $user_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
             FROM users a
-            INNER JOIN dealers b on a.dealer_id = b.id
             INNER JOIN roles c on a.role_id = c.id
             WHERE a.created_by = $user_id");
         } else if ($role_id == 4) {
             $user_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
             FROM users a
-            INNER JOIN clients b on a.client_id = b.id
             INNER JOIN roles c on a.role_id = c.id
             WHERE a.created_by = $user_id");
             $subdealer_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
             FROM users a
-            INNER JOIN sub_dealers b on a.subdealer_id = b.id
             INNER JOIN roles c on a.role_id = c.id
             WHERE a.created_by = $user_id");
         } else if ($role_id == 5) {
             $user_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
             FROM users a
-            INNER JOIN clients b on a.client_id = b.id
             INNER JOIN roles c on a.role_id = c.id
             WHERE a.created_by = $user_id");
         } else {

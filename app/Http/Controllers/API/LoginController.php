@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\API\BaseController as BaseController;
+use App\Models\FcmConfiguration;
 use App\Models\PushNotification;
 use Illuminate\Http\Request;
 
@@ -42,7 +43,15 @@ class LoginController extends BaseController
 
                 if ($passwordMatches) {
                     $data['token'] = $user->createToken('API Token')->plainTextToken;
+                    $string = $data['token'];
+                    $pipePosition = strpos($string, "|");
+
+                    if ($pipePosition !== false) {
+                        $token_id = substr($string, 0, $pipePosition);
+                    }
+                    $data['token_id'] = $token_id;
                     $data['user'] = $user;
+
                     $response = ["success" => true, "data" => $data, "status_code" => 200];
                     return response($response, 200);
                 } else {
@@ -83,6 +92,7 @@ class LoginController extends BaseController
             'server_key' => 'required',
             'fcm_token' => 'required',
             'access_token' => 'required',
+            'token_id' => 'required',
             'user_id' => 'required',
             'client_id' => 'required'
         ]);
@@ -92,30 +102,7 @@ class LoginController extends BaseController
             return response()->json($response, 403);
         }
 
-        // $mobile_type = $request->input('mobile_type');
-        // $mobile_model = $request->input('mobile_model');
-        // $application_name = $request->input('application_name');
-        // $server_key = $request->input('server_key');
-        // $fcm_token = $request->input('fcm_token');
-        // $access_token = $request->input('access_token');
-        // $user_id = $request->input('user_id');
-        // $role_id = $request->input('role_id');
-
-        // $client_id = $request->input('client_id');
-
-        // $data = array(
-        //     'mobile_type' => $mobile_type,
-        //     'mobile_model' => $mobile_model,
-        //     'application_name' => $application_name,
-        //     'server_key' => $server_key,
-        //     'fcm_token' => $fcm_token,
-        //     'access_token' => $access_token,
-        //     'user_id' => $user_id,
-        //     'role_id' => $role_id,
-        //     'client_id' => $client_id
-        // );
-
-        $data = new PushNotification($request->all());
+        $data = new FcmConfiguration($request->all());
 
         if ($data->save()) {
             $response = ["success" => true, "message" => "Inserted", "status_code" => 200];
