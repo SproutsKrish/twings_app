@@ -90,36 +90,49 @@ class UserController extends BaseController
     public function user_point_list(Request $request)
     {
         $user_id = $request->input('user_id');
-        $role_id = $request->input('role_id');
+        $data = User::where('id', $user_id)->first();
 
-        // return response()->json($user_id . "-" . $role_id);
+        if (empty($data)) {
+            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
+            return response()->json($response, 404);
+        }
+
+        $role_id = $data->role_id;
 
         if ($role_id == 1) {
             $role_id  = $role_id + 1;
 
             $user_point_list = User::select('name', 'admin_id as id')
-                ->where('created_by', $user_id)
                 ->where('role_id', $role_id)
                 ->get();
         } else if ($role_id == 2) {
             $role_id  = $role_id + 1;
 
+            $data = User::find($user_id);
+            $admin_id  = $data->admin_id;
+
             $user_point_list = User::select('name', 'distributor_id as id')
-                ->where('created_by', $user_id)
+                ->where('admin_id', $admin_id)
                 ->where('role_id', $role_id)
                 ->get();
         } else if ($role_id == 3) {
             $role_id  = $role_id + 1;
 
+            $data = User::find($user_id);
+            $distributor_id  = $data->distributor_id;
+
             $user_point_list = User::select('name', 'dealer_id as id')
-                ->where('created_by', $user_id)
+                ->where('distributor_id', $distributor_id)
                 ->where('role_id', $role_id)
                 ->get();
         } else if ($role_id == 4) {
             $role_id  = $role_id + 1;
 
+            $data = User::find($user_id);
+            $dealer_id  = $data->dealer_id;
+
             $user_point_list = User::select('name', 'subdealer_id as id')
-                ->where('created_by', $user_id)
+                ->where('dealer_id', $dealer_id)
                 ->where('role_id', $role_id)
                 ->get();
         }
@@ -652,23 +665,31 @@ class UserController extends BaseController
             $data = User::find($user_id);
             $admin_id  = $data->admin_id;
             $user_list = DB::select("SELECT id, name, email, role_id
-            FROM users a
+            FROM users
             WHERE role_id = 3 AND admin_id = $admin_id");
         } else if ($role_id == 3) {
+            $data = User::find($user_id);
+            $distributor_id  = $data->distributor_id;
+            $user_list = DB::select("SELECT id, name, email, role_id
+            FROM users
+            WHERE role_id = 4 AND distributor_id = $distributor_id");
         } else if ($role_id == 4) {
-            $user_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
-            FROM users a
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id");
-            $subdealer_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
-            FROM users a
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id");
+            $data = User::find($user_id);
+            $dealer_id  = $data->dealer_id;
+
+            $user_list = DB::select("SELECT id, name, email, role_id
+            FROM users
+            WHERE role_id = 6 AND dealer_id = $dealer_id");
+
+            $subdealer_list = DB::select("SELECT id, name, email, role_id
+            FROM users
+            WHERE role_id = 5 AND dealer_id = $dealer_id");
         } else if ($role_id == 5) {
-            $user_list = DB::select("SELECT a.id, a.name, a.email, a.role_id
+            $data = User::find($user_id);
+            $subdealer_id  = $data->subdealer_id;
+            $user_list = DB::select("SELECT id, name, email, role_id
             FROM users a
-            INNER JOIN roles c on a.role_id = c.id
-            WHERE a.created_by = $user_id");
+            WHERE role_id = 6 AND subdealer_id = $subdealer_id");
         } else {
             $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
             return response()->json($response, 404);
