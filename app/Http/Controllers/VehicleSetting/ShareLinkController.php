@@ -65,13 +65,13 @@ class ShareLinkController extends Controller
         return response()->json($response, 200);
     }
 
-    public function link_show($id)
+    public function link_show($device_imei)
     {
         $sharelinks = DB::table('share_links as a')
             ->select('a.id', 'b.vehicle_name', 'a.link', 'a.expiry_date', 'a.created_at', DB::raw('(CASE WHEN a.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
             ->join('vehicles as b', 'a.vehicle_id', '=', 'b.id')
             ->where('a.deleted_at', null)
-            ->where('a.id', $id)
+            ->where('a.device_imei', $device_imei)
             ->get();
 
         if ($sharelinks->isEmpty()) {
