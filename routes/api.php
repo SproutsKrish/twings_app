@@ -235,9 +235,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::resource('permission', PermissionController::class);
         Route::resource('role', RoleController::class);
         Route::resource('role_right', RoleRightsController::class);
+        Route::resource('vehicle', VehicleController::class);
     });
     Route::group(['middleware' => ['auth', 'checkrole:4,5']], function () {
-        Route::resource('vehicle', VehicleController::class);
     });
 });
 

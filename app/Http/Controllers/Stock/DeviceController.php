@@ -159,13 +159,15 @@ class DeviceController extends BaseController
                 ->select('id', 'device_imei_no')
                 ->where('dealer_id', $dealer_id)
                 ->where('subdealer_id', $subdealer_id)
+                ->where('client_id', null)
+
                 ->get();
         } else if ($role_id == 5) {
             $subdealer_id = $data->subdealer_id;
 
             $results = DB::table('devices')
                 ->select('id', 'device_imei_no')
-                ->where('subdealer_id', $subdealer_id)
+                ->where('client_id', null)
                 ->get();
         }
         if (empty($results)) {
@@ -180,7 +182,13 @@ class DeviceController extends BaseController
 
     public function show($id)
     {
-        $device = Device::find($id);
+        $device = DB::table('devices as a')
+            ->select('a.id', 'a.device_imei_no', 'a.ccid', 'a.uid', 'a.device_make_id', 'a.device_model_id', 'a.supplier_id', 'b.device_make', 'c.device_model', 'd.supplier_name')
+            ->join('device_makes as b', 'a.device_make_id', '=', 'b.id')
+            ->join('device_models as c', 'a.device_model_id', '=', 'c.id')
+            ->join('suppliers as d', 'a.supplier_id', '=', 'd.id')
+            ->where('a.id', $id)
+            ->first();
 
         if (!$device) {
             return $this->sendError('Device Not Found');

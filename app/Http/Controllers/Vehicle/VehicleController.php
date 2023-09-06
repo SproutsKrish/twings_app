@@ -11,6 +11,7 @@ use App\Models\Period;
 use App\Models\Plan;
 use App\Models\Point;
 use App\Models\Sim;
+use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Config;
 
@@ -33,17 +34,11 @@ class VehicleController extends BaseController
 
     public function store(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'plan_id' => 'required',
             'license_id' => 'required',
-            'license_no' => 'required',
             'sim_id' => 'required',
-            'sim_mob_no1' => 'required',
             'device_id' => 'required',
-            'device_imei_no' => 'required|unique:vehicles,device_imei',
-            'device_make_id' => 'required',
-            'device_model_id' => 'required',
             'vehicle_type_id' => 'required',
             'vehicle_name' => 'required',
             'installation_date' => 'required'
@@ -54,36 +49,55 @@ class VehicleController extends BaseController
             return response()->json($response, 403);
         }
 
-        $plan_id = $request->input('plan_id');
-        $license_id = $request->input('license_id');
-        $license_no = $request->input('license_no');
+        $sim_data = Sim::find($request->input('sim_id'));
+        $data['sim_mob_no'] =  $sim_data->sim_mob_no1;
+        $device_data = Device::find($request->input('device_id'));
+        $data['device_imei'] =  $device_data->device_imei_no;
+        $data['device_make_id'] =  $device_data->device_make_id;
+        $data['device_model_id'] =  $device_data->device_model_id;
+        $license_data = License::find($request->input('license_id'));
+        $data['license_no'] =  $license_data->license_no;
 
-        $admin_id = $request->input('admin_id');
-        $distributor_id = $request->input('distributor_id');
-        $dealer_id = $request->input('dealer_id');
-        $subdealer_id = $request->input('subdealer_id');
-        $client_id = $request->input('client_id');
-        $role_id = $request->input('role_id');
+        $requestKeys = collect($request->all())->keys();
+
+        $data['subdealer_id'] = null;
+
+        if ($requestKeys->contains('admin_id')) {
+            $admin_id = User::find($request->input('admin_id'));
+            $data['admin_id']  = $admin_id->admin_id;
+        }
+        if ($requestKeys->contains('distributor_id')) {
+            $distributor_id = User::find($request->input('distributor_id'));
+            $data['distributor_id']  = $distributor_id->distributor_id;
+        }
+        if ($requestKeys->contains('dealer_id')) {
+            $dealer_id = User::find($request->input('dealer_id'));
+            $data['dealer_id']  = $dealer_id->dealer_id;
+        }
+        if ($requestKeys->contains('subdealer_id')) {
+            $subdealer_id = User::find($request->input('subdealer_id'));
+            $data['subdealer_id']  = $subdealer_id->subdealer_id;
+        }
+        if ($requestKeys->contains('client_id')) {
+            $client_id = User::find($request->input('client_id'));
+            $data['client_id']  = $client_id->client_id;
+        }
+
+        $plan_id = $request->input('plan_id');
         $created_by = $request->input('user_id');
 
-        $sim_id = $request->input('sim_id');
-        $device_id = $request->input('device_id');
-
-        $sim_mob_no = $request->input('sim_mob_no1');
-        $device_imei = $request->input('device_imei_no');
-
-        $device_make_id = $request->input('device_make_id');
-        $device_model_id = $request->input('device_model_id');
-
-        $vehicle_type_id = $request->input('vehicle_type_id');
-        $vehicle_name = $request->input('vehicle_name');
-        $installation_date = $request->input('installation_date');
+        $data['sim_id'] = $request->input('sim_id');
+        $data['device_id'] = $request->input('device_id');
+        $data['vehicle_type_id'] = $request->input('vehicle_type_id');
+        $data['vehicle_name'] = $request->input('vehicle_name');
+        $data['registration_number'] =  $request->input('vehicle_name');
+        $data['installation_date'] = $request->input('installation_date');
 
         $result = Point::where('total_point', '>', 0)
-            ->where('admin_id', $admin_id)
-            ->where('distributor_id', $distributor_id)
-            ->where('dealer_id', $dealer_id)
-            ->where('subdealer_id', $subdealer_id)
+            ->where('admin_id', $data['admin_id'])
+            ->where('distributor_id', $data['distributor_id'])
+            ->where('dealer_id', $data['dealer_id'])
+            ->where('subdealer_id', $data['subdealer_id'])
             ->where('plan_id', $plan_id)
             ->where('point_type_id', "1")
             ->where('status', 1)
@@ -98,19 +112,15 @@ class VehicleController extends BaseController
             $period_id = $plan->period_id;
             $period = Period::find($period_id);
 
-            $data = $request->all();
-            $installation_date = $installation_date;
             $newstart_date = Carbon::now();
             $newDateTime = $newstart_date->addDays($period->period_days);
             $data['expire_date'] = $newDateTime->format('Y-m-d');
             $data['created_by'] = $created_by;
-            $data['device_imei'] = $device_imei;
-            $data['sim_mob_no'] = $sim_mob_no;
 
             $vehicle = new Vehicle($data);
             $result = $vehicle->save();
 
-            License::where('id', $license_id)->update([
+            License::where('id', $request->input('license_id'))->update([
                 'vehicle_id' => $vehicle->id,
                 'start_date' => $vehicle->installation_date,
                 'expiry_date' => $vehicle->expire_date,
@@ -178,8 +188,8 @@ class VehicleController extends BaseController
             Sim::where('id', $vehicle->sim_id)->update(['client_id' => $vehicle->client_id]);
             Device::where('id', $vehicle->device_id)->update(['client_id' => $vehicle->client_id]);
 
-            $response = ["success" => false, "message" => "Vehicle Inserted Successfully", "status_code" => 404];
-            return response()->json($response, 404);
+            $response = ["success" => true, "message" => "Vehicle Inserted Successfully", "status_code" => 200];
+            return response()->json($response, 200);
         } else {
             $response = ["success" => false, "message" => "No License Available", "status_code" => 404];
             return response()->json($response, 404);
