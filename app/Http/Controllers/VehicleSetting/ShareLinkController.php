@@ -51,7 +51,7 @@ class ShareLinkController extends Controller
     public function link_list()
     {
         $sharelinks = DB::table('share_links as a')
-            ->select('a.id', 'b.vehicle_name', 'a.link', 'a.expiry_date', 'a.created_at', DB::raw('(CASE WHEN a.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
+            ->select('a.id', 'b.vehicle_name', 'b.device_imei', 'a.link', 'a.expiry_date', 'a.created_at', DB::raw('(CASE WHEN a.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
             ->join('vehicles as b', 'a.device_imei', '=', 'b.device_imei')
             ->where('a.deleted_at', null)
             ->get();
@@ -118,7 +118,6 @@ class ShareLinkController extends Controller
             return response()->json($response, 404);
         }
     }
-
 
     public function destroy($id)
     {
