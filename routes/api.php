@@ -259,6 +259,8 @@ Route::get('users/rolebyuser/{id}', [ModelHasRoleController::class, 'role_user']
 Route::get('users/usersbyrole/{id}', [ModelHasRoleController::class, 'users_role']);
 Route::put('users/roleupdate/{id}', [ModelHasRoleController::class, 'user_role_update']);
 
+Route::post('vehicle_list', [VehicleController::class, 'vehicle_list']);
+
 Route::resource('admin', AdminController::class);
 Route::resource('distributor', DistributorController::class);
 Route::resource('dealer', DealerController::class);

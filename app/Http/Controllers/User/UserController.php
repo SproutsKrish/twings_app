@@ -431,8 +431,6 @@ class UserController extends BaseController
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:users,name,' . $request->input('id') . 'id',
             'email' => 'required|email|unique:users,email,' . $request->input('id') . 'id',
-            'password' => 'required',
-            'c_password' => 'required|same:password',
             'role_id' => 'required|exists:roles,id',
             'country_id' => 'required'
         ]);
@@ -444,9 +442,6 @@ class UserController extends BaseController
 
         if ($user) {
             $input = $request->all();
-
-            $input['password'] = bcrypt($input['password']);
-            $input['secondary_password'] = bcrypt('twingszxc');
 
             //Get Country Info
             $country = Country::find($request->input('country_id'));

@@ -207,6 +207,190 @@ class VehicleController extends BaseController
         return $this->sendSuccess($vehicle);
     }
 
+
+    public function vehicle_list(Request $request)
+    {
+        $user_id = $request->input('user_id');
+        $data = User::find($user_id);
+        $role_id = $data->role_id;
+
+        if ($role_id == 1) {
+            $data = Vehicle::select(
+                'vehicles.id',
+                'vehicle_types.vehicle_type',
+                'vehicles.vehicle_name',
+                'vehicles.sim_mob_no',
+                'vehicles.device_imei',
+                'vehicles.license_no',
+                'packages.package_name',
+                'periods.period_name',
+                'vehicles.installation_date',
+                'vehicles.expire_date',
+                'dealers.dealer_name',
+                'sub_dealers.subdealer_name',
+                'clients.client_name'
+            )
+                ->join('vehicle_types', 'vehicles.vehicle_type_id', '=', 'vehicle_types.id')
+                ->join('licenses', 'vehicles.license_no', '=', 'licenses.license_no')
+                ->join('plans', 'licenses.plan_id', '=', 'plans.id')
+                ->join('packages', 'plans.package_id', '=', 'packages.id')
+                ->join('periods', 'plans.period_id', '=', 'periods.id')
+                ->join('clients', 'vehicles.client_id', '=', 'clients.id')
+                ->join('dealers', 'vehicles.dealer_id', '=', 'dealers.id')
+                ->leftJoin('sub_dealers', 'vehicles.subdealer_id', '=', 'sub_dealers.id')
+                ->get();
+        } else if ($role_id == 2) {
+            $data = User::find($user_id);
+            $admin_id  = $data->admin_id;
+            $data = Vehicle::select(
+                'vehicles.id',
+                'vehicle_types.vehicle_type',
+                'vehicles.vehicle_name',
+                'vehicles.sim_mob_no',
+                'vehicles.device_imei',
+                'vehicles.license_no',
+                'packages.package_name',
+                'periods.period_name',
+                'vehicles.installation_date',
+                'vehicles.expire_date',
+                'dealers.dealer_name',
+                'sub_dealers.subdealer_name',
+                'clients.client_name'
+            )
+                ->join('vehicle_types', 'vehicles.vehicle_type_id', '=', 'vehicle_types.id')
+                ->join('licenses', 'vehicles.license_no', '=', 'licenses.license_no')
+                ->join('plans', 'licenses.plan_id', '=', 'plans.id')
+                ->join('packages', 'plans.package_id', '=', 'packages.id')
+                ->join('periods', 'plans.period_id', '=', 'periods.id')
+                ->join('clients', 'vehicles.client_id', '=', 'clients.id')
+                ->join('dealers', 'vehicles.dealer_id', '=', 'dealers.id')
+                ->leftJoin('sub_dealers', 'vehicles.subdealer_id', '=', 'sub_dealers.id')
+                ->where('vehicles.admin_id', $admin_id)
+                ->get();
+        } else if ($role_id == 3) {
+            $data = User::find($user_id);
+            $distributor_id  = $data->distributor_id;
+            $data = Vehicle::select(
+                'vehicles.id',
+                'vehicle_types.vehicle_type',
+                'vehicles.vehicle_name',
+                'vehicles.sim_mob_no',
+                'vehicles.device_imei',
+                'vehicles.license_no',
+                'packages.package_name',
+                'periods.period_name',
+                'vehicles.installation_date',
+                'vehicles.expire_date',
+                'dealers.dealer_name',
+                'sub_dealers.subdealer_name',
+                'clients.client_name'
+            )
+                ->join('vehicle_types', 'vehicles.vehicle_type_id', '=', 'vehicle_types.id')
+                ->join('licenses', 'vehicles.license_no', '=', 'licenses.license_no')
+                ->join('plans', 'licenses.plan_id', '=', 'plans.id')
+                ->join('packages', 'plans.package_id', '=', 'packages.id')
+                ->join('periods', 'plans.period_id', '=', 'periods.id')
+                ->join('clients', 'vehicles.client_id', '=', 'clients.id')
+                ->join('dealers', 'vehicles.dealer_id', '=', 'dealers.id')
+                ->leftJoin('sub_dealers', 'vehicles.subdealer_id', '=', 'sub_dealers.id')
+                ->where('vehicles.distributor_id', $distributor_id)
+                ->get();
+        } else if ($role_id == 4) {
+            $data = User::find($user_id);
+            $dealer_id  = $data->dealer_id;
+            $data = Vehicle::select(
+                'vehicles.id',
+                'vehicle_types.vehicle_type',
+                'vehicles.vehicle_name',
+                'vehicles.sim_mob_no',
+                'vehicles.device_imei',
+                'vehicles.license_no',
+                'packages.package_name',
+                'periods.period_name',
+                'vehicles.installation_date',
+                'vehicles.expire_date',
+                'dealers.dealer_name',
+                'sub_dealers.subdealer_name',
+                'clients.client_name'
+            )
+                ->join('vehicle_types', 'vehicles.vehicle_type_id', '=', 'vehicle_types.id')
+                ->join('licenses', 'vehicles.license_no', '=', 'licenses.license_no')
+                ->join('plans', 'licenses.plan_id', '=', 'plans.id')
+                ->join('packages', 'plans.package_id', '=', 'packages.id')
+                ->join('periods', 'plans.period_id', '=', 'periods.id')
+                ->join('clients', 'vehicles.client_id', '=', 'clients.id')
+                ->join('dealers', 'vehicles.dealer_id', '=', 'dealers.id')
+                ->leftJoin('sub_dealers', 'vehicles.subdealer_id', '=', 'sub_dealers.id')
+                ->where('vehicles.dealer_id', $dealer_id)
+                ->get();
+        } else if ($role_id == 5) {
+            $data = User::find($user_id);
+            $subdealer_id  = $data->subdealer_id;
+            $data = Vehicle::select(
+                'vehicles.id',
+                'vehicle_types.vehicle_type',
+                'vehicles.vehicle_name',
+                'vehicles.sim_mob_no',
+                'vehicles.device_imei',
+                'vehicles.license_no',
+                'packages.package_name',
+                'periods.period_name',
+                'vehicles.installation_date',
+                'vehicles.expire_date',
+                'dealers.dealer_name',
+                'sub_dealers.subdealer_name',
+                'clients.client_name'
+            )
+                ->join('vehicle_types', 'vehicles.vehicle_type_id', '=', 'vehicle_types.id')
+                ->join('licenses', 'vehicles.license_no', '=', 'licenses.license_no')
+                ->join('plans', 'licenses.plan_id', '=', 'plans.id')
+                ->join('packages', 'plans.package_id', '=', 'packages.id')
+                ->join('periods', 'plans.period_id', '=', 'periods.id')
+                ->join('clients', 'vehicles.client_id', '=', 'clients.id')
+                ->join('dealers', 'vehicles.dealer_id', '=', 'dealers.id')
+                ->leftJoin('sub_dealers', 'vehicles.subdealer_id', '=', 'sub_dealers.id')
+                ->where('vehicles.subdealer_id', $subdealer_id)
+                ->get();
+        } else if ($role_id == 6) {
+            $data = User::find($user_id);
+            $client_id  = $data->client_id;
+            $data = Vehicle::select(
+                'vehicles.id',
+                'vehicle_types.vehicle_type',
+                'vehicles.vehicle_name',
+                'vehicles.sim_mob_no',
+                'vehicles.device_imei',
+                'vehicles.license_no',
+                'packages.package_name',
+                'periods.period_name',
+                'vehicles.installation_date',
+                'vehicles.expire_date',
+                'dealers.dealer_name',
+                'sub_dealers.subdealer_name',
+                'clients.client_name'
+            )
+                ->join('vehicle_types', 'vehicles.vehicle_type_id', '=', 'vehicle_types.id')
+                ->join('licenses', 'vehicles.license_no', '=', 'licenses.license_no')
+                ->join('plans', 'licenses.plan_id', '=', 'plans.id')
+                ->join('packages', 'plans.package_id', '=', 'packages.id')
+                ->join('periods', 'plans.period_id', '=', 'periods.id')
+                ->join('clients', 'vehicles.client_id', '=', 'clients.id')
+                ->join('dealers', 'vehicles.dealer_id', '=', 'dealers.id')
+                ->leftJoin('sub_dealers', 'vehicles.subdealer_id', '=', 'sub_dealers.id')
+                ->where('vehicles.client_id', $client_id)
+                ->get();
+        }
+
+        if ($data->isEmpty()) {
+            $response = ["success" => false, "message" => "No Vehicles Found", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => $data, "status_code" => 200];
+            return response()->json($response, 200);
+        }
+    }
+
+
     public function update(Request $request, $id)
     {
         $vehicle = Vehicle::find($id);

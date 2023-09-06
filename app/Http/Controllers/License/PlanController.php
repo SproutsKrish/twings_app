@@ -33,6 +33,7 @@ class PlanController extends BaseController
 
         $data = User::find($user_id);
         $role_id = $data->role_id;
+
         $dealer_id = null;
         $subdealer_id = null;
         if ($role_id == 4) {
