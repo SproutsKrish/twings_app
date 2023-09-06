@@ -144,6 +144,39 @@ class DeviceController extends BaseController
         }
     }
 
+    public function device_stock_list(Request $request)
+    {
+        $user_id = $request->input('user_id');
+
+        $data = User::find($user_id);
+        $role_id = $data->role_id;
+        $dealer_id = null;
+        $subdealer_id = null;
+        if ($role_id == 4) {
+            $dealer_id = $data->dealer_id;
+
+            $results = DB::table('devices')
+                ->select('id', 'device_imei_no')
+                ->where('dealer_id', $dealer_id)
+                ->where('subdealer_id', $subdealer_id)
+                ->get();
+        } else if ($role_id == 5) {
+            $subdealer_id = $data->subdealer_id;
+
+            $results = DB::table('devices')
+                ->select('id', 'device_imei_no')
+                ->where('subdealer_id', $subdealer_id)
+                ->get();
+        }
+        if (empty($results)) {
+            $response = ["success" => false, "message" => "No Datas Found", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => $results, "status_code" => 200];
+            return response()->json($response, 200);
+        }
+    }
+
 
     public function show($id)
     {

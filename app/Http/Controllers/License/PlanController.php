@@ -30,13 +30,11 @@ class PlanController extends BaseController
     public function user_plan_list(Request $request)
     {
         $user_id = $request->input('user_id');
-        $role_id = $request->input('role_id');
-        $plan_id = $request->input('plan_id');
 
         $data = User::find($user_id);
+        $role_id = $data->role_id;
         $dealer_id = null;
         $subdealer_id = null;
-
         if ($role_id == 4) {
             $dealer_id = $data->dealer_id;
 
@@ -44,12 +42,11 @@ class PlanController extends BaseController
                 ->select('a.id', 'b.package_name', 'c.period_days')
                 ->join('packages as b', 'a.package_id', '=', 'b.id')
                 ->join('periods as c', 'a.period_id', '=', 'c.id')
-                ->whereIn('a.id', function ($query) use ($dealer_id, $plan_id) {
+                ->whereIn('a.id', function ($query) use ($dealer_id) {
                     $query->select('plan_id')
                         ->from('points')
                         ->where('total_point', '>=', 1)
                         ->where('point_type_id', 1)
-                        ->where('plan_id', $plan_id)
                         ->where('dealer_id', $dealer_id)
                         ->whereNull('subdealer_id');
                 })
@@ -61,17 +58,22 @@ class PlanController extends BaseController
                 ->select('a.id', 'b.package_name', 'c.period_days')
                 ->join('packages as b', 'a.package_id', '=', 'b.id')
                 ->join('periods as c', 'a.period_id', '=', 'c.id')
-                ->whereIn('a.id', function ($query) use ($subdealer_id, $plan_id) {
+                ->whereIn('a.id', function ($query) use ($subdealer_id) {
                     $query->select('plan_id')
                         ->from('points')
                         ->where('total_point', '>=', 1)
                         ->where('point_type_id', 1)
-                        ->where('plan_id', $plan_id)
                         ->where('subdealer_id', $subdealer_id);
                 })
                 ->get();
         }
-        return response()->json($results);
+        if (empty($results)) {
+            $response = ["success" => false, "message" => "No Datas Found", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => $results, "status_code" => 200];
+            return response()->json($response, 200);
+        }
     }
 
     public function store(Request $request)

@@ -98,6 +98,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('sim_list', 'sim_list');
     });
     Route::controller(SimController::class)->group(function () {
+        Route::post('sim_stock_list', 'sim_stock_list');
+    });
+    Route::controller(SimController::class)->group(function () {
         Route::post('sim/store', 'store');
     });
     Route::controller(SimController::class)->group(function () {
@@ -109,6 +112,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
     Route::controller(DeviceController::class)->group(function () {
         Route::post('device_list', 'device_list');
+    });
+    Route::controller(DeviceController::class)->group(function () {
+        Route::post('device_stock_list', 'device_stock_list');
     });
     Route::controller(DeviceController::class)->group(function () {
         Route::post('device/store', 'store');

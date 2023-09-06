@@ -128,12 +128,13 @@ class LicenseController extends BaseController
     public function user_license_list(Request $request)
     {
         $user_id = $request->input('user_id');
-        $role_id = $request->input('role_id');
         $plan_id = $request->input('plan_id');
 
         $data = User::find($user_id);
         $dealer_id = null;
         $subdealer_id = null;
+
+        $role_id =  $data->role_id;
 
         if ($role_id == 4) {
             $dealer_id = $data->dealer_id;
@@ -160,6 +161,12 @@ class LicenseController extends BaseController
                 ->where('b.id', $plan_id)
                 ->get();
         }
-        return response()->json($licenses);
+        if (empty($licenses)) {
+            $response = ["success" => false, "message" => "No Datas Found", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => $licenses, "status_code" => 200];
+            return response()->json($response, 200);
+        }
     }
 }
