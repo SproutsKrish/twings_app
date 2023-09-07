@@ -22,7 +22,7 @@ class RoleRightsController extends BaseController
         return $this->sendSuccess($role_rights);
     }
 
-    public function role_rights_list($role_id)
+    public function role_rights_list(Request $request)
     {
         // $roleRights = DB::table('role_rights')
         //     ->where('role_id', $role_id)
@@ -32,6 +32,7 @@ class RoleRightsController extends BaseController
         // $roles = DB::table('roles')
         //     ->whereIn('id', $roleRights->toArray())
         //     ->get();
+        $role_id = $request->input('role_id');
 
         if ($role_id <= 5) {
             $roles = DB::table('roles')

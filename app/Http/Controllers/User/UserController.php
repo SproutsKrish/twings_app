@@ -690,6 +690,10 @@ class UserController extends BaseController
             return response()->json($response, 404);
         }
 
+        //Switch Case
+
+
+
         $result = ['user_list' => $user_list, 'subdealer_list' => $subdealer_list];
 
         // return response()->json($result);

@@ -141,10 +141,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::post('user_list', [UserController::class, 'user_list']);
-    Route::post('user_point_list', [UserController::class, 'user_point_list']);
     Route::post('role_based_user_list', [UserController::class, 'role_based_user_list']);
+    Route::post('role_rights_list', [RoleRightsController::class, 'role_rights_list']);
+
+    Route::post('user_point_list', [UserController::class, 'user_point_list']);
     Route::post('point_stock_list', [PointController::class, 'point_stock_list']);
-    Route::get('role_rights_list/{role_id}', [RoleRightsController::class, 'role_rights_list']);
     Route::controller(LicenseController::class)->group(function () {
         Route::post('user_license_list', 'user_license_list');
     });
