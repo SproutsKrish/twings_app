@@ -32,6 +32,7 @@ class RoleRightsController extends BaseController
         // $roles = DB::table('roles')
         //     ->whereIn('id', $roleRights->toArray())
         //     ->get();
+
         $role_id = $request->input('role_id');
 
         if ($role_id <= 5) {
@@ -46,14 +47,13 @@ class RoleRightsController extends BaseController
                 ->get();
         }
 
-
-
-
         if ($roles->isEmpty()) {
-            return $this->sendError('No Role Rights Found');
+            $response = ["success" => false, "message" => "No Role Rights Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
-        return $this->sendSuccess($roles);
+        $response = ["success" => true, "data" => $roles, "status_code" => 200];
+        return response()->json($response, 200);
     }
 
     public function store(Request $request)

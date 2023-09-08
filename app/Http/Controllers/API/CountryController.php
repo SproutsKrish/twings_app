@@ -21,13 +21,15 @@ class CountryController extends BaseController
 
     public function index()
     {
-        $countries = DB::table('countries')->get();
+        $countries = DB::table('countries')->where('status', 1)->get();
 
         if ($countries->isEmpty()) {
-            return $this->sendError('No Countries Found');
+            $response = ["success" => false, "message" => "No Countries Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
-        return $this->sendSuccess($countries);
+        $response = ["success" => true, "data" => $countries, "status_code" => 200];
+        return response()->json($response, 200);
     }
 
     public function store(Request $request)

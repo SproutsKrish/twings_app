@@ -92,13 +92,7 @@ Route::controller(LoginController::class)->group(function () {
 Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::controller(SimController::class)->group(function () {
-        Route::post('sim_transfer', 'sim_transfer');
-    });
-    Route::controller(SimController::class)->group(function () {
         Route::post('sim_list', 'sim_list');
-    });
-    Route::controller(SimController::class)->group(function () {
-        Route::post('sim_stock_list', 'sim_stock_list');
     });
     Route::controller(SimController::class)->group(function () {
         Route::post('sim/store', 'store');
@@ -106,21 +100,27 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::controller(SimController::class)->group(function () {
         Route::post('sim/update', 'update');
     });
+    Route::controller(SimController::class)->group(function () {
+        Route::post('sim_transfer', 'sim_transfer');
+    });
+    Route::controller(SimController::class)->group(function () {
+        Route::post('sim_stock_list', 'sim_stock_list');
+    });
 
     Route::controller(DeviceController::class)->group(function () {
-        Route::post('device_transfer', 'device_transfer');
-    });
-    Route::controller(DeviceController::class)->group(function () {
         Route::post('device_list', 'device_list');
-    });
-    Route::controller(DeviceController::class)->group(function () {
-        Route::post('device_stock_list', 'device_stock_list');
     });
     Route::controller(DeviceController::class)->group(function () {
         Route::post('device/store', 'store');
     });
     Route::controller(DeviceController::class)->group(function () {
         Route::post('device/update', 'update');
+    });
+    Route::controller(DeviceController::class)->group(function () {
+        Route::post('device_transfer', 'device_transfer');
+    });
+    Route::controller(DeviceController::class)->group(function () {
+        Route::post('device_stock_list', 'device_stock_list');
     });
     Route::controller(AlertTypeController::class)->group(function () {
         Route::get('get_alert_list', 'get_alert_list');
@@ -133,9 +133,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::controller(UserController::class)->group(function () {
         Route::post('user/store', 'store');
+        Route::post('user/update', 'update');
         Route::get('user', 'index');
         Route::get('user/show/{id}', 'show');
-        Route::post('user/update', 'update');
         Route::delete('user/delete/{id}', 'destroy');
         Route::get('user/details', 'showdetails');
     });
@@ -143,6 +143,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('user_list', [UserController::class, 'user_list']);
     Route::post('role_based_user_list', [UserController::class, 'role_based_user_list']);
     Route::post('role_rights_list', [RoleRightsController::class, 'role_rights_list']);
+
 
     Route::post('user_point_list', [UserController::class, 'user_point_list']);
     Route::post('point_stock_list', [PointController::class, 'point_stock_list']);

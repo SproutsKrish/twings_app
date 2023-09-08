@@ -140,7 +140,7 @@ class LicenseController extends BaseController
             $dealer_id = $data->dealer_id;
 
             $licenses = DB::table('licenses as a')
-                ->select('*')
+                ->select('a.id', 'a.license_no')
                 ->join('plans as b', 'b.id', '=', 'a.plan_id')
                 ->join('periods as c', 'c.id', '=', 'b.period_id')
                 ->join('packages as d', 'd.id', '=', 'b.package_id')
@@ -153,7 +153,7 @@ class LicenseController extends BaseController
             $subdealer_id = $data->subdealer_id;
 
             $licenses = DB::table('licenses as a')
-                ->select('*')
+                ->select('a.id', 'a.license_no')
                 ->join('plans as b', 'b.id', '=', 'a.plan_id')
                 ->join('periods as c', 'c.id', '=', 'b.period_id')
                 ->join('packages as d', 'd.id', '=', 'b.package_id')

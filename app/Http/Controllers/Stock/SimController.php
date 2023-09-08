@@ -45,9 +45,6 @@ class SimController extends BaseController
             $request['created_by'] = auth()->user()->id;
             $request['purchase_date'] = date('Y-m-d');
 
-            // return response()->json($request->all());
-
-
             $sim = new Sim($request->all());
 
             if ($sim->save()) {
@@ -99,6 +96,13 @@ class SimController extends BaseController
                 $data['subdealer_id']  = $subdealer_id->subdealer_id;
             }
             $sim = $sim->update($data);
+            if ($sim) {
+                $response = ["success" => true, "message" => "Sim Transferred Successfully", "status_code" => 200];
+                return response()->json($response, 200);
+            } else {
+                $response = ["success" => false, "message" => "Sim Not Transferred", "status_code" => 404];
+                return response()->json($response, 404);
+            }
             return response()->json($sim);
         } catch (\Exception $e) {
 
@@ -112,7 +116,6 @@ class SimController extends BaseController
     public function sim_list(Request $request)
     {
         try {
-
             $admin_id = auth()->user()->admin_id;
             $distributor_id = auth()->user()->distributor_id;
             $dealer_id = auth()->user()->dealer_id;
@@ -125,6 +128,8 @@ class SimController extends BaseController
                 ->where('a.distributor_id', $distributor_id)
                 ->where('a.dealer_id', $dealer_id)
                 ->where('a.subdealer_id', $subdealer_id)
+                ->where('a.client_id', null)
+                ->where('a.status', '1')
                 ->get();
 
             if ($sim_data->isEmpty()) {
@@ -135,9 +140,6 @@ class SimController extends BaseController
                 return response()->json($response, 200);
             }
         } catch (\Exception $e) {
-
-            return $e->getMessage();
-
             $response = ["success" => false, "message" => $e->getMessage(), "status_code" => 404];
             return response()->json($response, 404);
         }
@@ -159,6 +161,7 @@ class SimController extends BaseController
                 ->where('dealer_id', $dealer_id)
                 ->where('subdealer_id', $subdealer_id)
                 ->where('client_id', null)
+                ->where('status', '1')
                 ->get();
         } else if ($role_id == 5) {
             $subdealer_id = $data->subdealer_id;
@@ -167,6 +170,7 @@ class SimController extends BaseController
                 ->select('id', 'sim_mob_no1')
                 ->where('subdealer_id', $subdealer_id)
                 ->where('client_id', null)
+                ->where('status', '1')
                 ->get();
         }
         if (empty($results)) {
@@ -194,9 +198,9 @@ class SimController extends BaseController
         $sim = Sim::find($request->id);
 
         if (!$sim) {
-            return $this->sendError('Sim Not Found');
+            $response = ["success" => false, "message" => "Sim Not Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
-
 
         $validator = Validator::make($request->all(), [
             'network_id' => 'required|max:255',
@@ -205,13 +209,16 @@ class SimController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+            return response()->json($response, 403);
         }
 
         if ($sim->update($request->all())) {
-            return $this->sendSuccess("Sim Updated Successfully");
+            $response = ["success" => true, "message" => "Sim Updated Successfully", "status_code" => 200];
+            return response()->json($response, 200);
         } else {
-            return $this->sendError('Failed to Update Sim');
+            $response = ["success" => false, "message" => "Failed to Update Sim", "status_code" => 404];
+            return response()->json($response, 404);
         }
     }
 

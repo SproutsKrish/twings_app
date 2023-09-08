@@ -14,6 +14,7 @@ class AlertReportController extends Controller
             ->join('twings.alert_types as b', 'a.alert_type_id', '=', 'b.id')
             ->join('vehicles as c', 'a.deviceimei', '=', 'c.device_imei')
             ->select('a.alert_type_id', 'b.alert_type', 'a.deviceimei', 'c.vehicle_name', 'a.lattitute', 'a.longitute', 'a.speed', 'a.odometer', 'a.device_datetime')
+            ->orderBy('a.id', 'desc')
             ->get();
 
         if ($results->isEmpty()) {
@@ -30,6 +31,7 @@ class AlertReportController extends Controller
             ->join('vehicles as c', 'a.deviceimei', '=', 'c.device_imei')
             ->where('a.deviceimei', $device_imei)
             ->select('a.alert_type_id', 'b.alert_type', 'a.deviceimei', 'c.vehicle_name', 'a.lattitute', 'a.longitute', 'a.speed', 'a.odometer', 'a.device_datetime')
+            ->orderBy('a.id', 'desc')
             ->get();
 
         if ($results->isEmpty()) {

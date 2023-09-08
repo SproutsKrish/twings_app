@@ -98,7 +98,14 @@ class DeviceController extends BaseController
                 $data['subdealer_id']  = $subdealer_id->subdealer_id;
             }
             $device = $device->update($data);
-            return response()->json($device);
+
+            if ($device) {
+                $response = ["success" => true, "message" => "Device Transferred Successfully", "status_code" => 200];
+                return response()->json($response, 200);
+            } else {
+                $response = ["success" => false, "message" => "Failed to Transfer Device", "status_code" => 404];
+                return response()->json($response, 404);
+            }
         } catch (\Exception $e) {
 
             return $e->getMessage();
@@ -126,6 +133,8 @@ class DeviceController extends BaseController
                 ->where('a.distributor_id', $distributor_id)
                 ->where('a.dealer_id', $dealer_id)
                 ->where('a.subdealer_id', $subdealer_id)
+                ->where('a.client_id', null)
+                ->where('a.status', '1')
                 ->get();
 
             if ($device_data->isEmpty()) {
@@ -160,14 +169,16 @@ class DeviceController extends BaseController
                 ->where('dealer_id', $dealer_id)
                 ->where('subdealer_id', $subdealer_id)
                 ->where('client_id', null)
-
+                ->where('status', '1')
                 ->get();
         } else if ($role_id == 5) {
             $subdealer_id = $data->subdealer_id;
 
             $results = DB::table('devices')
                 ->select('id', 'device_imei_no')
+                ->where('subdealer_id', $subdealer_id)
                 ->where('client_id', null)
+                ->where('status', '1')
                 ->get();
         }
         if (empty($results)) {
@@ -202,7 +213,8 @@ class DeviceController extends BaseController
         $device = Device::find($request->input('id'));
 
         if (!$device) {
-            return $this->sendError('Device Not Found');
+            $response = ["success" => false, "message" => "Device Not Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
         $validator = Validator::make($request->all(), [
@@ -210,13 +222,16 @@ class DeviceController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+            return response()->json($response, 403);
         }
 
         if ($device->update($request->all())) {
-            return $this->sendSuccess("Device Updated Successfully");
+            $response = ["success" => true, "message" => "Device Updated Successfully", "status_code" => 200];
+            return response()->json($response, 200);
         } else {
-            return $this->sendError('Failed to Update Device');
+            $response = ["success" => false, "message" => "Failed to Update Device", "status_code" => 404];
+            return response()->json($response, 404);
         }
     }
 

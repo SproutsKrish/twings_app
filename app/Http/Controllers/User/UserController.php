@@ -51,40 +51,125 @@ class UserController extends BaseController
         $role_id = $request->input('role_id');
 
         if ($role_id == 1) {
-            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.name as role
-            FROM users a INNER JOIN roles b ON a.role_id = b.id WHERE a.role_id > 1;");
+            $result =  DB::table('users as a')
+                ->join('roles as b', 'a.role_id', '=', 'b.id')
+                ->select(
+                    'a.id',
+                    'a.name',
+                    'a.email',
+                    'a.password',
+                    'a.mobile_no',
+                    'a.country_id',
+                    'a.country_name',
+                    'a.role_id',
+                    'b.name as role'
+                )
+                ->where('a.role_id', '>', '1')
+                ->get();
         } else if ($role_id == 2) {
             $data = User::find($user_id);
             $admin_id  = $data->admin_id;
-            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.name as role
-            FROM users a INNER JOIN roles b ON a.role_id = b.id WHERE a.role_id > 2 AND a.admin_id = $admin_id");
+            $result =  DB::table('users as a')
+                ->join('roles as b', 'a.role_id', '=', 'b.id')
+                ->select(
+                    'a.id',
+                    'a.name',
+                    'a.email',
+                    'a.password',
+                    'a.mobile_no',
+                    'a.country_id',
+                    'a.country_name',
+                    'a.role_id',
+                    'b.name as role'
+                )
+                ->where('a.role_id', '>', '2')
+                ->where('a.admin_id', '>', $admin_id)
+                ->get();
         } else if ($role_id == 3) {
             $data = User::find($user_id);
             $distributor_id  = $data->distributor_id;
-            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.name as role
-            FROM users a INNER JOIN roles b ON a.role_id = b.id WHERE a.role_id > 3 AND a.distributor_id = $distributor_id");
+            $result =  DB::table('users as a')
+                ->join('roles as b', 'a.role_id', '=', 'b.id')
+                ->select(
+                    'a.id',
+                    'a.name',
+                    'a.email',
+                    'a.password',
+                    'a.mobile_no',
+                    'a.country_id',
+                    'a.country_name',
+                    'a.role_id',
+                    'b.name as role'
+                )
+                ->where('a.role_id', '>', '3')
+                ->where('a.distributor_id', '>', $distributor_id)
+                ->get();
         } else if ($role_id == 4) {
             $data = User::find($user_id);
             $dealer_id  = $data->dealer_id;
-            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.name as role
-            FROM users a INNER JOIN roles b ON a.role_id = b.id WHERE a.role_id > 4 AND a.dealer_id = $dealer_id");
+            $result =  DB::table('users as a')
+                ->join('roles as b', 'a.role_id', '=', 'b.id')
+                ->select(
+                    'a.id',
+                    'a.name',
+                    'a.email',
+                    'a.password',
+                    'a.mobile_no',
+                    'a.country_id',
+                    'a.country_name',
+                    'a.role_id',
+                    'b.name as role'
+                )
+                ->where('a.role_id', '>', '4')
+                ->where('a.dealer_id', '>', $dealer_id)
+                ->get();
         } else if ($role_id == 5) {
             $data = User::find($user_id);
             $subdealer_id  = $data->subdealer_id;
-            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.name as role
-            FROM users a INNER JOIN roles b ON a.role_id = b.id WHERE a.role_id > 5 AND a.subdealer_id = $subdealer_id");
+            $result =  DB::table('users as a')
+                ->join('roles as b', 'a.role_id', '=', 'b.id')
+                ->select(
+                    'a.id',
+                    'a.name',
+                    'a.email',
+                    'a.password',
+                    'a.mobile_no',
+                    'a.country_id',
+                    'a.country_name',
+                    'a.role_id',
+                    'b.name as role'
+                )
+                ->where('a.role_id', '>', '5')
+                ->where('a.subdealer_id', '>', $subdealer_id)
+                ->get();
         } else if ($role_id == 6) {
             $data = User::find($user_id);
             $client_id  = $data->client_id;
-            $result = DB::select("SELECT a.id, a.name, a.email, a.password, a.mobile_no, a.country_id, a.country_name, a.role_id, b.name as role
-            FROM users a INNER JOIN roles b ON a.role_id = b.id WHERE a.role_id > 6 AND a.client_id = $client_id");
+            $result =  DB::table('users as a')
+                ->join('roles as b', 'a.role_id', '=', 'b.id')
+                ->select(
+                    'a.id',
+                    'a.name',
+                    'a.email',
+                    'a.password',
+                    'a.mobile_no',
+                    'a.country_id',
+                    'a.country_name',
+                    'a.role_id',
+                    'b.name as role'
+                )
+                ->where('a.role_id', '>', '6')
+                ->where('a.client_id', '>', $client_id)
+                ->get();
         }
 
         if (empty($result)) {
-            return $this->sendError('No Users Found');
+            $response = ["success" => false, "message" => "No Users Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
-        return $this->sendSuccess($result);
+        $response = ["success" => true, "data" => $result, "status_code" => 200];
+        return response()->json($response, 200);
     }
 
     public function user_point_list(Request $request)
@@ -138,10 +223,12 @@ class UserController extends BaseController
         }
 
         if ($user_point_list->isEmpty()) {
-            return $this->sendError('No Users Found');
+            $response = ["success" => false, "message" => "No Users Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
-        return $this->sendSuccess($user_point_list);
+        $response = ["success" => true, "data" => $user_point_list, "status_code" => 200];
+        return response()->json($response, 200);
     }
 
     public function store(Request $request)
@@ -154,8 +241,7 @@ class UserController extends BaseController
             'password' => 'required',
             'c_password' => 'required|same:password',
             'role_id' => 'required',
-            'country_id' => 'required',
-
+            'country_id' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -164,9 +250,7 @@ class UserController extends BaseController
         }
 
         $role_id = $request->input('role_id');
-
         $result = true;
-
         if ($result) {
             $input = $request->all();
             $input['password'] = bcrypt($input['password']);
@@ -177,7 +261,6 @@ class UserController extends BaseController
 
             //Set User Data
             $requestKeys = collect($request->all())->keys();
-            // return response()->json($requestKeys);
 
             $input['admin_id'] = auth()->user()->admin_id;
             $input['distributor_id'] = auth()->user()->distributor_id;
@@ -248,7 +331,7 @@ class UserController extends BaseController
 
                     User::where('id', $user->id)
                         ->update(['admin_id' => $admin->id]);
-                } else  if ($role_id == 3) {
+                } else if ($role_id == 3) {
                     $distributor = Distributor::create(
                         [
                             'distributor_name' => $user->name,
@@ -264,7 +347,7 @@ class UserController extends BaseController
 
                     User::where('id', $user->id)
                         ->update(['distributor_id' => $distributor->id]);
-                } else  if ($role_id == 4) {
+                } else if ($role_id == 4) {
                     $dealer = Dealer::create(
                         [
                             'dealer_name' => $user->name,
@@ -281,7 +364,7 @@ class UserController extends BaseController
 
                     User::where('id', $user->id)
                         ->update(['dealer_id' => $dealer->id]);
-                } else  if ($role_id == 5) {
+                } else if ($role_id == 5) {
                     $subdealer = SubDealer::create(
                         [
                             'subdealer_name' => $user->name,
@@ -379,7 +462,7 @@ class UserController extends BaseController
                         'ip_address' => $request->ip()
                     );
                     DB::connection($connectionName)->table('users')->insert($userdata);
-                } else  if ($role_id == 8) {
+                } else if ($role_id == 8) {
                     $staff = Staff::create(
                         [
                             'staff_name' => $user->name,
@@ -425,7 +508,8 @@ class UserController extends BaseController
         $user = User::find($request->input('id'));
 
         if (!$user) {
-            return $this->sendError('User Not Found');
+            $response = ["success" => false, "message" => "User Not Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
         $validator = Validator::make($request->all(), [
@@ -455,13 +539,10 @@ class UserController extends BaseController
             $input['updated_by'] = auth()->user()->id;
             $input['ip_address'] = $request->ip();
 
-
             $user_data = $user->update($input);
 
-
-            if ($user) {
+            if ($user_data) {
                 $role_id = $user->role_id;
-
 
                 if ($role_id == 2) {
                     DB::table('admins')
@@ -470,21 +551,21 @@ class UserController extends BaseController
                             ['admin_address' => $request->input('address')],
                             ['admin_email' => $request->input('email')]
                         );
-                } else  if ($role_id == 3) {
+                } else if ($role_id == 3) {
                     DB::table('distributors')
                         ->where('id', $user->distributor_id)
                         ->update(
                             ['distributor_address' => $request->input('address')],
                             ['distributor_email' => $request->input('email')]
                         );
-                } else  if ($role_id == 4) {
+                } else if ($role_id == 4) {
                     DB::table('dealers')
                         ->where('id', $user->dealer_id)
                         ->update(
                             ['dealer_address' => $request->input('address')],
                             ['dealer_email' => $request->input('email')]
                         );
-                } else  if ($role_id == 5) {
+                } else if ($role_id == 5) {
                     DB::table('sub_dealers')
                         ->where('id', $user->subdealer_id)
                         ->update(
@@ -535,7 +616,7 @@ class UserController extends BaseController
                         'ip_address' => $request->ip()
                     );
                     DB::connection($connectionName)->table('users')->where('id', $user->id)->update($userdata);
-                } else  if ($role_id == 8) {
+                } else if ($role_id == 8) {
                     DB::table('staffs')
                         ->where('id', $user->staff_id)
                         ->update(
@@ -652,51 +733,63 @@ class UserController extends BaseController
 
         $user_list = $subdealer_list = [];
 
-        if ($role_id == 1) {
-            $user_list = DB::select("SELECT id, name, email, role_id
-            FROM users
-            WHERE role_id = 2");
-        } else if ($role_id == 2) {
-            $data = User::find($user_id);
-            $admin_id  = $data->admin_id;
-            $user_list = DB::select("SELECT id, name, email, role_id
-            FROM users
-            WHERE role_id = 3 AND admin_id = $admin_id");
-        } else if ($role_id == 3) {
-            $data = User::find($user_id);
-            $distributor_id  = $data->distributor_id;
-            $user_list = DB::select("SELECT id, name, email, role_id
-            FROM users
-            WHERE role_id = 4 AND distributor_id = $distributor_id");
-        } else if ($role_id == 4) {
-            $data = User::find($user_id);
-            $dealer_id  = $data->dealer_id;
+        switch ($role_id) {
+            case $role_id == 1:
+                $user_list =  DB::table('users')
+                    ->select('id', 'name', 'email', 'role_id')
+                    ->where('role_id', 2)
+                    ->get();
+                break;
+            case $role_id == 2:
+                $data = User::find($user_id);
+                $admin_id  = $data->admin_id;
+                $user_list = DB::table('users')
+                    ->select('id', 'name', 'email', 'role_id')
+                    ->where('role_id', 3)
+                    ->where('admin_id', $admin_id)
+                    ->get();
+                break;
+            case $role_id == 3:
+                $data = User::find($user_id);
+                $distributor_id  = $data->distributor_id;
+                $user_list = DB::table('users')
+                    ->select('id', 'name', 'email', 'role_id')
+                    ->where('role_id', 4)
+                    ->where('distributor_id', $distributor_id)
+                    ->get();
+                break;
+            case $role_id == 4:
+                $data = User::find($user_id);
+                $dealer_id  = $data->dealer_id;
 
-            $user_list = DB::select("SELECT id, name, email, role_id
-            FROM users
-            WHERE role_id = 6 AND dealer_id = $dealer_id");
+                $user_list = DB::table('users')
+                    ->select('id', 'name', 'email', 'role_id')
+                    ->where('role_id', 6)
+                    ->where('dealer_id', $dealer_id)
+                    ->get();
 
-            $subdealer_list = DB::select("SELECT id, name, email, role_id
-            FROM users
-            WHERE role_id = 5 AND dealer_id = $dealer_id");
-        } else if ($role_id == 5) {
-            $data = User::find($user_id);
-            $subdealer_id  = $data->subdealer_id;
-            $user_list = DB::select("SELECT id, name, email, role_id
-            FROM users a
-            WHERE role_id = 6 AND subdealer_id = $subdealer_id");
-        } else {
-            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
-            return response()->json($response, 404);
+                $subdealer_list = DB::table('users')
+                    ->select('id', 'name', 'email', 'role_id')
+                    ->where('role_id', 5)
+                    ->where('dealer_id', $dealer_id)
+                    ->get();
+
+            case $role_id == 5:
+                $data = User::find($user_id);
+                $subdealer_id  = $data->subdealer_id;
+                $user_list = DB::table('users')
+                    ->select('id', 'name', 'email', 'role_id')
+                    ->where('role_id', 6)
+                    ->where('subdealer_id', $subdealer_id)
+                    ->get();
+                break;
+
+            default:
+                $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
+                return response()->json($response, 404);
         }
 
-        //Switch Case
-
-
-
         $result = ['user_list' => $user_list, 'subdealer_list' => $subdealer_list];
-
-        // return response()->json($result);
 
         if (empty($result['user_list']) && empty($result['subdealer_list'])) {
             $response = ["success" => false, "message" => "No Datas Found", "status_code" => 404];
@@ -705,5 +798,12 @@ class UserController extends BaseController
             $response = ["success" => true, "data" => $result, "status_code" => 200];
             return response()->json($response, 200);
         }
+    }
+
+    public function change_user_password(Request $request)
+    {
+        $old_password = $request->input('old_password');
+        $new_password = $request->input('new_password');
+        $confirm_password = $request->input('confirm_password');
     }
 }
