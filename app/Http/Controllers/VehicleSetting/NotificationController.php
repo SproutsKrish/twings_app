@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\VehicleSetting;
 
 use App\Http\Controllers\API\BaseController as BaseController;
-
+use App\Models\AlertNotification;
 use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class NotificationController extends BaseController

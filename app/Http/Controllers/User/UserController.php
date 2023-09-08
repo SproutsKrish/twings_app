@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
 class UserController extends BaseController
@@ -804,6 +805,24 @@ class UserController extends BaseController
     {
         $old_password = $request->input('old_password');
         $new_password = $request->input('new_password');
-        $confirm_password = $request->input('confirm_password');
+        $user_id = $request->input('user_id');
+
+        if (!Hash::check($old_password, auth()->user()->password)) {
+            $response = ["success" => false, "message" => "Current Password is not Correct", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $new_password = $request->input('new_password');
+            // dd(auth()->user()->id);
+            $data = User::whereId($user_id)->update([
+                'password' => Hash::make($new_password)
+            ]);
+            if ($data) {
+                $response = ["success" => true, "message" => "Password Changed Successfully", "status_code" => 200];
+                return response()->json($response, 200);
+            } else {
+                $response = ["success" => false, "message" => "Current Password is not Correct", "status_code" => 404];
+                return response()->json($response, 404);
+            }
+        }
     }
 }

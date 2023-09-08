@@ -65,6 +65,7 @@ use App\Http\Controllers\Report\RoutedeviationReportController;
 use App\Http\Controllers\Report\TemperatureReportController;
 use App\Http\Controllers\Report\TripPlanReportController;
 use App\Http\Controllers\Stock\DeviceMakeController;
+use App\Http\Controllers\VehicleSetting\AlertNotificationController;
 use App\Http\Controllers\VehicleSetting\ConfigurationController;
 use App\Http\Controllers\VehicleSetting\NotificationController;
 use App\Http\Controllers\VehicleSetting\ShareLinkController;
@@ -89,7 +90,10 @@ Route::controller(LoginController::class)->group(function () {
     Route::post('login', 'login');
 });
 
+
+
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('change_user_password', [UserController::class, 'change_user_password']);
 
     Route::controller(SimController::class)->group(function () {
         Route::post('sim_list', 'sim_list');
@@ -169,6 +173,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('single_dashboard/{id}', 'single_dashboard');
             Route::get('vehicle_count', 'vehicle_count');
         });
+
         Route::controller(IdleReportController::class)->group(function () {
             Route::post('get_idle_report', 'get_idle_report');
         });
@@ -225,6 +230,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::put('config/safe_parking/{id}', 'safe_parking');
             Route::put('config/odometer_update/{id}', 'odometer_update');
             Route::put('config/speed_update/{id}', 'speed_update');
+        });
+        Route::controller(AlertNotificationController::class)->group(function () {
+            Route::post('alert_notification/store', 'store');
+        });
+        Route::controller(AlertNotificationController::class)->group(function () {
+            Route::get('alert_notifications_list', 'alert_notifications_list');
         });
     });
 
