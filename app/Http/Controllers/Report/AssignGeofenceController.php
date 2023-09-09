@@ -28,7 +28,6 @@ class AssignGeofenceController extends Controller
         $validator = Validator::make($request->all(), [
             'device_imei' => 'required',
             'geofence_id' => 'required',
-            'fence_type' => 'required',
         ]);
 
         if ($validator->fails()) {
