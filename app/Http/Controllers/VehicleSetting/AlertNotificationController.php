@@ -13,17 +13,19 @@ class AlertNotificationController extends Controller
     public function store(Request $request)
     {
         try {
-            foreach ($request->input() as $row) {
+            $alert_type_id = $request->input('alert_type_id');
+            $user_status = $request->input('user_status');
 
-                $data = DB::table('alert_notifications')
-                    ->where('alert_type_id', $row['alert_type_id'])
-                    ->update(['user_status' => $row['user_status']]);
+            $data = DB::table('alert_notifications')
+                ->where('alert_type_id', $alert_type_id)
+                ->update(['user_status' => $user_status]);
+            if ($data) {
+                $response = ["success" => true, "message" => 'Alert Notification Saved Successfully', "status_code" => 200];
+                return response()->json($response, 200);
+            } else {
+                $response = ["success" => false, "message" => 'Alert Notification Failed to Save', "status_code" => 404];
+                return response()->json($response, 404);
             }
-
-            $response = ["success" => true, "message" => 'Alert Notification Saved Successfully', "status_code" => 200];
-            return response()->json($response, 200);
-
-            // Optionally, you can redirect or return a response here
         } catch (\Exception $e) {
             $response = ["success" => false, "message" => $e, "status_code" => 404];
             return response()->json($response, 404);
