@@ -312,6 +312,8 @@ class LiveDataController extends Controller
         $role_id = $data->role_id;
 
         if ($role_id == 1) {
+            $vehicle_data = DB::table('vehicles')
+                ->pluck('id');
         } else if ($role_id == 2) {
             $admin_id = $data->admin_id;
             $vehicle_data = DB::table('vehicles')
