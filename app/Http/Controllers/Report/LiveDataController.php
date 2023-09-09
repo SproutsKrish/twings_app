@@ -337,40 +337,58 @@ class LiveDataController extends Controller
         }
 
         // dd($vehicle_data);
+        $total_vehicles = Vehicle::count();
 
-        $vehicle_count = DB::table('live_data as a')
+        $parking = DB::table('live_data')
+            ->where('vehicle_current_status', 1)
             ->whereIn('a.vehicle_id', $vehicle_data)
-            ->select('a.vehicle_current_status', DB::raw('COUNT(*) as count'))
-            ->groupBy('a.vehicle_current_status')
-            ->get()
-            ->map(function ($item) {
-                $item->status = $this->getStatusText($item->vehicle_current_status);
-                return $item;
-            });
-        if (empty($vehicle_count)) {
+            ->count();
+
+        $idle = DB::table('live_data')
+            ->where('vehicle_current_status', 2)
+            ->whereIn('a.vehicle_id', $vehicle_data)
+            ->count();
+
+        $moving = DB::table('live_data')
+            ->where('vehicle_current_status', 3)
+            ->whereIn('a.vehicle_id', $vehicle_data)
+            ->count();
+
+        $no_data = DB::table('live_data')
+            ->where('vehicle_current_status', 4)
+            ->whereIn('a.vehicle_id', $vehicle_data)
+            ->count();
+
+        $inactive = DB::table('live_data')
+            ->where('vehicle_current_status', 5)
+            ->whereIn('a.vehicle_id', $vehicle_data)
+            ->count();
+
+        $expired_vehicles = Vehicle::where('expire_date', '<', now())
+            ->whereIn('a.vehicle_id', $vehicle_data)
+            ->count();
+
+        $expiry_vehicles = Vehicle::whereBetween('expire_date', [DB::raw('CURDATE()'), DB::raw('DATE_ADD(CURDATE(), INTERVAL 15 DAY)')])
+            ->whereIn('a.vehicle_id', $vehicle_data)
+            ->count();
+
+        $vehicle_count = array(
+            'running' => $moving,
+            'idle' => $idle,
+            'stop' => $parking,
+            'no_data' => $no_data,
+            'inactive' => $inactive,
+            'total_vehicles' =>  $total_vehicles,
+            'expired_vehicles' => $expired_vehicles,
+            'expiry_vehicles' => $expiry_vehicles
+        );
+
+        if (!$vehicle_count) {
             $response = ["success" => false, "message" => 'No Live Data Found', "status_code" => 404];
             return response()->json($response, 404);
         }
 
         $response = ["success" => true, "data" => $vehicle_count, "status_code" => 200];
         return response()->json($response, 200);
-    }
-
-    function getStatusText($status)
-    {
-        switch ($status) {
-            case 1:
-                return "Parking";
-            case 2:
-                return "Idle";
-            case 3:
-                return "Moving";
-            case 4:
-                return "NoData";
-            case 5:
-                return "InActive";
-            default:
-                return "Unknown"; // Handle other values if necessary
-        }
     }
 }

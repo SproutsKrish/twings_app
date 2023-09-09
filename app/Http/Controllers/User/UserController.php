@@ -84,7 +84,7 @@ class UserController extends BaseController
                     'b.name as role'
                 )
                 ->where('a.role_id', '>', '2')
-                ->where('a.admin_id', '>', $admin_id)
+                ->where('a.admin_id', '=', $admin_id)
                 ->get();
         } else if ($role_id == 3) {
             $data = User::find($user_id);
@@ -103,7 +103,7 @@ class UserController extends BaseController
                     'b.name as role'
                 )
                 ->where('a.role_id', '>', '3')
-                ->where('a.distributor_id', '>', $distributor_id)
+                ->where('a.distributor_id', '=', $distributor_id)
                 ->get();
         } else if ($role_id == 4) {
             $data = User::find($user_id);
@@ -122,7 +122,7 @@ class UserController extends BaseController
                     'b.name as role'
                 )
                 ->where('a.role_id', '>', '4')
-                ->where('a.dealer_id', '>', $dealer_id)
+                ->where('a.dealer_id', '=', $dealer_id)
                 ->get();
         } else if ($role_id == 5) {
             $data = User::find($user_id);
@@ -141,7 +141,7 @@ class UserController extends BaseController
                     'b.name as role'
                 )
                 ->where('a.role_id', '>', '5')
-                ->where('a.subdealer_id', '>', $subdealer_id)
+                ->where('a.subdealer_id', '=', $subdealer_id)
                 ->get();
         } else if ($role_id == 6) {
             $data = User::find($user_id);
@@ -160,7 +160,7 @@ class UserController extends BaseController
                     'b.name as role'
                 )
                 ->where('a.role_id', '>', '6')
-                ->where('a.client_id', '>', $client_id)
+                ->where('a.client_id', '=', $client_id)
                 ->get();
         }
 
@@ -724,6 +724,7 @@ class UserController extends BaseController
     public function role_based_user_list(Request $request)
     {
         $user_id = $request->input('user_id');
+
         $data = User::where('id', $user_id)->first();
 
         if (empty($data)) {
