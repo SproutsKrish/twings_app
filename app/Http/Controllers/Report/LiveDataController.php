@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
+use App\Models\LiveData;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
@@ -299,5 +301,74 @@ class LiveDataController extends Controller
 
         $response = ["success" => true, "data" => $vehicle_count, "status_code" => 200];
         return response()->json($response, 200);
+    }
+
+
+    public function role_based_vehicle_count(Request $request)
+    {
+        $user_id = $request->input('user_id');
+
+        $data = User::find($user_id);
+        $role_id = $data->role_id;
+
+        if ($role_id == 1) {
+        } else if ($role_id == 2) {
+            $admin_id = $data->admin_id;
+            $vehicle_data = DB::table('vehicles')
+                ->where('admin_id', $admin_id)
+                ->pluck('id');
+        } else if ($role_id == 3) {
+            $distributor_id = $data->distributor_id;
+            $vehicle_data = DB::table('vehicles')
+                ->where('distributor_id', $distributor_id)
+                ->pluck('id');
+        } else if ($role_id == 4) {
+            $dealer_id = $data->dealer_id;
+            $vehicle_data = DB::table('vehicles')
+                ->where('dealer_id', $dealer_id)
+                ->pluck('id');
+        } else if ($role_id == 5) {
+            $subdealer_id = $data->subdealer_id;
+            $vehicle_data = DB::table('vehicles')
+                ->where('subdealer_id', $subdealer_id)
+                ->pluck('id');
+        }
+
+        // dd($vehicle_data);
+
+        $vehicle_count = DB::table('live_data as a')
+            ->whereIn('a.vehicle_id', $vehicle_data)
+            ->select('a.vehicle_current_status', DB::raw('COUNT(*) as count'))
+            ->groupBy('a.vehicle_current_status')
+            ->get()
+            ->map(function ($item) {
+                $item->status = $this->getStatusText($item->vehicle_current_status);
+                return $item;
+            });
+        if (empty($vehicle_count)) {
+            $response = ["success" => false, "message" => 'No Live Data Found', "status_code" => 404];
+            return response()->json($response, 404);
+        }
+
+        $response = ["success" => true, "data" => $vehicle_count, "status_code" => 200];
+        return response()->json($response, 200);
+    }
+
+    function getStatusText($status)
+    {
+        switch ($status) {
+            case 1:
+                return "Parking";
+            case 2:
+                return "Idle";
+            case 3:
+                return "Moving";
+            case 4:
+                return "NoData";
+            case 5:
+                return "InActive";
+            default:
+                return "Unknown"; // Handle other values if necessary
+        }
     }
 }

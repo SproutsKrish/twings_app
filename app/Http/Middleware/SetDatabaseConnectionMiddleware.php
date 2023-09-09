@@ -44,7 +44,7 @@ class SetDatabaseConnectionMiddleware
             DB::purge('mysql');
             DB::reconnect('mysql');
             DB::setDefaultConnection('mysql');
-        } else if (!empty($request->user_id)) {
+        } else {
             $client_data = User::find($request->user_id);
             $tenantData = json_decode(Tenant::find($client_data->client_id), true);
             $tenantDbName = $tenantData['tenancy_db_name'];
@@ -62,9 +62,7 @@ class SetDatabaseConnectionMiddleware
             DB::purge('mysql');
             DB::reconnect('mysql');
             DB::setDefaultConnection('mysql');
-        } else {
         }
-
         return $next($request);
     }
 }

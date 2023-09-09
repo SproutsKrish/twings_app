@@ -134,6 +134,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::controller(UserController::class)->group(function () {
         Route::get('user/yourMethod', 'yourMethod');
     });
+    Route::controller(LiveDataController::class)->group(function () {
+        Route::post('role_based_vehicle_count', 'role_based_vehicle_count');
+    });
 
     Route::controller(UserController::class)->group(function () {
         Route::post('user/store', 'store');
