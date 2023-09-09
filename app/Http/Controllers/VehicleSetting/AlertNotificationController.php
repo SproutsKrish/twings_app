@@ -32,9 +32,10 @@ class AlertNotificationController extends Controller
 
     public function alert_notifications_list()
     {
-        $alert_notifications_list = DB::table('alert_notifications')
+        $alert_notifications_list = DB::table('alert_notifications as a')
+            ->join('twings.alert_types as b', 'a.alert_type_id', '=', 'b.id')
             ->where('active_status', '1')
-            ->select('id', 'client_id', 'alert_type_id', 'user_status')
+            ->select('a.id', 'a.alert_type_id', 'b.alert_type', 'a.user_status')
             ->get();
 
         $response = ["success" => true, "data" => $alert_notifications_list, "status_code" => 200];
