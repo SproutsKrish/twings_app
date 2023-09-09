@@ -66,6 +66,7 @@ class UserController extends BaseController
                     'b.name as role'
                 )
                 ->where('a.role_id', '>', '1')
+                ->orderBy('a.id', 'desc')
                 ->get();
         } else if ($role_id == 2) {
             $data = User::find($user_id);
@@ -85,6 +86,7 @@ class UserController extends BaseController
                 )
                 ->where('a.role_id', '>', '2')
                 ->where('a.admin_id', '=', $admin_id)
+                ->orderBy('a.id', 'desc')
                 ->get();
         } else if ($role_id == 3) {
             $data = User::find($user_id);
@@ -104,6 +106,7 @@ class UserController extends BaseController
                 )
                 ->where('a.role_id', '>', '3')
                 ->where('a.distributor_id', '=', $distributor_id)
+                ->orderBy('a.id', 'desc')
                 ->get();
         } else if ($role_id == 4) {
             $data = User::find($user_id);
@@ -123,6 +126,7 @@ class UserController extends BaseController
                 )
                 ->where('a.role_id', '>', '4')
                 ->where('a.dealer_id', '=', $dealer_id)
+                ->orderBy('a.id', 'desc')
                 ->get();
         } else if ($role_id == 5) {
             $data = User::find($user_id);
@@ -142,6 +146,7 @@ class UserController extends BaseController
                 )
                 ->where('a.role_id', '>', '5')
                 ->where('a.subdealer_id', '=', $subdealer_id)
+                ->orderBy('a.id', 'desc')
                 ->get();
         } else if ($role_id == 6) {
             $data = User::find($user_id);
@@ -161,6 +166,7 @@ class UserController extends BaseController
                 )
                 ->where('a.role_id', '>', '6')
                 ->where('a.client_id', '=', $client_id)
+                ->orderBy('a.id', 'desc')
                 ->get();
         }
 
