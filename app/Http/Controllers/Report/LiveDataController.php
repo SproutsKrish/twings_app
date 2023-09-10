@@ -341,27 +341,27 @@ class LiveDataController extends Controller
 
         $parking = DB::table('live_data')
             ->where('vehicle_current_status', 1)
-            ->whereIn('a.vehicle_id', $vehicle_data)
+            ->whereIn('vehicle_id', $vehicle_data)
             ->count();
 
         $idle = DB::table('live_data')
             ->where('vehicle_current_status', 2)
-            ->whereIn('a.vehicle_id', $vehicle_data)
+            ->whereIn('vehicle_id', $vehicle_data)
             ->count();
 
         $moving = DB::table('live_data')
             ->where('vehicle_current_status', 3)
-            ->whereIn('a.vehicle_id', $vehicle_data)
+            ->whereIn('vehicle_id', $vehicle_data)
             ->count();
 
         $no_data = DB::table('live_data')
             ->where('vehicle_current_status', 4)
-            ->whereIn('a.vehicle_id', $vehicle_data)
+            ->whereIn('vehicle_id', $vehicle_data)
             ->count();
 
         $inactive = DB::table('live_data')
             ->where('vehicle_current_status', 5)
-            ->whereIn('a.vehicle_id', $vehicle_data)
+            ->whereIn('vehicle_id', $vehicle_data)
             ->count();
 
         $expired_vehicles = Vehicle::where('expire_date', '<', now())

@@ -13,19 +13,19 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('push_notifications', function (Blueprint $table) {
+        Schema::create('alert_notifications', function (Blueprint $table) {
             $table->id();
-            $table->tinyInteger('mobile_type')->nullable();
-            $table->string('mobile_model')->nullable();
-            $table->string('application_name')->nullable();
-            $table->string('server_key')->nullable();
-            $table->longText('fcm_token')->nullable();
-            $table->longText('access_token')->nullable();
             $table->bigInteger('user_id')->nullable();
-            $table->bigInteger('role_id')->nullable();
             $table->bigInteger('client_id')->nullable();
-            $table->tinyInteger('status')->default(1);
+            $table->bigInteger('alert_type_id')->nullable();
+            $table->tinyInteger('user_status')->nullable();
+            $table->tinyInteger('active_status')->nullable();
             $table->timestamps();
+            $table->softDeletes();
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
+            $table->integer('deleted_by')->nullable();
+            $table->string('ip_address')->nullable();
         });
     }
 
@@ -36,6 +36,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('push_notifications');
+        Schema::dropIfExists('alert_notifications');
     }
 };

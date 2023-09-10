@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\Admin;
+use App\Models\AlertType;
 use App\Models\Client;
 use App\Models\Country;
 use App\Models\CustomerConfiguration;
@@ -409,6 +410,23 @@ class UserController extends BaseController
                     User::where('id', $user->id)
                         ->update(['client_id' => $client->id]);
 
+
+                    $alert_types =  DB::table('alert_types')
+                        ->where('status', '1')
+                        ->select('id')
+                        ->get();
+
+                    foreach ($alert_types as $alert_type) {
+                        $userdata = array(
+                            'user_id' => $user->id,
+                            'client_id' => $client->id,
+                            'alert_type_id' => $alert_type->id,
+                            'user_status' => 0,
+                            'active_status' => 1,
+                        );
+                        DB::table('alert_notifications')->insert($userdata);
+                    }
+
                     $tenant = Tenant::create(['id' => $client->id]);
 
                     $customer_configurations = CustomerConfiguration::create(
@@ -554,38 +572,40 @@ class UserController extends BaseController
                 if ($role_id == 2) {
                     DB::table('admins')
                         ->where('id', $user->admin_id)
-                        ->update(
-                            ['admin_address' => $request->input('address')],
-                            ['admin_email' => $request->input('email')]
-                        );
+                        ->update([
+                            'admin_name' => $request->input('name'),
+                            'admin_email' => $request->input('email')
+                        ]);
                 } else if ($role_id == 3) {
                     DB::table('distributors')
                         ->where('id', $user->distributor_id)
-                        ->update(
-                            ['distributor_address' => $request->input('address')],
-                            ['distributor_email' => $request->input('email')]
-                        );
+                        ->update([
+                            'distributor_name' => $request->input('name'),
+                            'distributor_email' => $request->input('email')
+                        ]);
                 } else if ($role_id == 4) {
                     DB::table('dealers')
                         ->where('id', $user->dealer_id)
-                        ->update(
-                            ['dealer_address' => $request->input('address')],
-                            ['dealer_email' => $request->input('email')]
-                        );
+                        ->update([
+                            'dealer_name' => $request->input('name'),
+                            'dealer_email' => $request->input('email')
+                        ]);
                 } else if ($role_id == 5) {
                     DB::table('sub_dealers')
                         ->where('id', $user->subdealer_id)
-                        ->update(
-                            ['subdealer_address' => $request->input('address')],
-                            ['subdealer_email' => $request->input('email')]
-                        );
+                        ->update([
+                            'subdealer_name' => $request->input('name'),
+                            'subdealer_email' => $request->input('email')
+                        ]);
                 } else if ($role_id == 6) {
-                    DB::table('clients')
+
+                    $d = DB::table('clients')
                         ->where('id', $user->client_id)
-                        ->update(
-                            ['client_address' => $request->input('address')],
-                            ['client_email' => $request->input('email')]
-                        );
+                        ->update([
+                            'client_name' => $request->input('name'),
+                            'client_email' => $request->input('email')
+                        ]);
+                    return response()->json($d);
 
                     $result = CustomerConfiguration::where('client_id', $user->client_id)
                         ->first();

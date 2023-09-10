@@ -130,6 +130,17 @@ class VehicleController extends BaseController
             $vehicle = Vehicle::find($vehicle->id);
             $vehicleArray = $vehicle->toArray();
 
+            $main_live_data = array(
+                'client_id' => $vehicle->client_id,
+                'vehicle_id' => $vehicle->id,
+                'vehicle_name' => $vehicle->vehicle_name,
+                'vehicle_current_status' => '4',
+                'vehicle_status' => '1',
+                'deviceimei' => $vehicle->device_imei
+            );
+
+            DB::table('live_data')->insert($main_live_data);
+
             $result = CustomerConfiguration::where('client_id', $vehicle->client_id)
                 ->first();
 

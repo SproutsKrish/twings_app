@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AlertType;
 use App\Models\Feature;
 use App\Models\ModelHasRole;
 use Illuminate\Database\Seeder;
@@ -69,6 +70,52 @@ class CreateAdminUserSeeder extends Seeder
         ];
         foreach ($features as $feature) {
             Feature::create(['feature_name' => $feature]);
+        }
+
+        $alert_types = [
+            'AC On',
+            'AC Off',
+            'Ignition On',
+            'Ignition Off',
+            'Over Speed Alert',
+            'SOS Alert',
+            'Power Off',
+            'Geo In',
+            'Geo Out',
+            'Harsh Acceleration',
+            'Harsh Braking',
+            'Accident',
+            'Fuel Fill',
+            'Fuel Dip',
+            'Power On',
+            'Internal Battery Low',
+            'SIM Tray Open',
+            'Internal Battery Normal',
+            'Internal Battery Removed',
+            'Parking',
+            'Idling',
+            'Towing',
+            'Renewal Vehicle Insurance',
+            'Poor Tyre Condition',
+            'Hub In',
+            'Hub Out',
+            'Route Deviation Out',
+            'Route Deviation In',
+            'Vibration Alert',
+            'Fuel Sensor Disconnected or Zero value',
+            'Temperature Low Alert',
+            'Temperature High Alert',
+            'Charge On',
+            'Charge Off',
+            'Vehicle Delay',
+            'Safe Parking On',
+            'Safe Parking Off',
+            'GPS On',
+            'GPS Off'
+        ];
+
+        foreach ($alert_types as $alert_type) {
+            AlertType::create(['alert_type' => $alert_type]);
         }
 
         $packages = [

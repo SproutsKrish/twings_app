@@ -90,6 +90,10 @@ Route::controller(LoginController::class)->group(function () {
     Route::post('login', 'login');
 });
 
+Route::controller(UserController::class)->group(function () {
+    Route::post('mymethod', 'mymethod');
+});
+
 
 
 Route::middleware(['auth:sanctum'])->group(function () {

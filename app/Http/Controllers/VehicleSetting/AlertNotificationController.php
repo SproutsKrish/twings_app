@@ -15,10 +15,13 @@ class AlertNotificationController extends Controller
         try {
             $alert_type_id = $request->input('alert_type_id');
             $user_status = $request->input('user_status');
+            $user_id = $request->input('user_id');
 
-            $data = DB::table('alert_notifications')
+            $data = DB::table('twings.alert_notifications')
                 ->where('alert_type_id', $alert_type_id)
+                ->where('user_id', $user_id)
                 ->update(['user_status' => $user_status]);
+
             if ($data) {
                 $response = ["success" => true, "message" => 'Alert Notification Saved Successfully', "status_code" => 200];
                 return response()->json($response, 200);
@@ -34,13 +37,18 @@ class AlertNotificationController extends Controller
 
     public function alert_notifications_list()
     {
-        $alert_notifications_list = DB::table('alert_notifications as a')
+        $alert_notifications_list = DB::table('twings.alert_notifications as a')
             ->join('twings.alert_types as b', 'a.alert_type_id', '=', 'b.id')
             ->where('active_status', '1')
             ->select('a.id', 'a.alert_type_id', 'b.alert_type', 'a.user_status')
             ->get();
 
-        $response = ["success" => true, "data" => $alert_notifications_list, "status_code" => 200];
-        return response()->json($response, 200);
+        if ($alert_notifications_list->isEmpty()) {
+            $response = ["success" => false, "message" => 'No Alert Type Linked', "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => $alert_notifications_list, "status_code" => 200];
+            return response()->json($response, 223);
+        }
     }
 }

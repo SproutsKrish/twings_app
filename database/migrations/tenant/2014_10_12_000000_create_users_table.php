@@ -30,7 +30,6 @@ return new class extends Migration
             $table->bigInteger('client_id')->nullable();
             $table->bigInteger('vehicle_owner_id')->nullable();
             $table->bigInteger('staff_id')->nullable();
-            $table->bigInteger('subuser_id')->nullable();
 
             $table->bigInteger('country_id')->nullable();
             $table->string('country_name')->nullable();
