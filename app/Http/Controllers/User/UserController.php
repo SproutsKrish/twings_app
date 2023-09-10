@@ -540,6 +540,7 @@ class UserController extends BaseController
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:users,name,' . $request->input('id') . 'id',
             'email' => 'required|email|unique:users,email,' . $request->input('id') . 'id',
+            'mobile_no' => 'required|integer|unique:users,mobile_no,' . $request->input('id') . 'id',
             'role_id' => 'required|exists:roles,id',
             'country_id' => 'required'
         ]);
