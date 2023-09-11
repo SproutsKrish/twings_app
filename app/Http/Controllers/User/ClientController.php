@@ -120,18 +120,20 @@ class ClientController extends BaseController
 
             if ($subdealer_id == null) {
                 //Dealer Customer
-                $result = DB::select("SELECT a.id, b.dealer_company as company, b.dealer_name as name, b.dealer_email as email, b.dealer_mobile as mobile, b.dealer_address as address
-                FROM clients a
-                INNER JOIN dealers b on a.dealer_id = b.id
-                WHERE a.id = $id");
+                $result = DB::table('clients as a')
+                    ->select('a.id', 'b.dealer_company as company', 'b.dealer_name as name', 'b.dealer_email as email', 'b.dealer_mobile as mobile', 'b.dealer_address as address')
+                    ->join('dealers as b', 'a.dealer_id', '=', 'b.id')
+                    ->where('a.id', $id)
+                    ->first();
                 $response = ["success" => true, "data" => $result, "status_code" => 200];
                 return response()->json($response, 200);
             } else if ($subdealer_id != null) {
                 //SubDealer Customer
-                $result = DB::select("SELECT a.id, b.subdealer_company as company, b.subdealer_name as name, b.subdealer_email as email, b.subdealer_mobile as mobile, b.subdealer_address as address
-                FROM clients a
-                INNER JOIN sub_dealers b on a.subdealer_id = b.id
-                WHERE a.id = $id");
+                $result = DB::table('clients as a')
+                    ->select('a.id', 'b.subdealer_company as company', 'b.subdealer_name as name', 'b.subdealer_email as email', 'b.subdealer_mobile as mobile', 'b.subdealer_address as address')
+                    ->join('sub_dealers as b', 'a.subdealer_id', '=', 'b.id')
+                    ->where('a.id', $id)
+                    ->first();
                 $response = ["success" => true, "data" => $result, "status_code" => 200];
                 return response()->json($response, 200);
             }

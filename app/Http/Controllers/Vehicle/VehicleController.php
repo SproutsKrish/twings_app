@@ -60,7 +60,11 @@ class VehicleController extends BaseController
 
         $requestKeys = collect($request->all())->keys();
 
-        $data['subdealer_id'] = null;
+
+        $data['admin_id'] = auth()->user()->admin_id;
+        $data['distributor_id'] = auth()->user()->distributor_id;
+        $data['dealer_id'] = auth()->user()->dealer_id;
+        $data['subdealer_id'] = auth()->user()->subdealer_id;
 
         if ($requestKeys->contains('admin_id')) {
             $admin_id = User::find($request->input('admin_id'));
