@@ -231,7 +231,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::put('notify/update/{id}', 'update');
         });
         Route::controller(ConfigurationController::class)->group(function () {
-            Route::post('config/store', 'store');
             Route::get('config/show', 'show');
             Route::put('config/update/{id}', 'update');
             Route::put('config/immobilizer_option/{id}', 'immobilizer_option');
@@ -245,6 +244,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::controller(AlertNotificationController::class)->group(function () {
             Route::get('alert_notifications_list', 'alert_notifications_list');
         });
+        Route::controller(AssignGeofenceController::class)->group(function () {
+            Route::get('assigned_fence_list', 'assigned_fence_list');
+        });
     });
 
     Route::controller(LoginController::class)->group(function () {
@@ -257,6 +259,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::resource('role', RoleController::class);
         Route::resource('role_right', RoleRightsController::class);
         Route::resource('vehicle', VehicleController::class);
+
+        Route::controller(ConfigurationController::class)->group(function () {
+            Route::post('config/store', 'store');
+        });
     });
     Route::group(['middleware' => ['auth', 'checkrole:4,5']], function () {
     });

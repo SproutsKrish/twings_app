@@ -14,5 +14,6 @@ class AssignGeofence extends Model
         'vehicle_id',
         'geofence_id',
         'fence_type',
+        'device_imei',
     ];
 }

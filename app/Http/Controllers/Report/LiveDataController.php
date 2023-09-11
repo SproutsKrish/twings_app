@@ -303,7 +303,6 @@ class LiveDataController extends Controller
         return response()->json($response, 200);
     }
 
-
     public function role_based_vehicle_count(Request $request)
     {
         $user_id = $request->input('user_id');

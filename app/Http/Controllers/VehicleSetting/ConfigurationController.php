@@ -15,24 +15,24 @@ class ConfigurationController extends BaseController
 {
     public function store(Request $request)
     {
-        $client_id = auth()->user()->client_id;
+        $vehicle_id = $request->input('vehicle_id');
+        $device_imei = $request->input('device_imei');
 
-        Configuration::create([
-            'client_id' => $client_id,
-            'vehicle_id' => $request->input('vehicle_id'),
-            'parking_alert_time' => $request->input('parking_alert_time'),
-            'idle_alert_time' => $request->input('idle_alert_time'),
-            'speed_limit' => $request->input('speed_limit'),
-            'expected_mileage' => $request->input('expected_mileage'),
-            'idle_rpm' => $request->input('idle_rpm'),
-            'max_rpm' => $request->input('max_rpm'),
-            'temp_low' => $request->input('temp_low'),
-            'temp_high' => $request->input('temp_high'),
-            'fuel_fill_limit' => $request->input('fuel_fill_limit'),
-            'fuel_dip_limit' => $request->input('fuel_dip_limit')
-        ]);
+        $configurations = db::table('configurations')
+            ->where('vehicle_id',  $vehicle_id)
+            ->where('device_imei',  $device_imei)
+            ->first();
 
-        return $this->sendSuccess("Configuration Updated Successfully");
+        // return response()->json($configurations);
+
+        $input = $request->all();
+        $data = $configurations->update($input);
+
+        if ($data) {
+            return $this->sendSuccess("Vehicle Setting Updated Successfully");
+        } else {
+            return $this->sendError('Failed to Update Vehicle Setting ');
+        }
     }
     public function show(Request $request)
     {

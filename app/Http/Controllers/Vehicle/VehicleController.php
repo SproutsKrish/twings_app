@@ -145,6 +145,15 @@ class VehicleController extends BaseController
 
             DB::table('live_data')->insert($main_live_data);
 
+            $main_config_details = array(
+                'client_id' => $vehicle->client_id,
+                'vehicle_id' => $vehicle->id,
+                'vehicle_name' => $vehicle->vehicle_name,
+                'device_imei' => $vehicle->device_imei
+            );
+            DB::table('configurations')->insert($main_config_details);
+
+
             $result = CustomerConfiguration::where('client_id', $vehicle->client_id)
                 ->first();
 

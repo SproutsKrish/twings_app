@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Report;
 use App\Http\Controllers\Controller;
 use App\Models\AssignGeofence;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -44,6 +45,21 @@ class AssignGeofenceController extends Controller
             $response = ["success" => false, "message" => 'Failed to Assign Geofence', "status_code" => 404];
             return response()->json($response, 404);
         }
+    }
+
+    public function assigned_fence_list()
+    {
+        $data = DB::table('assign_geofences as a')
+            ->join('geofences as b', 'a.geofence_id', '=', 'b.id')
+            ->select('*')
+            ->get();
+
+        if ($data->isEmpty()) {
+            $response = ["success" => false, "message" => 'Geofence Assigned List Not Found', "status_code" => 404];
+            return response()->json($response, 404);
+        }
+        $response = ["success" => true, "data" => $data, "status_code" => 200];
+        return response()->json($response, 200);
     }
 
     public function show($id)
