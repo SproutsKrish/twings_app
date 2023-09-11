@@ -836,8 +836,8 @@ class UserController extends BaseController
         $user_id = $request->input('user_id');
 
         if (!Hash::check($old_password, auth()->user()->password)) {
-            $response = ["success" => false, "message" => "Current Password is not Correct", "status_code" => 404];
-            return response()->json($response, 404);
+            $response = ["success" => false, "message" => "Current Password is not Correct", "status_code" => 401];
+            return response()->json($response, 401);
         } else {
             $new_password = $request->input('new_password');
             // dd(auth()->user()->id);
@@ -845,6 +845,9 @@ class UserController extends BaseController
                 'password' => Hash::make($new_password)
             ]);
             if ($data) {
+
+                $tokens = DB::table('personal_access_tokens')->where('tokenable_id', $user_id)->delete();
+
                 $response = ["success" => true, "message" => "Password Changed Successfully", "status_code" => 200];
                 return response()->json($response, 200);
             } else {
