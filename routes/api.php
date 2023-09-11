@@ -245,7 +245,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('alert_notifications_list', 'alert_notifications_list');
         });
         Route::controller(AssignGeofenceController::class)->group(function () {
-            Route::get('assigned_fence_list', 'assigned_fence_list');
+            Route::post('assigned_fence_list', 'assigned_fence_list');
         });
     });
 

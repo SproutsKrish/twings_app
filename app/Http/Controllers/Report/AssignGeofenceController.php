@@ -47,10 +47,13 @@ class AssignGeofenceController extends Controller
         }
     }
 
-    public function assigned_fence_list()
+    public function assigned_fence_list(Request $request)
     {
+        $device_imei = $request->input('device_imei');
+
         $data = DB::table('assign_geofences as a')
             ->join('geofences as b', 'a.geofence_id', '=', 'b.id')
+            ->where('a.device_imei', $device_imei)
             ->select('*')
             ->get();
 
