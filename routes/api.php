@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\AlertTypeController;
 use Illuminate\Support\Facades\Route;
 
@@ -330,6 +331,8 @@ Route::put('device_assign/{id}', [DeviceController::class, 'device_assign']);
 
 //App Contact
 Route::get('contact_address/{id}', [ClientController::class, 'contact_address']);
+Route::post('live_address', [AddressController::class, 'live_address']);
+
 Route::post('sim_new', [SimController::class, 'sim_new']);
 
 

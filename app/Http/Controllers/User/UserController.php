@@ -16,6 +16,7 @@ use App\Models\Staff;
 use App\Models\SubDealer;
 use App\Models\Tenant;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 
@@ -846,7 +847,9 @@ class UserController extends BaseController
             ]);
             if ($data) {
 
-                $tokens = DB::table('personal_access_tokens')->where('tokenable_id', $user_id)->delete();
+                $last_used_at = Carbon::now();
+
+                $tokens = DB::table('personal_access_tokens')->where('tokenable_id', $user_id)->update(['last_used_at' => $last_used_at]);
 
                 $response = ["success" => true, "message" => "Password Changed Successfully", "status_code" => 200];
                 return response()->json($response, 200);
