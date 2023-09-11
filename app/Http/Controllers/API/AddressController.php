@@ -11,6 +11,7 @@ class AddressController extends Controller
     {
         $lat = $request->input('latitude');
         $lng = $request->input('longitude');
+
         $format = "json";
         $url = "http://69.197.153.82:8080/reverse?lat=$lat&lon=$lng&format=$format";
         $curl = curl_init();
@@ -22,6 +23,12 @@ class AddressController extends Controller
 
         $address_data = json_decode($response, true);
 
-        return response()->json($address_data['display_name']);
+        if (empty($address_data['display_name'])) {
+            $response = ["success" => false, "message" => "No Address Found", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => $address_data['display_name'], "status_code" => 200];
+            return response()->json($response, 200);
+        }
     }
 }
