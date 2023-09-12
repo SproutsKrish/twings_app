@@ -601,13 +601,13 @@ class UserController extends BaseController
                         ]);
                 } else if ($role_id == 6) {
 
-                    $d = DB::table('clients')
+                    DB::table('clients')
                         ->where('id', $user->client_id)
                         ->update([
                             'client_name' => $request->input('name'),
                             'client_email' => $request->input('email')
                         ]);
-                    return response()->json($d);
+
 
                     $result = CustomerConfiguration::where('client_id', $user->client_id)
                         ->first();

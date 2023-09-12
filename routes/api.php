@@ -262,6 +262,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::controller(ConfigurationController::class)->group(function () {
             Route::post('config/store', 'store');
+            Route::post('config/show', 'show');
+        });
+
+        Route::controller(LiveDataController::class)->group(function () {
+            Route::post('client_multi_dashboard', 'client_multi_dashboard');
+            Route::post('client_single_dashboard', 'client_single_dashboard');
+            Route::post('client_vehicle_count', 'client_vehicle_count');
         });
     });
     Route::group(['middleware' => ['auth', 'checkrole:4,5']], function () {

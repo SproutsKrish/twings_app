@@ -4,12 +4,14 @@ namespace App\Http\Controllers\VehicleSetting;
 
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\Configuration;
+use App\Models\CustomerConfiguration;
 use App\Models\EnginePassword;
 use App\Models\LiveData;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Config;
 
 class ConfigurationController extends BaseController
 {
@@ -18,41 +20,55 @@ class ConfigurationController extends BaseController
         $vehicle_id = $request->input('vehicle_id');
         $device_imei = $request->input('device_imei');
 
-        $configurations = db::table('configurations')
-            ->where('vehicle_id',  $vehicle_id)
-            ->where('device_imei',  $device_imei)
+        $configuration = Configuration::where('vehicle_id', $vehicle_id)
+            ->where('device_imei', $device_imei)
             ->first();
 
-        // return response()->json($configurations);
+        if (!$configuration) {
+            return response()->json(['message' => 'Configuration not found'], 404);
+        }
 
         $input = $request->all();
-        $data = $configurations->update($input);
 
-        if ($data) {
-            return $this->sendSuccess("Vehicle Setting Updated Successfully");
-        } else {
-            return $this->sendError('Failed to Update Vehicle Setting ');
-        }
+        // Update the configuration with the new data
+        $data =   $configuration->update($input);
+
+        $result = CustomerConfiguration::where('client_id', $configuration->client_id)
+            ->first();
+
+        // Specify the dynamic connection configuration
+        $connectionName = $result->db_name;
+        $connectionConfig = [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST'), // Use the environment variable for host
+            'port' => env('DB_PORT'), // Use the environment variable for port
+            'database' => $result->db_name,   // Change this to the actual database name
+            'username' => env('DB_USERNAME'), // Use the environment variable for username
+            'password' => env('DB_PASSWORD'), // Use the environment variable for password
+            // Add any other connection parameters you need
+        ];
+
+        // Use the dynamic connection configuration to connect to the database
+        Config::set("database.connections.$connectionName", $connectionConfig);
+        DB::purge($connectionName); // Clear the connection cache
+
+        DB::connection($connectionName)->table('configurations')->where('device_imei', $configuration->device_imei)->update($input);
+
+        return response()->json("OK");
     }
     public function show(Request $request)
     {
-        $client_id = auth()->user()->client_id;
-
-        return $this->sendSuccess($client_id);
-
-        $configuration = Configuration::where('client_id', $client_id)
+        $configuration = Configuration::where('device_imei', $request->input('device_imei'))
             ->where('vehicle_id', $request->input('vehicle_id'))
-            ->get();
+            ->first();
 
-        if ($configuration->isEmpty()) {
-            Configuration::create([
-                'client_id' => $client_id,
-                'vehicle_id' => $request->input('vehicle_id'),
-            ]);
-            $configuration = Configuration::where('client_id', $client_id)->get();
+        if (empty($configuration)) {
+            $response = ["success" => false, "message" => "No Datas Found", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => $configuration, "status_code" => 200];
+            return response()->json($response, 200);
         }
-
-        return $this->sendSuccess($configuration);
     }
     public function update(Request $request, $id)
     {
@@ -68,8 +84,6 @@ class ConfigurationController extends BaseController
             return $this->sendError('Failed to Update Configuration');
         }
     }
-
-
     public function safe_parking(Request $request, $device_imei)
     {
         $vehicle = Vehicle::where('device_imei', $device_imei)->first();

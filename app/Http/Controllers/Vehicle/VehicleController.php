@@ -49,17 +49,17 @@ class VehicleController extends BaseController
             return response()->json($response, 403);
         }
 
+        $requestKeys = collect($request->all())->keys();
+
         $sim_data = Sim::find($request->input('sim_id'));
         $data['sim_mob_no'] =  $sim_data->sim_mob_no1;
         $device_data = Device::find($request->input('device_id'));
         $data['device_imei'] =  $device_data->device_imei_no;
         $data['device_make_id'] =  $device_data->device_make_id;
         $data['device_model_id'] =  $device_data->device_model_id;
+
         $license_data = License::find($request->input('license_id'));
         $data['license_no'] =  $license_data->license_no;
-
-        $requestKeys = collect($request->all())->keys();
-
 
         $data['admin_id'] = auth()->user()->admin_id;
         $data['distributor_id'] = auth()->user()->distributor_id;
