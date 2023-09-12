@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('live_data', function (Blueprint $table) {
-            $table->smallInteger('current_alert_status', 6)->default(0)->after('expiry_status');
+            $table->smallInteger('current_alert_status', 6)->default(0);
         });
     }
 
