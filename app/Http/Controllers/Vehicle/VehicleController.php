@@ -41,7 +41,9 @@ class VehicleController extends BaseController
             'device_id' => 'required',
             'vehicle_type_id' => 'required',
             'vehicle_name' => 'required',
-            'installation_date' => 'required'
+            'installation_date' => 'required',
+            'device_id' => 'required|unique:vehicles,device_id'
+
         ]);
 
         if ($validator->fails()) {
@@ -57,7 +59,6 @@ class VehicleController extends BaseController
         $data['device_imei'] =  $device_data->device_imei_no;
         $data['device_make_id'] =  $device_data->device_make_id;
         $data['device_model_id'] =  $device_data->device_model_id;
-
         $license_data = License::find($request->input('license_id'));
         $data['license_no'] =  $license_data->license_no;
 
@@ -88,7 +89,7 @@ class VehicleController extends BaseController
         }
 
         $plan_id = $request->input('plan_id');
-        $created_by = $request->input('user_id');
+        $data['created_by'] = $request->input('user_id');
 
         $data['sim_id'] = $request->input('sim_id');
         $data['device_id'] = $request->input('device_id');
@@ -108,6 +109,7 @@ class VehicleController extends BaseController
             ->first();
 
         if (!empty($result)) {
+            //Points
             $result->total_point = $result->total_point - 1;
             $result->save();
 
@@ -119,11 +121,12 @@ class VehicleController extends BaseController
             $newstart_date = Carbon::now();
             $newDateTime = $newstart_date->addDays($period->period_days);
             $data['expire_date'] = $newDateTime->format('Y-m-d');
-            $data['created_by'] = $created_by;
 
+            //Main Vehicles
             $vehicle = new Vehicle($data);
             $result = $vehicle->save();
 
+            //Licenses
             License::where('id', $request->input('license_id'))->update([
                 'vehicle_id' => $vehicle->id,
                 'start_date' => $vehicle->installation_date,
@@ -134,6 +137,7 @@ class VehicleController extends BaseController
             $vehicle = Vehicle::find($vehicle->id);
             $vehicleArray = $vehicle->toArray();
 
+            //Main Live Data
             $main_live_data = array(
                 'client_id' => $vehicle->client_id,
                 'vehicle_id' => $vehicle->id,
@@ -145,6 +149,7 @@ class VehicleController extends BaseController
 
             DB::table('live_data')->insert($main_live_data);
 
+            //Main Configurations
             $main_config_details = array(
                 'client_id' => $vehicle->client_id,
                 'vehicle_id' => $vehicle->id,
@@ -188,6 +193,7 @@ class VehicleController extends BaseController
                 'client_id' => $vehicleArray['client_id'],
                 'created_by' => $vehicleArray['created_by']
             );
+            // Client Vehicles
             DB::connection($connectionName)->table('vehicles')->insert($client_vehicle_data);
             $live_data = array(
                 'client_id' => $vehicle->client_id,
@@ -197,6 +203,7 @@ class VehicleController extends BaseController
                 'vehicle_status' => '1',
                 'deviceimei' => $vehicle->device_imei
             );
+            // Client Live Data
             DB::connection($connectionName)->table('live_data')->insert($live_data);
 
             $config_details = array(
@@ -205,10 +212,13 @@ class VehicleController extends BaseController
                 'vehicle_name' => $vehicle->vehicle_name,
                 'device_imei' => $vehicle->device_imei
             );
+
+            // Client Configurations
             DB::connection($connectionName)->table('configurations')->insert($config_details);
 
             DB::disconnect($connectionName);
 
+            //Sim and Device
             Sim::where('id', $vehicle->sim_id)->update(['client_id' => $vehicle->client_id]);
             Device::where('id', $vehicle->device_id)->update(['client_id' => $vehicle->client_id]);
 

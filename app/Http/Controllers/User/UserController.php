@@ -803,6 +803,7 @@ class UserController extends BaseController
                     ->where('role_id', 5)
                     ->where('dealer_id', $dealer_id)
                     ->get();
+                break;
 
             case $role_id == 5:
                 $data = User::find($user_id);

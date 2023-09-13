@@ -64,6 +64,7 @@ return new class extends Migration
             $table->double('battery_percentage', 8, 2)->nullable();
             $table->double('today_distance', 8, 2)->nullable();
             $table->tinyInteger('expiry_status')->default(false);
+            $table->smallInteger('current_alert_status')->default(0);
 
             $table->timestamps();
         });

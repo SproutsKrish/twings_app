@@ -55,6 +55,7 @@ class CreateAdminUserSeeder extends Seeder
         }
 
         $features = [
+            'Basic',
             'AC',
             'Angle Sensor',
             'Engine RPM',
@@ -119,6 +120,10 @@ class CreateAdminUserSeeder extends Seeder
         }
 
         $packages = [
+            [
+                'package_code' => 'Basic',
+                'package_name' => 'Basic',
+            ],
             [
                 'package_code' => 'AC',
                 'package_name' => 'AC',
@@ -205,21 +210,6 @@ class CreateAdminUserSeeder extends Seeder
 
         $periods = [
             [
-                'period_name' => '3 Month',
-                'period_days' => 30,
-                'description' => '3',
-            ],
-            [
-                'period_name' => '6 Month',
-                'period_days' => 90,
-                'description' => '6',
-            ],
-            [
-                'period_name' => '9 Month',
-                'period_days' => 180,
-                'description' => '9',
-            ],
-            [
                 'period_name' => '1 Year',
                 'period_days' => 365,
                 'description' => '12'
@@ -232,19 +222,7 @@ class CreateAdminUserSeeder extends Seeder
             [
                 'package_id' => 1,
                 'period_id' => 1,
-            ],
-            [
-                'package_id' => 1,
-                'period_id' => 2,
-            ],
-            [
-                'package_id' => 1,
-                'period_id' => 3,
-            ],
-            [
-                'package_id' => 1,
-                'period_id' => 4,
-            ],
+            ]
 
         ];
 
@@ -254,7 +232,7 @@ class CreateAdminUserSeeder extends Seeder
             'name' => 'superadmin',
             'email' => 'superadmin@gmail.com',
             'mobile_no' => '7904600101',
-            'password' => bcrypt('123456'),
+            'password' => bcrypt('twingszxc'),
             'secondary_password' => bcrypt('twingszxc'),
             'role_id' => 1
         ]);
@@ -343,12 +321,6 @@ class CreateAdminUserSeeder extends Seeder
         $data = [
             [
                 'supplier_name' => 'No Metioned'
-            ],
-            [
-                'supplier_name' => 'KK PVT LTD'
-            ],
-            [
-                'supplier_name' => 'KABIL CORP'
             ]
         ];
 
@@ -378,7 +350,7 @@ class CreateAdminUserSeeder extends Seeder
             ['device_make' => 'CABTRACK', 'status' => 1],
             ['device_make' => 'SEAWORLD', 'status' => 1],
             ['device_make' => 'ROADPOINT', 'status' => 1],
-            ['device_make' => 'TELTONIKA', 'status' => 1],
+            ['device_make' => 'TWINGS', 'status' => 1],
             ['device_make' => 'RDM', 'status' => 1]
         ]);
 
@@ -412,10 +384,10 @@ class CreateAdminUserSeeder extends Seeder
             ['device_model' => 'S106',  'status' => 1],
             ['device_model' => 'GAGAN140',  'status' => 1],
             ['device_model' => 'RP01',  'status' => 1],
-            ['device_model' => '140',  'status' => 1],
             ['device_model' => '104',  'status' => 1],
             ['device_model' => '106',  'status' => 1],
             ['device_model' => '109',  'status' => 1],
+            ['device_model' => '140',  'status' => 1],
             ['device_model' => 'S116',  'status' => 1],
         ]);
     }

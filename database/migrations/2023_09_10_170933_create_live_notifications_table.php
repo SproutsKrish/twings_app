@@ -27,6 +27,8 @@ return new class extends Migration
             $table->double('odometer')->default(0);
 
             $table->datetime('device_updatedtime')->nullable();
+            $table->tinyInteger('ignition_flag')->nullable();
+
             $table->bigInteger('user_id')->nullable();
             $table->timestamps();
         });
