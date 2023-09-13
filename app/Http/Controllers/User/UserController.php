@@ -796,6 +796,8 @@ class UserController extends BaseController
                     ->select('id', 'name', 'email', 'role_id')
                     ->where('role_id', 6)
                     ->where('dealer_id', $dealer_id)
+                    ->where('subdealer_id', null)
+
                     ->get();
 
                 $subdealer_list = DB::table('users')
