@@ -5,13 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UserDomain extends Model
+class UserApiKey extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'domain_name',
-        'login_image',
+        'user_id',
+        'role_id',
+        'domain_id',
+        'api_key',
         'created_by',
         'updated_by',
     ];

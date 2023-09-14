@@ -12,6 +12,7 @@ class ParkingReportController extends Controller
     {
         $parkingReports = DB::table('parking_reports as A')
             ->join('vehicles as B', 'A.device_imei', '=', 'B.device_imei')
+            ->where('parking_duration', '>=', $request->input('duration'))
             ->whereRaw("DATE_ADD(A.start_datetime, INTERVAL 330 MINUTE) >= ?", [$request->input('start_day')])
             ->whereRaw("DATE_ADD(A.end_datetime, INTERVAL 330 MINUTE) <= ?", [$request->input('end_day')])
             ->when($request->input('device_imei') !== 'All', function ($query) use ($request) {

@@ -66,6 +66,7 @@ use App\Http\Controllers\Report\RoutedeviationReportController;
 use App\Http\Controllers\Report\TemperatureReportController;
 use App\Http\Controllers\Report\TripPlanReportController;
 use App\Http\Controllers\Stock\DeviceMakeController;
+use App\Http\Controllers\UserDomainController;
 use App\Http\Controllers\VehicleSetting\AlertNotificationController;
 use App\Http\Controllers\VehicleSetting\ConfigurationController;
 use App\Http\Controllers\VehicleSetting\NotificationController;
@@ -99,6 +100,7 @@ Route::controller(UserController::class)->group(function () {
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('change_user_password', [UserController::class, 'change_user_password']);
+    Route::post('login_image_save', [UserDomainController::class, 'login_image_save']);
 
     Route::controller(SimController::class)->group(function () {
         Route::post('sim_list', 'sim_list');
@@ -213,8 +215,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('ac_report', 'ac_report');
         });
         Route::controller(AlertReportController::class)->group(function () {
-            Route::get('all_alert', 'all_alert');
-            Route::get('device_alert/{id}', 'device_alert');
+            Route::post('all_alert', 'all_alert');
+            Route::post('device_alert', 'device_alert');
         });
         Route::controller(TemperatureReportController::class)->group(function () {
             Route::post('temperature_report', 'temperature_report');

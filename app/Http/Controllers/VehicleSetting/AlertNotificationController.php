@@ -48,7 +48,7 @@ class AlertNotificationController extends Controller
             return response()->json($response, 404);
         } else {
             $response = ["success" => true, "data" => $alert_notifications_list, "status_code" => 200];
-            return response()->json($response, 223);
+            return response()->json($response, 200);
         }
     }
 }

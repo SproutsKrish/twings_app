@@ -8,11 +8,14 @@ use Illuminate\Support\Facades\DB;
 
 class AlertReportController extends Controller
 {
-    public function all_alert()
+    public function all_alert(Request $request)
     {
-        $results = DB::table('alert_status as a')
+        $user_id =  $request->input('user_id');
+
+        $results = DB::table('twings.live_notifications as a')
             ->join('twings.alert_types as b', 'a.alert_type_id', '=', 'b.id')
-            ->join('vehicles as c', 'a.deviceimei', '=', 'c.device_imei')
+            ->join('twings.vehicles as c', 'a.deviceimei', '=', 'c.device_imei')
+            ->where('a.user_id', $user_id)
             ->select('a.alert_type_id', 'b.alert_type', 'a.deviceimei', 'c.vehicle_name', 'a.lattitute', 'a.longitute', 'a.speed', 'a.odometer', 'a.device_datetime')
             ->orderBy('a.id', 'desc')
             ->get();
@@ -24,12 +27,16 @@ class AlertReportController extends Controller
         $response = ["success" => true, "data" => $results, "status_code" => 200];
         return response($response, 200);
     }
-    public function device_alert($device_imei)
+    public function device_alert(Request $request)
     {
-        $results = DB::table('alert_status as a')
+        $user_id =  $request->input('user_id');
+        $device_imei = $request->input('device_imei');
+
+        $results = DB::table('twings.live_notifications as a')
             ->join('twings.alert_types as b', 'a.alert_type_id', '=', 'b.id')
-            ->join('vehicles as c', 'a.deviceimei', '=', 'c.device_imei')
-            ->where('a.deviceimei', $device_imei)
+            ->join('twings.vehicles as c', 'a.deviceimei', '=', 'c.device_imei')
+            ->where('a.device_imei', $device_imei)
+            ->where('a.user_id', $user_id)
             ->select('a.alert_type_id', 'b.alert_type', 'a.deviceimei', 'c.vehicle_name', 'a.lattitute', 'a.longitute', 'a.speed', 'a.odometer', 'a.device_datetime')
             ->orderBy('a.id', 'desc')
             ->get();

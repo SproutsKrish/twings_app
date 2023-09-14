@@ -13,10 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('user_domains', function (Blueprint $table) {
+        Schema::create('user_api_keys', function (Blueprint $table) {
             $table->id();
-            $table->string('domain_name')->nullable();
-            $table->string('login_image')->nullable();
+            $table->bigInteger('user_id')->nullable();
+            $table->bigInteger('role_id')->nullable();
+            $table->bigInteger('domain_id')->nullable();
+            $table->string('api_key')->nullable();
             $table->timestamps();
             $table->bigInteger('created_by')->nullable();
             $table->bigInteger('updated_by')->nullable();
@@ -30,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_domains');
+        Schema::dropIfExists('user_api_keys');
     }
 };

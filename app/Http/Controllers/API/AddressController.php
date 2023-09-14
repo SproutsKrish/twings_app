@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Country;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class AddressController extends Controller
 {
@@ -44,4 +47,34 @@ class AddressController extends Controller
 
         return $address_data = json_decode($response, true);
     }
+
+    // public function logo(Request $request)
+    // {
+    //     //Validation Code
+    //     $validator = Validator::make($request->all(), [
+    //         'country_name' => 'required',
+    //         'short_name' => 'required',
+    //         'phone_code' => 'required',
+    //         'timezone_name' => 'required',
+    //         'timezone_offset' => 'required',
+    //         'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+    //         return response()->json($response, 403);
+    //     }
+
+    //     $fileName = time() . '.' . $request->image->extension();
+    //     $request->image->storeAs('public/images', $fileName);
+
+    //     $user = new Country();
+    //     $user->country_name = $request->input('country_name');
+    //     $user->short_name = $request->input('short_name');
+    //     $user->phone_code = $request->input('phone_code');
+    //     $user->timezone_name = $request->input('timezone_name');
+    //     $user->timezone_offset = $request->input('timezone_offset');
+    //     $user->timezone_minutes = $fileName;
+    //     $user->save();
+    // }
 }
