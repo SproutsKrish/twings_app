@@ -15,6 +15,11 @@ return new class extends Migration
     {
         Schema::create('user_domains', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('user_id')->nullable();
+            $table->bigInteger('role_id')->nullable();
+            $table->string('api_key')->nullable();
+            $table->string('domain_name')->nullable();
+            $table->string('login_image')->nullable();
             $table->timestamps();
         });
     }
