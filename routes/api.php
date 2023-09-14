@@ -157,10 +157,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('user_list', [UserController::class, 'user_list']);
     Route::post('role_based_user_list', [UserController::class, 'role_based_user_list']);
     Route::post('role_rights_list', [RoleRightsController::class, 'role_rights_list']);
-
-
     Route::post('user_point_list', [UserController::class, 'user_point_list']);
     Route::post('point_stock_list', [PointController::class, 'point_stock_list']);
+
     Route::controller(LicenseController::class)->group(function () {
         Route::post('user_license_list', 'user_license_list');
     });
@@ -170,9 +169,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::middleware('switch.database')->group(function () {
-        Route::get('current_link/{id}', [ShareLinkController::class, 'current_link']);
-        Route::get('live_link', [ShareLinkController::class, 'live_link']);
 
+        Route::get('live_link', [ShareLinkController::class, 'live_link']);
         Route::get('link_list', [ShareLinkController::class, 'link_list']);
         Route::get('link_show/{id}', [ShareLinkController::class, 'link_show']);
         Route::post('link_save', [ShareLinkController::class, 'link_save']);
@@ -214,10 +212,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::controller(AcReportController::class)->group(function () {
             Route::post('ac_report', 'ac_report');
         });
-        Route::controller(AlertReportController::class)->group(function () {
-            Route::post('all_alert', 'all_alert');
-            Route::post('device_alert', 'device_alert');
-        });
+
         Route::controller(TemperatureReportController::class)->group(function () {
             Route::post('temperature_report', 'temperature_report');
         });
@@ -240,14 +235,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::put('config/odometer_update/{id}', 'odometer_update');
             Route::put('config/speed_update/{id}', 'speed_update');
         });
+
         Route::controller(AlertNotificationController::class)->group(function () {
+            Route::post('alert_notifications_list', 'alert_notifications_list');
             Route::post('alert_notification/store', 'store');
+            Route::post('alert_notification/update', 'update');
         });
-        Route::controller(AlertNotificationController::class)->group(function () {
-            Route::get('alert_notifications_list', 'alert_notifications_list');
-        });
-        Route::controller(AssignGeofenceController::class)->group(function () {
-            Route::post('assigned_fence_list', 'assigned_fence_list');
+        Route::controller(AlertReportController::class)->group(function () {
+            Route::post('all_alert', 'all_alert');
+            Route::post('device_alert', 'device_alert');
         });
     });
 
