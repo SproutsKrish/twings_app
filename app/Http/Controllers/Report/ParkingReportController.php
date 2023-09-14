@@ -29,9 +29,9 @@ class ParkingReportController extends Controller
                 DB::raw("DATE_ADD(A.end_datetime, INTERVAL 330 MINUTE) as end_datetime"),
                 DB::raw("TIME_FORMAT(TIMEDIFF(A.end_datetime, A.start_datetime), '%H:%i:%s') as parking_duration")
             )
+            ->having('parking_duration', '>=', $request->input('duration'))
             ->orderBy('A.id', 'desc')
             ->get();
-
 
         if ($parkingReports->isEmpty()) {
             $response = ["success" => false, "message" => 'No Parking Data Found', "status_code" => 404];
