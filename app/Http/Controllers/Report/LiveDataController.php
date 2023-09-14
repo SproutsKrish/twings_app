@@ -15,8 +15,12 @@ class LiveDataController extends Controller
 {
     public function multi_dashboard(Request $request)
     {
-        $startDate = date('Y-m-d H:i:s', strtotime('-330 minutes'));
-        $endDate = date('Y-m-d H:i:s', strtotime('-330 minutes'));
+        // $startDate = date('Y-m-d H:i:s', strtotime('-330 minutes'));
+        // $endDate = date('Y-m-d H:i:s', strtotime('-330 minutes'));
+
+        $startDate = date('Y-m-d') . ' 00:00:00';
+        $endDate = date('Y-m-d H:i:s');
+
 
         $search = $request->input('search');
         if ($search == null) {
@@ -145,8 +149,12 @@ class LiveDataController extends Controller
 
     public function single_dashboard($device_imei)
     {
-        $startDate = date('Y-m-d H:i:s', strtotime('-330 minutes'));
-        $endDate = date('Y-m-d H:i:s', strtotime('-330 minutes'));
+        // $startDate = date('Y-m-d H:i:s', strtotime('-330 minutes'));
+        // $endDate = date('Y-m-d H:i:s', strtotime('-330 minutes'));
+
+        $startDate = date('Y-m-d') . ' 00:00:00';
+        $endDate = date('Y-m-d H:i:s');
+
 
         $result = DB::table('live_data as B')
             ->selectRaw('
