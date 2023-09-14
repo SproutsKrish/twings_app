@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('vehicle_types', function (Blueprint $table) {
             $table->id();
             $table->string('vehicle_type');
+            $table->string('short_name')->nullable();
             $table->tinyInteger('status')->nullable()->default(1);
             $table->timestamps();
             $table->softDeletes(); // Add this line to enable soft delete

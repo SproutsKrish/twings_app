@@ -18,10 +18,10 @@ class KeyOnKeyOffReportController extends Controller
         $result = DB::select("SELECT
         dt.vehicle_id,
         c.vehicle_name AS vehicle_name,
-        DATE_ADD(dt.start_datetime, INTERVAL 330 MINUTE) AS start_datetime,
+        dt.start_datetime AS start_datetime,
         dt.start_latitude,
         dt.start_longitude,
-        DATE_ADD(dt.end_datetime, INTERVAL 330 MINUTE) AS end_datetime,
+        dt.end_datetime AS end_datetime,
         dt.end_latitude,
         dt.end_longitude,
         FORMAT(MAX(t.speed), 2) AS max_speed,
@@ -32,6 +32,7 @@ class KeyOnKeyOffReportController extends Controller
         (
             SELECT
                 vehicle_id,
+                device_imei,
                 start_latitude,
                 start_longitude,
                 end_latitude,
@@ -49,6 +50,7 @@ class KeyOnKeyOffReportController extends Controller
     JOIN
         play_back_histories AS t
         ON DATE_ADD(t.device_datetime, INTERVAL 330 MINUTE) >= dt.start_datetime AND DATE_ADD(t.device_datetime, INTERVAL 330 MINUTE) <= dt.end_datetime
+        AND dt.device_imei = t.device_imei
     JOIN
         vehicles AS c
         ON c.id = dt.vehicle_id

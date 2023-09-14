@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Report;
 use App\Http\Controllers\Controller;
 use App\Models\AssignGeofence;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -26,10 +27,8 @@ class AssignGeofenceController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'vehicle_id' => 'required|max:255',
-            'client_id' => 'required|max:255',
-            'geofence_id' => 'required|max:255',
-            'fence_type' => 'required|max:255',
+            'device_imei' => 'required',
+            'geofence_id' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -38,6 +37,7 @@ class AssignGeofenceController extends Controller
         }
 
         $assign_geofence = new AssignGeofence($request->all());
+
         if ($assign_geofence->save()) {
             $response = ["success" => true, "message" => 'Geofence Assigned Successfully', "status_code" => 200];
             return response()->json($response, 200);
@@ -45,6 +45,24 @@ class AssignGeofenceController extends Controller
             $response = ["success" => false, "message" => 'Failed to Assign Geofence', "status_code" => 404];
             return response()->json($response, 404);
         }
+    }
+
+    public function assigned_fence_list(Request $request)
+    {
+        $device_imei = $request->input('device_imei');
+
+        $data = DB::table('assign_geofences as a')
+            ->join('geofences as b', 'a.geofence_id', '=', 'b.id')
+            ->where('a.device_imei', $device_imei)
+            ->select('*')
+            ->get();
+
+        if ($data->isEmpty()) {
+            $response = ["success" => false, "message" => 'Geofence Assigned List Not Found', "status_code" => 404];
+            return response()->json($response, 404);
+        }
+        $response = ["success" => true, "data" => $data, "status_code" => 200];
+        return response()->json($response, 200);
     }
 
     public function show($id)

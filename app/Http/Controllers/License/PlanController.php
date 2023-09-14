@@ -7,6 +7,7 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\Plan;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class PlanController extends BaseController
@@ -24,6 +25,56 @@ class PlanController extends BaseController
         }
 
         return $this->sendSuccess($plans);
+    }
+
+    public function user_plan_list(Request $request)
+    {
+        $user_id = $request->input('user_id');
+
+        $data = User::find($user_id);
+        $role_id = $data->role_id;
+
+        $dealer_id = null;
+        $subdealer_id = null;
+        if ($role_id == 4) {
+            $dealer_id = $data->dealer_id;
+
+            $results = DB::table('plans as a')
+                ->select('a.id', 'b.package_name', 'c.period_days')
+                ->join('packages as b', 'a.package_id', '=', 'b.id')
+                ->join('periods as c', 'a.period_id', '=', 'c.id')
+                ->whereIn('a.id', function ($query) use ($dealer_id) {
+                    $query->select('plan_id')
+                        ->from('points')
+                        ->where('total_point', '>=', 1)
+                        ->where('point_type_id', 1)
+                        ->where('dealer_id', $dealer_id)
+                        ->whereNull('subdealer_id');
+                })
+                ->get();
+        } else if ($role_id == 5) {
+            $subdealer_id = $data->subdealer_id;
+
+            $results = DB::table('plans as a')
+                ->select('a.id', 'b.package_name', 'c.period_days')
+                ->join('packages as b', 'a.package_id', '=', 'b.id')
+                ->join('periods as c', 'a.period_id', '=', 'c.id')
+                ->whereIn('a.id', function ($query) use ($subdealer_id) {
+                    $query->select('plan_id')
+                        ->from('points')
+                        ->where('total_point', '>=', 1)
+                        ->where('point_type_id', 1)
+                        ->where('subdealer_id', $subdealer_id);
+                })
+                ->get();
+        }
+        if (empty($results)) {
+            $response = ["success" => false, "message" => "No Datas Found", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => $results, "status_code" => 200];
+            return response()->json($response, 200);
+        }
     }
 
     public function store(Request $request)

@@ -13,8 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('test', function (Blueprint $table) {
-            $table->string("deviceimei")->nullable();
+        Schema::create('alert_types', function (Blueprint $table) {
+            $table->id();
+            $table->string('alert_type');
+            $table->tinyInteger('status')->nullable()->default(1);
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('test', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('alert_types');
     }
 };

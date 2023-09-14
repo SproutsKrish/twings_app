@@ -14,7 +14,8 @@ class Sim extends Model
     protected $fillable = [
         'network_id',
         'sim_imei_no',
-        'sim_mob_no',
+        'sim_mob_no1',
+        'sim_mob_no2',
         'valid_from',
         'valid_to',
         'purchase_date',

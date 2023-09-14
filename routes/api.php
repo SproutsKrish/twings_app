@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Middleware\CorsMiddleware;
+use App\Http\Controllers\API\AddressController;
+use App\Http\Controllers\API\AlertTypeController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\API\LoginController;
@@ -9,16 +10,14 @@ use App\Http\Controllers\API\PermissionController;
 use App\Http\Controllers\API\RoleHasPermissionController;
 use App\Http\Controllers\API\ModelHasRoleController;
 use App\Http\Controllers\API\ModelHasPermissionController;
-
 use App\Http\Controllers\API\ModuleController;
 use App\Http\Controllers\API\ParentMenuController;
 use App\Http\Controllers\API\ChildMenuController;
 use App\Http\Controllers\API\LanguageController;
 use App\Http\Controllers\API\ImportController;
-
 use App\Http\Controllers\API\CountryController;
 use App\Http\Controllers\API\RoleRightsController;
-use App\Http\Controllers\DemoReportController;
+
 use App\Http\Controllers\User\AdminController;
 use App\Http\Controllers\User\DistributorController;
 use App\Http\Controllers\User\DealerController;
@@ -32,9 +31,7 @@ use App\Http\Controllers\Stock\SupplierController;
 use App\Http\Controllers\Stock\CameraCategoryController;
 use App\Http\Controllers\Stock\CameraModelController;
 use App\Http\Controllers\Stock\CameraTypeController;
-use App\Http\Controllers\Stock\DeviceCategoryController;
 use App\Http\Controllers\Stock\DeviceModelController;
-use App\Http\Controllers\Stock\DeviceTypeController;
 use App\Http\Controllers\Stock\SimController;
 use App\Http\Controllers\Stock\DeviceController;
 use App\Http\Controllers\Stock\CameraController;
@@ -47,12 +44,12 @@ use App\Http\Controllers\Vehicle\VehicleTypeController;
 use App\Http\Controllers\License\PointTypeController;
 use App\Http\Controllers\License\PointController;
 use App\Http\Controllers\License\LicenseController;
-
 use App\Http\Controllers\License\FeatureController;
 use App\Http\Controllers\License\PackageController;
 use App\Http\Controllers\License\PeriodController;
 use App\Http\Controllers\License\PlanController;
 use App\Http\Controllers\License\RechargeController;
+
 use App\Http\Controllers\Report\AcReportController;
 use App\Http\Controllers\Report\AlertReportController;
 use App\Http\Controllers\Report\AssignGeofenceController;
@@ -64,12 +61,12 @@ use App\Http\Controllers\Report\KeyOnKeyOffReportController;
 use App\Http\Controllers\Report\LiveDataController;
 use App\Http\Controllers\Report\OverSpeedReportController;
 use App\Http\Controllers\Report\ParkingReportController;
-use App\Http\Controllers\Report\PlaybackHistoryController;
 use App\Http\Controllers\Report\PlaybackReportController;
-use App\Http\Controllers\Report\RouteDeviationController;
 use App\Http\Controllers\Report\RoutedeviationReportController;
 use App\Http\Controllers\Report\TemperatureReportController;
 use App\Http\Controllers\Report\TripPlanReportController;
+use App\Http\Controllers\Stock\DeviceMakeController;
+use App\Http\Controllers\VehicleSetting\AlertNotificationController;
 use App\Http\Controllers\VehicleSetting\ConfigurationController;
 use App\Http\Controllers\VehicleSetting\NotificationController;
 use App\Http\Controllers\VehicleSetting\ShareLinkController;
@@ -85,30 +82,92 @@ use App\Http\Controllers\VehicleSetting\ShareLinkController;
 |
 */
 
-Route::controller(VehicleController::class)->group(function () {
-    Route::get('vehicle_list', 'index');
-});
+// Route::controller(VehicleController::class)->group(function () {
+//     Route::get('vehicle_list', 'index');
+// });
 
 
 Route::controller(LoginController::class)->group(function () {
     Route::post('login', 'login');
 });
 
-Route::middleware(['cors', 'auth:sanctum'])->group(function () {
+Route::controller(UserController::class)->group(function () {
+    Route::post('mymethod', 'mymethod');
+});
+
+
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('change_user_password', [UserController::class, 'change_user_password']);
+
+    Route::controller(SimController::class)->group(function () {
+        Route::post('sim_list', 'sim_list');
+    });
+    Route::controller(SimController::class)->group(function () {
+        Route::post('sim/store', 'store');
+    });
+    Route::controller(SimController::class)->group(function () {
+        Route::post('sim/update', 'update');
+    });
+    Route::controller(SimController::class)->group(function () {
+        Route::post('sim_transfer', 'sim_transfer');
+    });
+    Route::controller(SimController::class)->group(function () {
+        Route::post('sim_stock_list', 'sim_stock_list');
+    });
+
+    Route::controller(DeviceController::class)->group(function () {
+        Route::post('device_list', 'device_list');
+    });
+    Route::controller(DeviceController::class)->group(function () {
+        Route::post('device/store', 'store');
+    });
+    Route::controller(DeviceController::class)->group(function () {
+        Route::post('device/update', 'update');
+    });
+    Route::controller(DeviceController::class)->group(function () {
+        Route::post('device_transfer', 'device_transfer');
+    });
+    Route::controller(DeviceController::class)->group(function () {
+        Route::post('device_stock_list', 'device_stock_list');
+    });
+    Route::controller(AlertTypeController::class)->group(function () {
+        Route::get('get_alert_list', 'get_alert_list');
+    });
+
+
     Route::controller(UserController::class)->group(function () {
         Route::get('user/yourMethod', 'yourMethod');
     });
+    Route::controller(LiveDataController::class)->group(function () {
+        Route::post('role_based_vehicle_count', 'role_based_vehicle_count');
+    });
+
+    Route::controller(UserController::class)->group(function () {
+        Route::post('user/store', 'store');
+        Route::post('user/update', 'update');
+        Route::get('user', 'index');
+        Route::get('user/show/{id}', 'show');
+        Route::delete('user/delete/{id}', 'destroy');
+        Route::get('user/details', 'showdetails');
+    });
+
+    Route::post('user_list', [UserController::class, 'user_list']);
+    Route::post('role_based_user_list', [UserController::class, 'role_based_user_list']);
+    Route::post('role_rights_list', [RoleRightsController::class, 'role_rights_list']);
+
+
+    Route::post('user_point_list', [UserController::class, 'user_point_list']);
+    Route::post('point_stock_list', [PointController::class, 'point_stock_list']);
+    Route::controller(LicenseController::class)->group(function () {
+        Route::post('user_license_list', 'user_license_list');
+    });
+
+    Route::controller(PlanController::class)->group(function () {
+        Route::post('user_plan_list', 'user_plan_list');
+    });
 
     Route::middleware('switch.database')->group(function () {
-        Route::controller(UserController::class)->group(function () {
-            Route::post('user/store', 'store');
-            Route::get('user', 'index');
-            Route::get('user/show/{id}', 'show');
-            Route::post('user/update', 'update');
-            Route::delete('user/delete/{id}', 'destroy');
-            Route::get('user/details', 'showdetails');
-        });
-
         Route::get('current_link/{id}', [ShareLinkController::class, 'current_link']);
         Route::get('live_link', [ShareLinkController::class, 'live_link']);
 
@@ -116,12 +175,6 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
         Route::get('link_show/{id}', [ShareLinkController::class, 'link_show']);
         Route::post('link_save', [ShareLinkController::class, 'link_save']);
         Route::delete('delete_link/{id}', [ShareLinkController::class, 'destroy']);
-
-
-        Route::post('user_list', [UserController::class, 'user_list']);
-        Route::post('user_point_list', [UserController::class, 'user_point_list']);
-        Route::post('role_based_user_list', [UserController::class, 'role_based_user_list']);
-        Route::post('point_stock_list', [PointController::class, 'point_stock_list']);
 
         Route::controller(LiveDataController::class)->group(function () {
             Route::get('multi_dashboard', 'multi_dashboard');
@@ -150,37 +203,12 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
         Route::controller(OverSpeedReportController::class)->group(function () {
             Route::post('speed_report', 'speed_report');
         });
-
-        Route::controller(OverSpeedReportController::class)->group(function () {
-            Route::get('demo_app', 'demo_app');
-        });
-
-        Route::resource('geo_fence', GeofenceController::class);
-        Route::resource('assign_geo_fence', AssignGeofenceController::class);
         Route::controller(GeofenceReportController::class)->group(function () {
             Route::post('geofence_report', 'geofence_report');
         });
-
         Route::controller(TripPlanReportController::class)->group(function () {
             Route::post('trip_plan_report', 'trip_plan_report');
         });
-        Route::resource('trip_plan', TripPlanReportController::class);
-
-
-        Route::controller(NotificationController::class)->group(function () {
-            Route::get('notify/show', 'show');
-            Route::put('notify/update/{id}', 'update');
-        });
-        Route::controller(ConfigurationController::class)->group(function () {
-            Route::post('config/store', 'store');
-            Route::get('config/show', 'show');
-            Route::put('config/update/{id}', 'update');
-            Route::put('config/immobilizer_option/{id}', 'immobilizer_option');
-            Route::put('config/safe_parking/{id}', 'safe_parking');
-            Route::put('config/odometer_update/{id}', 'odometer_update');
-            Route::put('config/speed_update/{id}', 'speed_update');
-        });
-
         Route::controller(AcReportController::class)->group(function () {
             Route::post('ac_report', 'ac_report');
         });
@@ -194,6 +222,31 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
         Route::controller(VehicleController::class)->group(function () {
             Route::put('change_vehicletype/{id}', 'change_vehicletype');
         });
+        Route::resource('geo_fence', GeofenceController::class);
+        Route::resource('assign_geo_fence', AssignGeofenceController::class);
+        Route::resource('trip_plan', TripPlanReportController::class);
+
+        Route::controller(NotificationController::class)->group(function () {
+            Route::get('notify/show', 'show');
+            Route::put('notify/update/{id}', 'update');
+        });
+        Route::controller(ConfigurationController::class)->group(function () {
+            Route::get('config/show', 'show');
+            Route::put('config/update/{id}', 'update');
+            Route::put('config/immobilizer_option/{id}', 'immobilizer_option');
+            Route::put('config/safe_parking/{id}', 'safe_parking');
+            Route::put('config/odometer_update/{id}', 'odometer_update');
+            Route::put('config/speed_update/{id}', 'speed_update');
+        });
+        Route::controller(AlertNotificationController::class)->group(function () {
+            Route::post('alert_notification/store', 'store');
+        });
+        Route::controller(AlertNotificationController::class)->group(function () {
+            Route::get('alert_notifications_list', 'alert_notifications_list');
+        });
+        Route::controller(AssignGeofenceController::class)->group(function () {
+            Route::post('assigned_fence_list', 'assigned_fence_list');
+        });
     });
 
     Route::controller(LoginController::class)->group(function () {
@@ -204,21 +257,22 @@ Route::middleware(['cors', 'auth:sanctum'])->group(function () {
         Route::resource('country', CountryController::class);
         Route::resource('permission', PermissionController::class);
         Route::resource('role', RoleController::class);
-
-
         Route::resource('role_right', RoleRightsController::class);
-    });
-
-
-    Route::group(['middleware' => ['auth', 'checkrole:4,5']], function () {
         Route::resource('vehicle', VehicleController::class);
+
+        Route::controller(ConfigurationController::class)->group(function () {
+            Route::post('config/store', 'store');
+            Route::post('config/show', 'show');
+        });
+
+        Route::controller(LiveDataController::class)->group(function () {
+            Route::post('client_multi_dashboard', 'client_multi_dashboard');
+            Route::post('client_single_dashboard', 'client_single_dashboard');
+            Route::post('client_vehicle_count', 'client_vehicle_count');
+        });
     });
-});
-
-Route::get('role_rights_list/{role_id}', [RoleRightsController::class, 'role_rights_list']);
-
-Route::controller(LicenseController::class)->group(function () {
-    Route::post('user_license_list', 'user_license_list');
+    Route::group(['middleware' => ['auth', 'checkrole:4,5']], function () {
+    });
 });
 
 //Role Has Permissions
@@ -239,6 +293,8 @@ Route::get('users/rolebyuser/{id}', [ModelHasRoleController::class, 'role_user']
 Route::get('users/usersbyrole/{id}', [ModelHasRoleController::class, 'users_role']);
 Route::put('users/roleupdate/{id}', [ModelHasRoleController::class, 'user_role_update']);
 
+Route::post('vehicle_list', [VehicleController::class, 'vehicle_list']);
+
 Route::resource('admin', AdminController::class);
 Route::resource('distributor', DistributorController::class);
 Route::resource('dealer', DealerController::class);
@@ -249,9 +305,8 @@ Route::resource('vehicle_owner', VehicleOwnerController::class);
 Route::resource('network', NetworkProviderController::class);
 Route::resource('supplier', SupplierController::class);
 
-Route::resource('device_type', DeviceTypeController::class);
-Route::resource('device_category', DeviceCategoryController::class);
 Route::resource('device_model', DeviceModelController::class);
+Route::resource('device_make', DeviceMakeController::class);
 
 Route::resource('camera_type', CameraTypeController::class);
 Route::resource('camera_category', CameraCategoryController::class);
@@ -278,16 +333,22 @@ Route::resource('module', ModuleController::class);
 Route::resource('parent_menu', ParentMenuController::class);
 Route::resource('child_menu', ChildMenuController::class);
 
-Route::get('greeting', [LanguageController::class, 'index'])
-    ->middleware('localization');
-
-
 Route::post('sim_import', [ImportController::class, 'sim_import']);
 Route::post('device_import', [ImportController::class, 'device_import']);
 Route::post('camera_import', [ImportController::class, 'camera_import']);
 Route::post('user_import', [ImportController::class, 'user_import']);
-
 Route::post('recharge', [RechargeController::class, 'recharge']);
-
+Route::post('generate_fcm_token', [LoginController::class, 'generate_fcm_token']);
 Route::put('sim_assign/{id}', [SimController::class, 'sim_assign']);
 Route::put('device_assign/{id}', [DeviceController::class, 'device_assign']);
+
+//App Contact
+Route::get('contact_address/{id}', [ClientController::class, 'contact_address']);
+Route::post('live_address', [AddressController::class, 'live_address']);
+
+Route::post('sim_new', [SimController::class, 'sim_new']);
+
+
+//Not Use
+Route::get('greeting', [LanguageController::class, 'index'])
+    ->middleware('localization');

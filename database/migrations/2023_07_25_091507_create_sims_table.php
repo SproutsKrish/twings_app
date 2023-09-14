@@ -18,7 +18,8 @@ return new class extends Migration
 
             $table->bigInteger('network_id')->nullable();
             $table->string('sim_imei_no')->nullable();
-            $table->string('sim_mob_no')->nullable();
+            $table->string('sim_mob_no1')->nullable();
+            $table->string('sim_mob_no2')->nullable();
             $table->date('valid_from')->nullable();
             $table->date('valid_to')->nullable();
             $table->date('purchase_date')->nullable();

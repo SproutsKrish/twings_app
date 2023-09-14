@@ -28,6 +28,8 @@ return new class extends Migration
             $table->string('distributor_state')->nullable();
             $table->integer('distributor_pincode')->nullable();
 
+            $table->string('distributor_domain')->nullable();
+
             $table->bigInteger('user_id')->nullable();
             $table->bigInteger('admin_id')->nullable();
             $table->tinyInteger('status')->nullable()->default(1);

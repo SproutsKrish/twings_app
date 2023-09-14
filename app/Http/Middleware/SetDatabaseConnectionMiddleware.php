@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Tenant;
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -43,8 +44,25 @@ class SetDatabaseConnectionMiddleware
             DB::purge('mysql');
             DB::reconnect('mysql');
             DB::setDefaultConnection('mysql');
-        }
+        } else {
+            $client_data = User::find($request->user_id);
+            $tenantData = json_decode(Tenant::find($client_data->client_id), true);
+            $tenantDbName = $tenantData['tenancy_db_name'];
+            // dd($tenantDbName);
 
+            // Assuming the tenant model has a `tenancy_db_name` attribute to get the tenant's database name
+            // $tenantDbName = $tenant->tenancy_db_name;
+
+            // Switch the database connection to the tenant's database
+            config([
+                'database.connections.mysql.database' => $tenantDbName,
+            ]);
+
+            // Purge the connection, reconnect, and set the default connection to the tenant's database
+            DB::purge('mysql');
+            DB::reconnect('mysql');
+            DB::setDefaultConnection('mysql');
+        }
         return $next($request);
     }
 }

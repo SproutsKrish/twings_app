@@ -106,11 +106,11 @@ return [
             'strict' => true,
             'engine' => null,
         ],
-        'twings_api' => [
+        'twings' => [
             'driver' => 'mysql', // Or any other supported database driver
             'host' => "localhost",
             'port' => env('TWINGS_API_DB_PORT', '3306'),
-            'database' => "twings_api",
+            'database' => "twings",
             'username' => "root",
             'password' => "",
             // Other configuration options...

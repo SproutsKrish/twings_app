@@ -13,8 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('test', function (Blueprint $table) {
+        Schema::create('alert_notifications', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('client_id')->nullable();
+            $table->bigInteger('alert_type_id')->nullable();
+            $table->tinyInteger('user_status')->nullable();
+            $table->tinyInteger('active_status')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('test');
+        Schema::dropIfExists('alert_notifications');
     }
 };

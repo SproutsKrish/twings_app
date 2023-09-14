@@ -66,13 +66,4 @@ class OverSpeedReportController extends Controller
         $response = ["success" => true, "data" => $result, "status_code" => 200];
         return response($response, 200);
     }
-
-    public function demo_app()
-    {
-        $vehicles = DB::table('vehicles as a')
-            ->join('twings_api.vehicle_types as b', 'a.vehicle_type_id', '=', 'b.id')
-            ->select('a.*', 'b.*')
-            ->get();
-        dd($vehicles);
-    }
 }

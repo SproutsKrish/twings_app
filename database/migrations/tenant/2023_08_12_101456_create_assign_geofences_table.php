@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id()->comments('Auto-incrementing primary key');
             $table->bigInteger('client_id')->nullable()->comments('Stores the ID of the associated client, can be null');
             $table->bigInteger('vehicle_id')->nullable()->comments('Stores the ID of the associated vehicle, can be null');
+            $table->bigInteger('device_imei')->nullable();
             $table->bigInteger('geofence_id')->nullable()->comments('Stores the ID of the associated geofence, can be null');
             $table->enum('fence_type', ['Geofence', 'Vehiclefence'])->default('Geofence')
                 ->comments('Type of fence: "Geofence" or "Vehiclefence", default is "Geofence"');

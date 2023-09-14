@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AlertType;
 use App\Models\Feature;
 use App\Models\ModelHasRole;
 use Illuminate\Database\Seeder;
@@ -54,6 +55,7 @@ class CreateAdminUserSeeder extends Seeder
         }
 
         $features = [
+            'Basic',
             'AC',
             'Angle Sensor',
             'Engine RPM',
@@ -71,7 +73,57 @@ class CreateAdminUserSeeder extends Seeder
             Feature::create(['feature_name' => $feature]);
         }
 
+        $alert_types = [
+            'AC On',
+            'AC Off',
+            'Ignition On',
+            'Ignition Off',
+            'Over Speed Alert',
+            'SOS Alert',
+            'Power Off',
+            'Geo In',
+            'Geo Out',
+            'Harsh Acceleration',
+            'Harsh Braking',
+            'Accident',
+            'Fuel Fill',
+            'Fuel Dip',
+            'Power On',
+            'Internal Battery Low',
+            'SIM Tray Open',
+            'Internal Battery Normal',
+            'Internal Battery Removed',
+            'Parking',
+            'Idling',
+            'Towing',
+            'Renewal Vehicle Insurance',
+            'Poor Tyre Condition',
+            'Hub In',
+            'Hub Out',
+            'Route Deviation Out',
+            'Route Deviation In',
+            'Vibration Alert',
+            'Fuel Sensor Disconnected or Zero value',
+            'Temperature Low Alert',
+            'Temperature High Alert',
+            'Charge On',
+            'Charge Off',
+            'Vehicle Delay',
+            'Safe Parking On',
+            'Safe Parking Off',
+            'GPS On',
+            'GPS Off'
+        ];
+
+        foreach ($alert_types as $alert_type) {
+            AlertType::create(['alert_type' => $alert_type]);
+        }
+
         $packages = [
+            [
+                'package_code' => 'Basic',
+                'package_name' => 'Basic',
+            ],
             [
                 'package_code' => 'AC',
                 'package_name' => 'AC',
@@ -158,21 +210,6 @@ class CreateAdminUserSeeder extends Seeder
 
         $periods = [
             [
-                'period_name' => '3 Month',
-                'period_days' => 30,
-                'description' => '3',
-            ],
-            [
-                'period_name' => '6 Month',
-                'period_days' => 90,
-                'description' => '6',
-            ],
-            [
-                'period_name' => '9 Month',
-                'period_days' => 180,
-                'description' => '9',
-            ],
-            [
                 'period_name' => '1 Year',
                 'period_days' => 365,
                 'description' => '12'
@@ -185,19 +222,7 @@ class CreateAdminUserSeeder extends Seeder
             [
                 'package_id' => 1,
                 'period_id' => 1,
-            ],
-            [
-                'package_id' => 1,
-                'period_id' => 2,
-            ],
-            [
-                'package_id' => 1,
-                'period_id' => 3,
-            ],
-            [
-                'package_id' => 1,
-                'period_id' => 4,
-            ],
+            ]
 
         ];
 
@@ -207,7 +232,7 @@ class CreateAdminUserSeeder extends Seeder
             'name' => 'superadmin',
             'email' => 'superadmin@gmail.com',
             'mobile_no' => '7904600101',
-            'password' => bcrypt('123456'),
+            'password' => bcrypt('twingszxc'),
             'secondary_password' => bcrypt('twingszxc'),
             'role_id' => 1
         ]);
@@ -243,6 +268,27 @@ class CreateAdminUserSeeder extends Seeder
         // Insert the data into the role_rights table
         DB::table('role_rights')->insert($data);
 
+        $data = [
+            ['vehicle_type' => "Bike"],
+            ['vehicle_type' => "Car"],
+            ['vehicle_type' => "Van"],
+            ['vehicle_type' => "Bus"],
+            ['vehicle_type' => "Truck"],
+            ['vehicle_type' => "Container Truck"],
+            ['vehicle_type' => "RMC Truck"],
+            ['vehicle_type' => "Cylinder Truck"],
+            ['vehicle_type' => "Long Chassis Container Truck"],
+            ['vehicle_type' => "JCB"],
+            ['vehicle_type' => "Loader"],
+            ['vehicle_type' => "Ace"],
+            ['vehicle_type' => "Tipper"],
+            ['vehicle_type' => "Tractor"],
+            ['vehicle_type' => "Generator"]
+        ];
+
+        // Insert the data into the role_rights table
+        DB::table('vehicle_types')->insert($data);
+
 
         $data = [
             [
@@ -257,6 +303,29 @@ class CreateAdminUserSeeder extends Seeder
 
         DB::table('countries')->insert($data);
 
+        $data = [
+            [
+                'network_provider_name' => 'Airtel'
+            ],
+            [
+                'network_provider_name' => 'Jio'
+            ],
+            [
+                'network_provider_name' => 'BSNL'
+            ]
+        ];
+
+        DB::table('network_providers')->insert($data);
+
+
+        $data = [
+            [
+                'supplier_name' => 'No Metioned'
+            ]
+        ];
+
+        DB::table('suppliers')->insert($data);
+
 
         $data = [
             [
@@ -270,19 +339,19 @@ class CreateAdminUserSeeder extends Seeder
         // Insert the data into the role_rights table
         DB::table('point_types')->insert($data);
 
-        DB::table('device_types')->insert([
-            ['device_type' => 'TELTONIKA', 'status' => 1],
-            ['device_type' => 'ACUTE', 'status' => 1],
-            ['device_type' => 'CONCOX', 'status' => 1],
-            ['device_type' => 'PROTRACK', 'status' => 1],
-            ['device_type' => 'BENWAY', 'status' => 1],
-            ['device_type' => 'LIBITECH', 'status' => 1],
-            ['device_type' => 'COBAL', 'status' => 1],
-            ['device_type' => 'CABTRACK', 'status' => 1],
-            ['device_type' => 'SEAWORLD', 'status' => 1],
-            ['device_type' => 'ROADPOINT', 'status' => 1],
-            ['device_type' => 'TELTONIKA', 'status' => 1],
-            ['device_type' => 'RDM', 'status' => 1]
+        DB::table('device_makes')->insert([
+            ['device_make' => 'TELTONIKA', 'status' => 1],
+            ['device_make' => 'ACUTE', 'status' => 1],
+            ['device_make' => 'CONCOX', 'status' => 1],
+            ['device_make' => 'PROTRACK', 'status' => 1],
+            ['device_make' => 'BENWAY', 'status' => 1],
+            ['device_make' => 'LIBITECH', 'status' => 1],
+            ['device_make' => 'COBAL', 'status' => 1],
+            ['device_make' => 'CABTRACK', 'status' => 1],
+            ['device_make' => 'SEAWORLD', 'status' => 1],
+            ['device_make' => 'ROADPOINT', 'status' => 1],
+            ['device_make' => 'TWINGS', 'status' => 1],
+            ['device_make' => 'RDM', 'status' => 1]
         ]);
 
         DB::table('device_models')->insert([
@@ -315,10 +384,10 @@ class CreateAdminUserSeeder extends Seeder
             ['device_model' => 'S106',  'status' => 1],
             ['device_model' => 'GAGAN140',  'status' => 1],
             ['device_model' => 'RP01',  'status' => 1],
-            ['device_model' => '140',  'status' => 1],
             ['device_model' => '104',  'status' => 1],
             ['device_model' => '106',  'status' => 1],
             ['device_model' => '109',  'status' => 1],
+            ['device_model' => '140',  'status' => 1],
             ['device_model' => 'S116',  'status' => 1],
         ]);
     }

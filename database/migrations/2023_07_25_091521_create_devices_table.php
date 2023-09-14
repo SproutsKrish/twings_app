@@ -16,16 +16,12 @@ return new class extends Migration
         Schema::create('devices', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('supplier_id')->nullable();
-            $table->bigInteger('device_type_id');
-            $table->bigInteger('device_category_id');
+            $table->bigInteger('device_make_id');
             $table->bigInteger('device_model_id');
 
             $table->string('device_imei_no', 30);
             $table->string('ccid', 60)->nullable();
             $table->string('uid', 60)->nullable();
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
-            $table->string('sensor_name', 20);
             $table->date('purchase_date')->nullable();
 
             $table->bigInteger('admin_id')->nullable();

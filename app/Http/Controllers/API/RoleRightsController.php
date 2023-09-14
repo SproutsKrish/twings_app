@@ -22,22 +22,38 @@ class RoleRightsController extends BaseController
         return $this->sendSuccess($role_rights);
     }
 
-    public function role_rights_list($role_id)
+    public function role_rights_list(Request $request)
     {
-        $roleRights = DB::table('role_rights')
-            ->where('role_id', $role_id)
-            ->pluck('rights_id');
+        // $roleRights = DB::table('role_rights')
+        //     ->where('role_id', $role_id)
+        //     ->pluck('rights_id');
 
 
-        $roles = DB::table('roles')
-            ->whereIn('id', $roleRights->toArray())
-            ->get();
+        // $roles = DB::table('roles')
+        //     ->whereIn('id', $roleRights->toArray())
+        //     ->get();
 
-        if ($roles->isEmpty()) {
-            return $this->sendError('No Role Rights Found');
+        $role_id = $request->input('role_id');
+
+        if ($role_id <= 5) {
+            $roles = DB::table('roles')
+                ->where('id', '>', $role_id)
+                ->where('id', '!=', 7)
+                ->where('id', '!=', 8)
+                ->get();
+        } else {
+            $roles = DB::table('roles')
+                ->where('id', '>', $role_id)
+                ->get();
         }
 
-        return $this->sendSuccess($roles);
+        if ($roles->isEmpty()) {
+            $response = ["success" => false, "message" => "No Role Rights Found", "status_code" => 404];
+            return response()->json($response, 404);
+        }
+
+        $response = ["success" => true, "data" => $roles, "status_code" => 200];
+        return response()->json($response, 200);
     }
 
     public function store(Request $request)

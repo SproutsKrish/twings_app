@@ -29,7 +29,7 @@ return new class extends Migration
             $table->tinyInteger('status')->nullable()->default(1);
 
             $table->timestamps();
-            $table->softDeletes(); // Use soft delete to handle deletion gracefully
+            $table->softDeletes();
 
             $table->integer('created_by')->unsigned()->nullable();
             $table->integer('updated_by')->unsigned()->nullable();

@@ -13,13 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('device_types', function (Blueprint $table) {
+        Schema::create('alert_notifications', function (Blueprint $table) {
             $table->id();
-            $table->string('device_type');
-            $table->tinyInteger('status')->nullable()->default(1);
-
+            $table->bigInteger('user_id')->nullable();
+            $table->bigInteger('client_id')->nullable();
+            $table->bigInteger('alert_type_id')->nullable();
+            $table->tinyInteger('user_status')->nullable();
+            $table->tinyInteger('active_status')->nullable();
             $table->timestamps();
-            $table->softDeletes(); // Add this line to enable soft delete
+            $table->softDeletes();
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
             $table->integer('deleted_by')->nullable();
@@ -34,6 +36,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('device_types');
+        Schema::dropIfExists('alert_notifications');
     }
 };

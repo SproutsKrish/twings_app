@@ -20,7 +20,7 @@ return new class extends Migration
             $table->double('longitute', 10, 6)->nullable();
             $table->tinyInteger('ignition')->default(0);
             $table->tinyInteger('ac_status')->default(0);
-            $table->double('speed', 8, 2)->default(0.00);
+            $table->double('speed')->default(0);
             $table->smallInteger('angle')->default(0);
             $table->datetime('device_datetime')->nullable();
             $table->double('distance_with_odometer')->default(0);

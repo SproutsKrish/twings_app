@@ -28,6 +28,8 @@ return new class extends Migration
             $table->string('admin_state')->nullable();
             $table->integer('admin_pincode')->nullable();
 
+            $table->string('admin_domain')->nullable();
+
             $table->bigInteger('user_id')->nullable();
 
             $table->tinyInteger('status')->nullable()->default(1);

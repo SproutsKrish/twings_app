@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\API\BaseController as BaseController;
-
+use App\Models\FcmConfiguration;
+use App\Models\PushNotification;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
@@ -42,7 +43,15 @@ class LoginController extends BaseController
 
                 if ($passwordMatches) {
                     $data['token'] = $user->createToken('API Token')->plainTextToken;
+                    $string = $data['token'];
+                    $pipePosition = strpos($string, "|");
+
+                    if ($pipePosition !== false) {
+                        $token_id = substr($string, 0, $pipePosition);
+                    }
+                    $data['token_id'] = $token_id;
                     $data['user'] = $user;
+
                     $response = ["success" => true, "data" => $data, "status_code" => 200];
                     return response($response, 200);
                 } else {
@@ -61,8 +70,6 @@ class LoginController extends BaseController
 
     public function logout(Request $request)
     {
-
-
         try {
             if ($request->user()) {
                 $token_id = $request->user()->currentAccessToken()->id;
@@ -73,6 +80,36 @@ class LoginController extends BaseController
         } catch (Exception $e) {
             $response = ["success" => false, "message" => $e->getMessage(), "status_code" => 401];
             return response($response, 401);
+        }
+    }
+
+    public function generate_fcm_token(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'mobile_type' => 'required',
+            'mobile_model' => 'required',
+            'application_name' => 'required',
+            'server_key' => 'required',
+            'fcm_token' => 'required',
+            'access_token' => 'required',
+            'token_id' => 'required',
+            'user_id' => 'required',
+            'client_id' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+            return response()->json($response, 403);
+        }
+
+        $data = new FcmConfiguration($request->all());
+
+        if ($data->save()) {
+            $response = ["success" => true, "message" => "Inserted", "status_code" => 200];
+            return response()->json($response, 200);
+        } else {
+            $response = ["success" => false, "message" => "Not Insert", "status_code" => 404];
+            return response()->json($response, 404);
         }
     }
 }

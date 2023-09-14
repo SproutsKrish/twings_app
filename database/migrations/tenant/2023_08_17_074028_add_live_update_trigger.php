@@ -280,9 +280,7 @@ END IF;
 /* END - PLAYBACK HISTORY*/
 /* END - GENERIC REPORT*/
 
-END
-
-        ");
+       END");
     }
 
     /**

@@ -4,60 +4,72 @@ namespace App\Http\Controllers\VehicleSetting;
 
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\Configuration;
+use App\Models\CustomerConfiguration;
 use App\Models\EnginePassword;
 use App\Models\LiveData;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Config;
 
 class ConfigurationController extends BaseController
 {
     public function store(Request $request)
     {
-        $client_id = auth()->user()->client_id;
+        $vehicle_id = $request->input('vehicle_id');
+        $device_imei = $request->input('device_imei');
 
-        Configuration::create([
-            'client_id' => $client_id,
-            'vehicle_id' => $request->input('vehicle_id'),
-            'parking_alert_time' => $request->input('parking_alert_time'),
-            'idle_alert_time' => $request->input('idle_alert_time'),
-            'speed_limit' => $request->input('speed_limit'),
-            'expected_mileage' => $request->input('expected_mileage'),
-            'idle_rpm' => $request->input('idle_rpm'),
-            'max_rpm' => $request->input('max_rpm'),
-            'temp_low' => $request->input('temp_low'),
-            'temp_high' => $request->input('temp_high'),
-            'fuel_fill_limit' => $request->input('fuel_fill_limit'),
-            'fuel_dip_limit' => $request->input('fuel_dip_limit')
-        ]);
+        $configuration = Configuration::where('vehicle_id', $vehicle_id)
+            ->where('device_imei', $device_imei)
+            ->first();
 
-        return $this->sendSuccess("Configuration Updated Successfully");
-    }
-
-
-    public function show(Request $request)
-    {
-        $client_id = auth()->user()->client_id;
-
-        return $this->sendSuccess($client_id);
-
-        $configuration = Configuration::where('client_id', $client_id)
-            ->where('vehicle_id', $request->input('vehicle_id'))
-            ->get();
-
-        if ($configuration->isEmpty()) {
-            Configuration::create([
-                'client_id' => $client_id,
-                'vehicle_id' => $request->input('vehicle_id'),
-            ]);
-            $configuration = Configuration::where('client_id', $client_id)->get();
+        if (!$configuration) {
+            return response()->json(['message' => 'Configuration not found'], 404);
         }
 
-        return $this->sendSuccess($configuration);
+        $input = $request->all();
+
+        // Update the configuration with the new data
+        $data =   $configuration->update($input);
+
+        $result = CustomerConfiguration::where('client_id', $configuration->client_id)
+            ->first();
+
+        // Specify the dynamic connection configuration
+        $connectionName = $result->db_name;
+        $connectionConfig = [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST'), // Use the environment variable for host
+            'port' => env('DB_PORT'), // Use the environment variable for port
+            'database' => $result->db_name,   // Change this to the actual database name
+            'username' => env('DB_USERNAME'), // Use the environment variable for username
+            'password' => env('DB_PASSWORD'), // Use the environment variable for password
+            // Add any other connection parameters you need
+        ];
+
+        // Use the dynamic connection configuration to connect to the database
+        Config::set("database.connections.$connectionName", $connectionConfig);
+        DB::purge($connectionName); // Clear the connection cache
+
+        DB::connection($connectionName)->table('configurations')->where('device_imei', $configuration->device_imei)->update($input);
+
+        return response()->json("OK");
     }
+    public function show(Request $request)
+    {
+        $configuration = Configuration::where('device_imei', $request->input('device_imei'))
+            ->where('vehicle_id', $request->input('vehicle_id'))
+            ->first();
 
-
+        if (empty($configuration)) {
+            $response = ["success" => false, "message" => "No Datas Found", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => $configuration, "status_code" => 200];
+            return response()->json($response, 200);
+        }
+    }
     public function update(Request $request, $id)
     {
         $configuration = Configuration::find($id);
@@ -72,72 +84,75 @@ class ConfigurationController extends BaseController
             return $this->sendError('Failed to Update Configuration');
         }
     }
-
-
-    public function safe_parking(Request $request, $id)
+    public function safe_parking(Request $request, $device_imei)
     {
-        $vehicle = Vehicle::where('device_imei', '=', $id)->first();
+        $vehicle = Vehicle::where('device_imei', $device_imei)->first();
 
         if (!$vehicle) {
-            return $this->sendError('Vehicle Not Found');
+            $response = ["success" => false, "message" => "Vehicle Not Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
         $validator = Validator::make($request->all(), [
-            'safe_parking' => 'required|max:255',
+            'safe_parking' => 'required',
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+            return response()->json($response, 403);
         }
 
         if ($vehicle->update($request->all())) {
-            return $this->sendSuccess("Vehicle Safe Parking Successfully");
+            $response = ["success" => false, "message" => "Safe Parking Successfully", "status_code" => 200];
+            return response()->json($response, 200);
         } else {
-            return $this->sendError('Failed to Update Vehicle');
+            $response = ["success" => false, "message" => "Failed to Update Safe Parking", "status_code" => 404];
+            return response()->json($response, 404);
         }
     }
-    public function immobilizer_option(Request $request, $id)
+    public function immobilizer_option(Request $request, $device_imei)
     {
         $validator = Validator::make($request->all(), [
-            'engine_password' => 'required|max:255',
+            'engine_password' => 'required',
         ]);
 
-        $engine_password = $request->input('engine_password');
-        $enginePasswords = EnginePassword::where('engine_password',  $engine_password)->first();
+        $enginePasswords = EnginePassword::where('engine_password', $request->input('engine_password'))->first();
 
         if (!empty($enginePasswords)) {
-            $vehicle = Vehicle::where('device_imei', '=', $id)->first();
-
+            $vehicle = Vehicle::where('device_imei', $device_imei)->first();
             if (!$vehicle) {
-                return $this->sendError('Vehicle Not Found');
+                $response = ["success" => false, "message" => "Vehicle Not Found", "status_code" => 404];
+                return response()->json($response, 404);
             }
 
             $validator = Validator::make($request->all(), [
-                'immobilizer_option' => 'required|max:255',
+                'immobilizer_option' => 'required',
             ]);
 
             if ($validator->fails()) {
-                return $this->sendError($validator->errors());
+                $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+                return response()->json($response, 403);
             }
 
             if ($vehicle->update($request->all())) {
-                $response = ["success" => true, "message" => 'Engine Status Updated', "status_code" => 200];
+                $response = ["success" => true, "message" => 'Engine Status Updated Successfully', "status_code" => 200];
                 return response()->json($response, 200);
             } else {
                 $response = ["success" => false, "message" => 'Failed to Update Engine Status', "status_code" => 404];
                 return response()->json($response, 404);
             }
         } else {
-            return $this->sendError('Password Is Incorrect');
+            $response = ["success" => false, "message" => 'Password Is Incorrect', "status_code" => 404];
+            return response()->json($response, 404);
         }
     }
-
-    public function odometer_update(Request $request, $id)
+    public function odometer_update(Request $request, $deviceimei)
     {
-        $vehicle = LiveData::where('deviceimei', $id)->first();
+        $vehicle = LiveData::where('deviceimei', $deviceimei)->first();
 
         if (!$vehicle) {
-            return $this->sendError('Vehicle Not Found');
+            $response = ["success" => false, "message" => "Vehicle Not Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
         $validator = Validator::make($request->all(), [
@@ -145,21 +160,26 @@ class ConfigurationController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+            return response()->json($response, 403);
         }
 
         if ($vehicle->update($request->all())) {
-            return $this->sendSuccess("Vehicle Odometer Updated Successfully");
+            $response = ["success" => true, "message" => 'Vehicle Odometer Updated Successfully', "status_code" => 200];
+            return response()->json($response, 200);
         } else {
-            return $this->sendError('Failed to Update Vehicle Odometer');
+
+            $response = ["success" => false, "message" => 'Failed to Update Vehicle Odometer', "status_code" => 404];
+            return response()->json($response, 404);
         }
     }
-    public function speed_update(Request $request, $id)
+    public function speed_update(Request $request, $device_imei)
     {
-        $vehicle = Configuration::where('device_imei', $id)->first();
+        $vehicle = Configuration::where('device_imei', $device_imei)->first();
 
         if (!$vehicle) {
-            return $this->sendError('Vehicle Not Found');
+            $response = ["success" => false, "message" => "Vehicle Not Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
         $validator = Validator::make($request->all(), [
@@ -167,13 +187,16 @@ class ConfigurationController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+            return response()->json($response, 403);
         }
 
         if ($vehicle->update($request->all())) {
-            return $this->sendSuccess("Vehicle Speed Limit Updated Successfully");
+            $response = ["success" => true, "message" => 'Vehicle Speed Limit Updated Successfully', "status_code" => 200];
+            return response()->json($response, 200);
         } else {
-            return $this->sendError('Failed to Update Vehicle Speed Limit');
+            $response = ["success" => true, "message" => 'Failed to Update Vehicle Speed Limit', "status_code" => 404];
+            return response()->json($response, 404);
         }
     }
 }
