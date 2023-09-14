@@ -242,6 +242,9 @@ class UserController extends BaseController
 
     public function store(Request $request)
     {
+
+        return response()->json($request->all());
+
         //Validation Code
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:users,name',
