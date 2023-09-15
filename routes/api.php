@@ -261,6 +261,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::controller(ConfigurationController::class)->group(function () {
             Route::post('config/store', 'store');
             Route::post('config/show', 'show');
+            Route::post('config/store_all', 'store_all');
         });
 
         Route::controller(LiveDataController::class)->group(function () {

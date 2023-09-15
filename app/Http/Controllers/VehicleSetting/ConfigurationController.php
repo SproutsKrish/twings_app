@@ -56,6 +56,55 @@ class ConfigurationController extends BaseController
 
         return response()->json("OK");
     }
+
+    public function store_all(Request $request)
+    {
+
+        $vehicleIds = $request->input('vehicle_id');
+        $count = count($vehicleIds);
+
+        for ($i = 0; $i < $count; $i++) {
+            $vehicle_id = $vehicleIds[$i];
+
+            $configuration = Configuration::where('vehicle_id', $vehicle_id)
+                ->first();
+
+            if (!$configuration) {
+                return response()->json(['message' => 'Configuration not found'], 404);
+            }
+
+            $input = $request->all();
+            unset($input['vehicle_id']);
+
+            // Update the configuration with the new data
+            $data =   $configuration->update($input);
+
+            $result = CustomerConfiguration::where('client_id', $configuration->client_id)
+                ->first();
+
+            // Specify the dynamic connection configuration
+            $connectionName = $result->db_name;
+            $connectionConfig = [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST'), // Use the environment variable for host
+                'port' => env('DB_PORT'), // Use the environment variable for port
+                'database' => $result->db_name,   // Change this to the actual database name
+                'username' => env('DB_USERNAME'), // Use the environment variable for username
+                'password' => env('DB_PASSWORD'), // Use the environment variable for password
+                // Add any other connection parameters you need
+            ];
+
+            // Use the dynamic connection configuration to connect to the database
+            Config::set("database.connections.$connectionName", $connectionConfig);
+            DB::purge($connectionName); // Clear the connection cache
+
+            DB::connection($connectionName)->table('configurations')->where('device_imei', $configuration->device_imei)->update($input);
+        }
+
+        return response()->json("OK");
+    }
+
+
     public function show(Request $request)
     {
         $configuration = Configuration::where('device_imei', $request->input('device_imei'))

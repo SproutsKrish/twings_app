@@ -16,6 +16,7 @@ use App\Models\Staff;
 use App\Models\SubDealer;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Models\UserDomain;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
@@ -242,9 +243,6 @@ class UserController extends BaseController
 
     public function store(Request $request)
     {
-
-        return response()->json($request->all());
-
         //Validation Code
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:users,name',
