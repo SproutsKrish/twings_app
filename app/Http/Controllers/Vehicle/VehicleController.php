@@ -97,6 +97,9 @@ class VehicleController extends BaseController
         $data['vehicle_name'] = $request->input('vehicle_name');
         $data['registration_number'] =  $request->input('vehicle_name');
         $data['installation_date'] = $request->input('installation_date');
+        $data['install_person_name'] = $request->input('install_person_name');
+        $data['service_person_name'] = $request->input('service_person_name');
+        $data['description'] = $request->input('description');
 
         $result = Point::where('total_point', '>', 0)
             ->where('admin_id', $data['admin_id'])
@@ -185,6 +188,9 @@ class VehicleController extends BaseController
                 'device_make_id' => $vehicleArray['device_make_id'],
                 'device_model_id' => $vehicleArray['device_model_id'],
                 'installation_date' => $vehicleArray['installation_date'],
+                'install_person_name' => $vehicleArray['install_person_name'],
+                'service_person_name' => $vehicleArray['service_person_name'],
+                'description' => $vehicleArray['description'],
                 'expire_date' => $vehicleArray['expire_date'],
                 'admin_id' => $vehicleArray['admin_id'],
                 'distributor_id' => $vehicleArray['distributor_id'],

@@ -45,6 +45,10 @@ class Vehicle extends Model
         'immobilizer_option',
         'safe_parking',
 
+        'install_person_name',
+        'service_person_name',
+        'description',
+
         'admin_id',
         'distributor_id',
         'dealer_id',

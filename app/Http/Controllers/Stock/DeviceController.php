@@ -125,7 +125,7 @@ class DeviceController extends BaseController
             $subdealer_id = auth()->user()->subdealer_id;
 
             $device_data = DB::table('devices as a')
-                ->select('a.id', 'a.device_imei_no', 'a.ccid', 'a.uid', 'a.device_make_id', 'a.device_model_id', 'a.supplier_id', 'b.device_make', 'c.device_model', 'd.supplier_name')
+                ->select('a.id', 'a.device_imei_no', 'a.ccid', 'a.uid', 'a.device_make_id', 'a.device_model_id', 'a.supplier_id', 'b.device_make', 'c.device_model', 'd.supplier_name', 'a.description')
                 ->join('device_makes as b', 'a.device_make_id', '=', 'b.id')
                 ->join('device_models as c', 'a.device_model_id', '=', 'c.id')
                 ->join('suppliers as d', 'a.supplier_id', '=', 'd.id')

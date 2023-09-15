@@ -22,6 +22,7 @@ class Device extends Model
         'end_date',
         'sensor_name',
         'purchase_date',
+        'description',
         'admin_id',
         'distributor_id',
         'dealer_id',
