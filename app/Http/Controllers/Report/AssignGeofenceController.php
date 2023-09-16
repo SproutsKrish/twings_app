@@ -28,7 +28,7 @@ class AssignGeofenceController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'device_imei' => 'required',
-            'geofence_id' => 'required',
+            'geofence_id' => 'required|unique:assign_geofences,geofence_id',
         ]);
 
         if ($validator->fails()) {
@@ -54,7 +54,7 @@ class AssignGeofenceController extends Controller
         $data = DB::table('assign_geofences as a')
             ->join('geofences as b', 'a.geofence_id', '=', 'b.id')
             ->where('a.device_imei', $device_imei)
-            ->select('*')
+            ->select('a.id', 'b.location_short_name', 'b.latitude', 'b.longitude', 'b.circle_size', 'b.radius', 'a.device_imei')
             ->get();
 
         if ($data->isEmpty()) {
@@ -102,6 +102,24 @@ class AssignGeofenceController extends Controller
             return response()->json($response, 200);
         } else {
             $response = ["success" => false, "message" => 'Failed to Assign Geofence', "status_code" => 404];
+            return response()->json($response, 404);
+        }
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        $data = AssignGeofence::find($id);
+
+        if (!$data) {
+            $response = ["success" => false, "message" => 'Data Not Found', "status_code" => 404];
+            return response()->json($response, 404);
+        }
+
+        if ($data->delete()) {
+            $response = ["success" => false, "message" => 'Data Deleted Successfully', "status_code" => 200];
+            return response()->json($response, 200);
+        } else {
+            $response = ["success" => false, "message" => 'Data Not Found', "status_code" => 404];
             return response()->json($response, 404);
         }
     }

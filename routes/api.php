@@ -245,6 +245,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('all_alert', 'all_alert');
             Route::post('device_alert', 'device_alert');
         });
+
+        Route::controller(AssignGeofenceController::class)->group(function () {
+            Route::post('assigned_fence_list', 'assigned_fence_list');
+            Route::put('notify/update/{id}', 'update');
+        });
     });
 
     Route::controller(LoginController::class)->group(function () {
