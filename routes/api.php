@@ -312,6 +312,10 @@ Route::resource('supplier', SupplierController::class);
 Route::resource('device_model', DeviceModelController::class);
 Route::resource('device_make', DeviceMakeController::class);
 
+
+Route::post('model_list', [DeviceModelController::class, 'model_list']);
+
+
 Route::resource('camera_type', CameraTypeController::class);
 Route::resource('camera_category', CameraCategoryController::class);
 Route::resource('camera_model', CameraModelController::class);

@@ -28,7 +28,7 @@ class AssignGeofenceController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'device_imei' => 'required',
-            'geofence_id' => 'required|unique:assign_geofences,geofence_id',
+            'geofence_id' => 'required|unique:assign_geofences,geofence_id,NULL,id,device_imei,' . $request->input('device_imei'),
         ]);
 
         if ($validator->fails()) {

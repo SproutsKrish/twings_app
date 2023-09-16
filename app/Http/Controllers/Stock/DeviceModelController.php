@@ -21,6 +21,19 @@ class DeviceModelController extends BaseController
         return $this->sendSuccess($device_models);
     }
 
+    public function model_list(Request $request)
+    {
+        $make_id = $request->input('make_id');
+        $device_models = DeviceModel::where('make_id', $make_id)->get();
+
+        if ($device_models->isEmpty()) {
+            return $this->sendError('No Device Models Found');
+        }
+
+        return $this->sendSuccess($device_models);
+    }
+
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [

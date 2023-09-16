@@ -26,7 +26,7 @@ class GeofenceController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'location_short_name' => 'required|max:255',
+            'location_short_name' => 'required|unique:geofences,location_short_name',
             'latitude' => 'required|max:255',
             'longitude' => 'required|max:255',
             'radius' => 'required|max:255',
