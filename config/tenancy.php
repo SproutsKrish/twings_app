@@ -20,6 +20,7 @@ return [
         '127.0.0.1',
         'localhost',
         '148.113.16.25',
+        'api.gpstrak.in',
     ],
 
     /**
