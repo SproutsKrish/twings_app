@@ -617,7 +617,7 @@ class ImportController extends BaseController
                 $device_make_id =  $device_data->device_make_id;
                 $device_model_id =  $device_data->device_model_id;
 
-                $license_data = License::find($row[5]);
+                $license_data = License::find($row[6]);
                 $license_no =  $license_data->license_no;
                 // dd($row[5]);
 
@@ -674,7 +674,7 @@ class ImportController extends BaseController
                     ]);
 
                     //Licenses
-                    License::where('id', $request->input('license_id'))->update([
+                    License::where('id', $row[6])->update([
                         'vehicle_id' => $vehicle->id,
                         'start_date' => $vehicle->installation_date,
                         'expiry_date' => $vehicle->expire_date,
