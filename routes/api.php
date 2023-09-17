@@ -99,6 +99,10 @@ Route::controller(UserController::class)->group(function () {
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('admin_import', [ImportController::class, 'admin_import']);
+    Route::post('distributor_import', [ImportController::class, 'distributor_import']);
+
+
     Route::post('change_user_password', [UserController::class, 'change_user_password']);
     Route::post('login_image_save', [UserDomainController::class, 'login_image_save']);
 

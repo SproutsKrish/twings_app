@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\API\BaseController as BaseController;
-
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -248,6 +248,147 @@ class ImportController extends BaseController
                     $tenant = Tenant::create(['id' => $user->id]);
                     $tenant->domains()->create(['domain' => $user->name . '.' . 'localhost']);
                 }
+            }
+
+            DB::commit();
+
+            return $this->sendSuccess('User Imported Successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->sendError('An error occurred during CSV import: ' . $e->getMessage());
+        }
+    }
+
+
+    public function admin_import(Request $request)
+    {
+        $file_path = $request->input('file_path');
+
+        if (!$file_path) {
+            return $this->sendError("No File Path Provided");
+        }
+
+        $validator = Validator::make($request->all(), ['file_path' => 'required']);
+
+        if ($validator->fails()) {
+            return $this->sendError("Invalid File Format");
+        }
+
+        try {
+            $path = $file_path;
+            $data = array_map('str_getcsv', file($path));
+
+            DB::beginTransaction();
+
+            foreach ($data as $row) {
+                $rowValidator = Validator::make($row, [
+                    0 => 'required|unique:users,name', // name (unique in 'users' table)
+                    1 => 'required|unique:users,email', // email (unique in 'users' table)
+                    2 => 'required', // password
+                    3 => 'required', // secondary_password
+                    4 => 'required', // role_id
+                ]);
+
+                if ($rowValidator->fails()) {
+                    DB::rollBack();
+                    return $this->sendError($rowValidator->errors());
+                }
+
+                $user =  User::create([
+                    'name' => $row[0],
+                    'email' => $row[1],
+                    'password' => bcrypt($row[2]),
+                    'secondary_password' => bcrypt($row[3]),
+                    'mobile_no' => $row[4],
+                    'role_id' => $row[5],
+                    'created_by' => auth()->user()->id,
+                    'ip_address' => $request->ip(),
+                ]);
+
+                $admin = Admin::create(
+                    [
+                        'admin_company' => $row[6],
+                        'admin_name' => $user->name,
+                        'admin_email' => $user->email,
+                        'admin_mobile' => $user->mobile_no,
+                        'user_id' => $user->id,
+                        'created_by' => auth()->user()->id,
+                        'ip_address' => $request->ip(),
+                    ]
+                );
+
+                User::where('id', $user->id)
+                    ->update(['admin_id' => $admin->id]);
+            }
+
+            DB::commit();
+
+            return $this->sendSuccess('User Imported Successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->sendError('An error occurred during CSV import: ' . $e->getMessage());
+        }
+    }
+
+    public function distributor_import(Request $request)
+    {
+        $file_path = $request->input('file_path');
+
+        if (!$file_path) {
+            return $this->sendError("No File Path Provided");
+        }
+
+        $validator = Validator::make($request->all(), ['file_path' => 'required']);
+
+        if ($validator->fails()) {
+            return $this->sendError("Invalid File Format");
+        }
+
+        try {
+            $path = $file_path;
+            $data = array_map('str_getcsv', file($path));
+
+            DB::beginTransaction();
+
+            foreach ($data as $row) {
+                $rowValidator = Validator::make($row, [
+                    0 => 'required|unique:users,name', // name (unique in 'users' table)
+                    1 => 'required|unique:users,email', // email (unique in 'users' table)
+                    2 => 'required', // password
+                    3 => 'required', // secondary_password
+                    4 => 'required', // role_id
+                ]);
+
+                if ($rowValidator->fails()) {
+                    DB::rollBack();
+                    return $this->sendError($rowValidator->errors());
+                }
+
+                $user =  User::create([
+                    'name' => $row[0],
+                    'email' => $row[1],
+                    'password' => bcrypt($row[2]),
+                    'secondary_password' => bcrypt($row[3]),
+                    'mobile_no' => $row[4],
+                    'role_id' => $row[5],
+                    'created_by' => auth()->user()->id,
+                    'ip_address' => $request->ip(),
+                ]);
+
+                $admin = Admin::create(
+                    [
+                        'admin_company' => $row[6],
+                        'admin_name' => $user->name,
+                        'admin_email' => $user->email,
+                        'admin_mobile' => $user->mobile_no,
+                        'user_id' => $user->id,
+                        'created_by' => auth()->user()->id,
+                        'ip_address' => $request->ip(),
+                    ]
+                );
+
+                User::where('id', $user->id)
+                    ->update(['admin_id' => $admin->id]);
             }
 
             DB::commit();

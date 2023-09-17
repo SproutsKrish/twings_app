@@ -331,7 +331,6 @@ class UserController extends BaseController
                             'admin_name' => $user->name,
                             'admin_email' => $user->email,
                             'admin_mobile' => $user->mobile_no,
-                            'admin_mobile' => $user->mobile_no,
                             'admin_address' => $request->input('address'),
                             'user_id' => $user->id,
                             'created_by' => auth()->user()->id,
