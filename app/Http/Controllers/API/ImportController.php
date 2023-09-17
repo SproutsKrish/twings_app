@@ -648,7 +648,7 @@ class ImportController extends BaseController
                     $period_id = $plan->period_id;
                     $period = Period::find($period_id);
 
-                    $newstart_date = Carbon::now();
+                    $newstart_date = \Carbon\Carbon::createFromFormat('Y-m-d', $row[4]);
                     $newDateTime = $newstart_date->addDays($period->period_days);
                     $expire_date = $newDateTime->format('Y-m-d');
 
