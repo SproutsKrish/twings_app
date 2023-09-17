@@ -35,15 +35,13 @@ class VehicleController extends BaseController
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'plan_id' => 'required',
-            'license_id' => 'required',
             'sim_id' => 'required',
-            'device_id' => 'required',
+            'device_id' => 'required|unique:vehicles,device_id',
             'vehicle_type_id' => 'required',
             'vehicle_name' => 'required',
             'installation_date' => 'required',
-            'device_id' => 'required|unique:vehicles,device_id'
-
+            'plan_id' => 'required',
+            'license_id' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -95,6 +93,7 @@ class VehicleController extends BaseController
         $data['device_id'] = $request->input('device_id');
         $data['vehicle_type_id'] = $request->input('vehicle_type_id');
         $data['vehicle_name'] = $request->input('vehicle_name');
+
         $data['registration_number'] =  $request->input('vehicle_name');
         $data['installation_date'] = $request->input('installation_date');
         $data['install_person_name'] = $request->input('install_person_name');

@@ -101,6 +101,10 @@ Route::controller(UserController::class)->group(function () {
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('admin_import', [ImportController::class, 'admin_import']);
     Route::post('distributor_import', [ImportController::class, 'distributor_import']);
+    Route::post('dealer_import', [ImportController::class, 'dealer_import']);
+    Route::post('user_import', [ImportController::class, 'user_import']);
+    Route::post('vehicle_import', [ImportController::class, 'vehicle_import']);
+
 
 
     Route::post('change_user_password', [UserController::class, 'change_user_password']);
@@ -348,7 +352,6 @@ Route::resource('child_menu', ChildMenuController::class);
 Route::post('sim_import', [ImportController::class, 'sim_import']);
 Route::post('device_import', [ImportController::class, 'device_import']);
 Route::post('camera_import', [ImportController::class, 'camera_import']);
-Route::post('user_import', [ImportController::class, 'user_import']);
 Route::post('recharge', [RechargeController::class, 'recharge']);
 Route::post('generate_fcm_token', [LoginController::class, 'generate_fcm_token']);
 Route::put('sim_assign/{id}', [SimController::class, 'sim_assign']);
