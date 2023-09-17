@@ -133,7 +133,7 @@ class PointController extends BaseController
                             } else {
                                 $maxId += 1;
                             }
-                            $prefix = "SWTLIC";
+                            $prefix = "GPS";
                             $date = Carbon::now()->format('Y');
                             $license_no = $prefix . $date . $maxId;
                             License::create(['license_no' => $license_no, 'plan_id' => $plan_id, 'admin_id' => $admin_id, 'created_by' => $created_by]);
