@@ -3,13 +3,18 @@
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
+use App\Models\CustomerConfiguration;
 use App\Models\LiveData;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 
 use App\Models\Vehicle;
-use Carbon\Carbon;
+
+
+
+
 
 class LiveDataController extends Controller
 {
@@ -408,11 +413,28 @@ class LiveDataController extends Controller
 
     public function client_multi_dashboard(Request $request)
     {
-        $client_id = $request->input('client_id');
+        $user_id = $request->input('user_id');
+        $data = CustomerConfiguration::where('user_id', $user_id)->select('client_id', 'db_name')->first();
+        $connectionName = $data->db_name;
+        $client_id = $data->client_id;
+
+        $connectionConfig = [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST'),
+            'port' => env('DB_PORT'),
+            'database' => $data->db_name,
+            'username' => env('DB_USERNAME'),
+            'password' => env('DB_PASSWORD'),
+        ];
+
+        Config::set("database.connections.$connectionName", $connectionConfig);
+        DB::purge($connectionName);
+
 
         $search = $request->input('search');
         if ($search == null) {
-            $result = DB::table('live_data as B')
+            $result = DB::connection($connectionName)
+                ->table('live_data as B')
                 ->selectRaw('
                 B.id,
                 A.vehicle_type_id,
@@ -457,10 +479,10 @@ class LiveDataController extends Controller
                 B.vehicle_id
             ')
                 ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
-                ->leftJoin('vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
+                ->leftJoin('twings.vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
                 ->leftJoin('configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
-                ->leftJoin('device_makes as F', 'F.id', '=', 'A.device_make_id')
-                ->leftJoin('device_models as G', 'G.id', '=', 'A.device_model_id')
+                ->leftJoin('twings.device_makes as F', 'F.id', '=', 'A.device_make_id')
+                ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
                 ->where('A.client_id', $client_id)
                 ->get();
 
@@ -473,7 +495,8 @@ class LiveDataController extends Controller
         } else {
             $device_imei = Vehicle::where('vehicle_name', 'LIKE', "%$search%")->pluck('device_imei');
 
-            $result = DB::table('live_data as B')
+            $result = DB::connection($connectionName)
+                ->table('live_data as B')
                 ->selectRaw('
                 B.id,
                 A.vehicle_type_id,
@@ -518,10 +541,10 @@ class LiveDataController extends Controller
                 B.vehicle_id
         ')
                 ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
-                ->leftJoin('vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
+                ->leftJoin('twings.vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
                 ->leftJoin('configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
-                ->leftJoin('device_makes as F', 'F.id', '=', 'A.device_make_id')
-                ->leftJoin('device_models as G', 'G.id', '=', 'A.device_model_id')
+                ->leftJoin('twings.device_makes as F', 'F.id', '=', 'A.device_make_id')
+                ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
                 ->whereIn('B.deviceimei', $device_imei)
                 ->where('A.client_id', $client_id)
                 ->get();
@@ -538,9 +561,26 @@ class LiveDataController extends Controller
     public function client_single_dashboard(Request $request)
     {
         $device_imei = $request->input('device_imei');
-        $client_id = $request->input('client_id');
 
-        $result = DB::table('live_data as B')
+        $user_id = $request->input('user_id');
+        $data = CustomerConfiguration::where('user_id', $user_id)->select('client_id', 'db_name')->first();
+        $connectionName = $data->db_name;
+        $client_id = $data->client_id;
+
+        $connectionConfig = [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST'),
+            'port' => env('DB_PORT'),
+            'database' => $data->db_name,
+            'username' => env('DB_USERNAME'),
+            'password' => env('DB_PASSWORD'),
+        ];
+
+        Config::set("database.connections.$connectionName", $connectionConfig);
+        DB::purge($connectionName);
+
+        $result = DB::connection($connectionName)
+            ->table('live_data as B')
             ->selectRaw('
             B.id,
             A.vehicle_type_id,
@@ -585,10 +625,10 @@ class LiveDataController extends Controller
             B.vehicle_id
         ')
             ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
-            ->leftJoin('vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
+            ->leftJoin('twings.vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
             ->leftJoin('configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
-            ->leftJoin('device_makes as F', 'F.id', '=', 'A.device_make_id')
-            ->leftJoin('device_models as G', 'G.id', '=', 'A.device_model_id')
+            ->leftJoin('twings.device_makes as F', 'F.id', '=', 'A.device_make_id')
+            ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
             ->where('B.deviceimei', $device_imei)
             ->where('A.client_id', $client_id)
             ->first();
@@ -604,47 +644,71 @@ class LiveDataController extends Controller
 
     public function client_vehicle_count(Request $request)
     {
-        $client_id = $request->input('client_id');
+        $user_id = $request->input('user_id');
+        $data = CustomerConfiguration::where('user_id', $user_id)->select('client_id', 'db_name')->first();
+        $connectionName = $data->db_name;
+        $client_id = $data->client_id;
 
-        $total_vehicles = Vehicle::where('client_id', $client_id)->count();
+        $connectionConfig = [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST'),
+            'port' => env('DB_PORT'),
+            'database' => $data->db_name,
+            'username' => env('DB_USERNAME'),
+            'password' => env('DB_PASSWORD'),
+        ];
 
-        $parking = DB::table('live_data')
+        Config::set("database.connections.$connectionName", $connectionConfig);
+        DB::purge($connectionName);
+
+        $total_vehicles = DB::connection($connectionName)
+            ->table('vehicles') // Replace 'vehicles' with your actual table name
+            ->where('client_id', $client_id)
+            ->count();
+
+        $parking = DB::connection($connectionName)
+            ->table('live_data')
             ->where('vehicle_current_status', 1)
             ->where('client_id', $client_id)
             ->count();
 
-        $idle = DB::table('live_data')
+        $idle = DB::connection($connectionName)
+            ->table('live_data')
             ->where('vehicle_current_status', 2)
             ->where('client_id', $client_id)
             ->count();
 
-        $moving = DB::table('live_data')
+        $moving = DB::connection($connectionName)
+            ->table('live_data')
             ->where('vehicle_current_status', 3)
             ->where('client_id', $client_id)
             ->count();
 
-        $no_data = DB::table('live_data')
+        $no_data = DB::connection($connectionName)
+            ->table('live_data')
             ->where('vehicle_current_status', 4)
             ->where('client_id', $client_id)
             ->count();
 
-        $inactive = DB::table('live_data')
+        $inactive = DB::connection($connectionName)
+            ->table('live_data')
             ->where('vehicle_current_status', 5)
             ->where('client_id', $client_id)
             ->count();
 
-        // dd($parking);
-        // dd($idle);
-        // dd($moving);
-        // dd($inactive);
-
-        $expired_vehicles = Vehicle::where('expire_date', '<', now())->where('client_id', $client_id)->count();
-
-        $expiry_vehicles = Vehicle::whereBetween('expire_date', [DB::raw('CURDATE()'), DB::raw('DATE_ADD(CURDATE(), INTERVAL 15 DAY)')])
+        $expired_vehicles = DB::connection($connectionName)
+            ->table('vehicles') // Replace 'vehicles' with your actual table name
+            ->where('expire_date', '<', now())
             ->where('client_id', $client_id)
             ->count();
 
-        $vehicle_count = array(
+        $expiry_vehicles = DB::connection($connectionName)
+            ->table('vehicles') // Replace 'vehicles' with your actual table name
+            ->whereBetween('expire_date', [DB::raw('CURDATE()'), DB::raw('DATE_ADD(CURDATE(), INTERVAL 15 DAY)')])
+            ->where('client_id', $client_id)
+            ->count();
+
+        $vehicle_count = [
             'running' => $moving,
             'idle' => $idle,
             'stop' => $parking,
@@ -653,7 +717,7 @@ class LiveDataController extends Controller
             'total_vehicles' =>  $total_vehicles,
             'expired_vehicles' => $expired_vehicles,
             'expiry_vehicles' => $expiry_vehicles
-        );
+        ];
 
         if (!$vehicle_count) {
             $response = ["success" => false, "message" => 'No Live Data Found', "status_code" => 404];
