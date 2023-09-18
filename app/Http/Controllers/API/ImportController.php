@@ -648,16 +648,17 @@ class ImportController extends BaseController
                     $period_id = $plan->period_id;
                     $period = Period::find($period_id);
 
-                    $newstart_date = \Carbon\Carbon::createFromFormat('Y-m-d', $row[4]);
+                    $newstart_date = \Carbon\Carbon::createFromFormat('d-m-Y', $row[4]);
                     $newDateTime = $newstart_date->addDays($period->period_days);
                     $expire_date = $newDateTime->format('Y-m-d');
+                    $installation_date = \Carbon\Carbon::createFromFormat('d-m-Y', $row[4])->format('Y-m-d');
 
                     $vehicle =  Vehicle::create([
                         'sim_id' => $row[0],
                         'device_id' => $row[1],
                         'vehicle_type_id' => $row[2],
                         'vehicle_name' => $row[3],
-                        'installation_date' => $row[4],
+                        'installation_date' => $installation_date,
                         'admin_id' => $row[7],
                         'distributor_id' => $row[8],
                         'dealer_id' => $row[9],
