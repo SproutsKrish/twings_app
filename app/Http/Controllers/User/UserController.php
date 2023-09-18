@@ -247,7 +247,7 @@ class UserController extends BaseController
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:users,name',
             'email' => 'required|email|unique:users,email',
-            'mobile_no' => 'required|unique:users,mobile_no',
+            'mobile_no' => 'required',
             'password' => 'required',
             'c_password' => 'required|same:password',
             'role_id' => 'required',
@@ -541,7 +541,7 @@ class UserController extends BaseController
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:users,name,' . $request->input('id') . 'id',
             'email' => 'required|email|unique:users,email,' . $request->input('id') . 'id',
-            'mobile_no' => 'required|integer|unique:users,mobile_no,' . $request->input('id') . 'id',
+            'mobile_no' => 'required',
             'role_id' => 'required|exists:roles,id',
             'country_id' => 'required'
         ]);
