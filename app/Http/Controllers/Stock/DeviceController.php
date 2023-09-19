@@ -235,29 +235,25 @@ class DeviceController extends BaseController
         }
     }
 
-    public function destroy(Request $request, $id)
+
+    public function destroy(Request $request)
     {
-        $device = Device::find($id);
+        $device = Device::find($request->input('id'));
 
         if (!$device) {
-            return $this->sendError('Device Not Found');
-        }
-
-        $validator = Validator::make($request->all(), [
-            'deleted_by' => 'required|integer',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            $response = ["success" => false, "message" => "Device Not Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
         $device->status = 0;
-        $device->deleted_by = $request->deleted_by;
+        $device->deleted_by = $request->input('user_id');
         $device->save();
         if ($device->delete()) {
-            return $this->sendSuccess('Device Deleted Successfully');
+            $response = ["success" => true, "message" => "Device Deleted Successfully", "status_code" => 200];
+            return response()->json($response, 200);
         } else {
-            return $this->sendError('Failed to Delete Device');
+            $response = ["success" => false, "message" => "Failed To Delete Device", "status_code" => 404];
+            return response()->json($response, 404);
         }
     }
 

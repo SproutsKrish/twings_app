@@ -95,7 +95,6 @@ class VehicleController extends BaseController
         $data['vehicle_name'] = $request->input('vehicle_name');
 
         $data['registration_number'] =  $request->input('vehicle_name');
-        $data['installation_date'] = $request->input('installation_date');
         $data['install_person_name'] = $request->input('install_person_name');
         $data['service_person_name'] = $request->input('service_person_name');
         $data['description'] = $request->input('description');
@@ -120,9 +119,10 @@ class VehicleController extends BaseController
             $period_id = $plan->period_id;
             $period = Period::find($period_id);
 
-            $newstart_date = Carbon::now();
+            $newstart_date = \Carbon\Carbon::createFromFormat('d-m-Y', $request->input('installation_date'));
             $newDateTime = $newstart_date->addDays($period->period_days);
             $data['expire_date'] = $newDateTime->format('Y-m-d');
+            $data['installation_date'] = \Carbon\Carbon::createFromFormat('d-m-Y', $request->input('installation_date'))->format('Y-m-d');
 
             //Main Vehicles
             $vehicle = new Vehicle($data);

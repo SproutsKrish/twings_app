@@ -222,29 +222,24 @@ class SimController extends BaseController
         }
     }
 
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request)
     {
-        $sim = Sim::find($id);
+        $sim = Sim::find($request->input('id'));
 
         if (!$sim) {
-            return $this->sendError('Sim Not Found');
-        }
-
-        $validator = Validator::make($request->all(), [
-            'deleted_by' => 'required|integer',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            $response = ["success" => false, "message" => "Sim Not Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
         $sim->status = 0;
-        $sim->deleted_by = $request->deleted_by;
+        $sim->deleted_by = $request->input('user_id');
         $sim->save();
         if ($sim->delete()) {
-            return $this->sendSuccess('Sim Deleted Successfully');
+            $response = ["success" => true, "message" => "Sim Deleted Successfully", "status_code" => 200];
+            return response()->json($response, 200);
         } else {
-            return $this->sendError('Failed to Delete Sim');
+            $response = ["success" => false, "message" => "Failed To Delete Sim", "status_code" => 404];
+            return response()->json($response, 404);
         }
     }
 

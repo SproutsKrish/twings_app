@@ -69,6 +69,7 @@ class UserController extends BaseController
                     'b.name as role'
                 )
                 ->where('a.role_id', '>', '1')
+                ->where('a.status', '1')
                 ->orderBy('a.id', 'desc')
                 ->get();
         } else if ($role_id == 2) {
@@ -88,6 +89,7 @@ class UserController extends BaseController
                     'b.name as role'
                 )
                 ->where('a.role_id', '>', '2')
+                ->where('a.status', '1')
                 ->where('a.admin_id', '=', $admin_id)
                 ->orderBy('a.id', 'desc')
                 ->get();
@@ -108,6 +110,7 @@ class UserController extends BaseController
                     'b.name as role'
                 )
                 ->where('a.role_id', '>', '3')
+                ->where('a.status', '1')
                 ->where('a.distributor_id', '=', $distributor_id)
                 ->orderBy('a.id', 'desc')
                 ->get();
@@ -128,6 +131,7 @@ class UserController extends BaseController
                     'b.name as role'
                 )
                 ->where('a.role_id', '>', '4')
+                ->where('a.status', '1')
                 ->where('a.dealer_id', '=', $dealer_id)
                 ->orderBy('a.id', 'desc')
                 ->get();
@@ -148,6 +152,7 @@ class UserController extends BaseController
                     'b.name as role'
                 )
                 ->where('a.role_id', '>', '5')
+                ->where('a.status', '1')
                 ->where('a.subdealer_id', '=', $subdealer_id)
                 ->orderBy('a.id', 'desc')
                 ->get();
@@ -168,6 +173,7 @@ class UserController extends BaseController
                     'b.name as role'
                 )
                 ->where('a.role_id', '>', '6')
+                ->where('a.status', '1')
                 ->where('a.client_id', '=', $client_id)
                 ->orderBy('a.id', 'desc')
                 ->get();
@@ -668,29 +674,24 @@ class UserController extends BaseController
         }
     }
 
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request)
     {
-        $user = User::find($id);
+        $user = User::find($request->input('id'));
 
         if (!$user) {
-            return $this->sendError('User Not Found');
-        }
-
-        $validator = Validator::make($request->all(), [
-            'deleted_by' => 'required|integer',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            $response = ["success" => false, "message" => "User Not Found", "status_code" => 404];
+            return response()->json($response, 404);
         }
 
         $user->status = 0;
-        $user->deleted_by = $request->deleted_by;
+        $user->deleted_by = $request->input('user_id');
         $user->save();
         if ($user->delete()) {
-            return $this->sendSuccess('User Deleted Successfully');
+            $response = ["success" => true, "message" => "User Deleted Successfully", "status_code" => 200];
+            return response()->json($response, 200);
         } else {
-            return $this->sendError('Failed to Delete User');
+            $response = ["success" => false, "message" => "Failed To Delete User", "status_code" => 404];
+            return response()->json($response, 404);
         }
     }
 

@@ -329,7 +329,11 @@ Route::resource('camera_category', CameraCategoryController::class);
 Route::resource('camera_model', CameraModelController::class);
 
 Route::resource('sim', SimController::class);
+Route::post('sim/delete', [SimController::class, 'destroy']);
 Route::resource('device', DeviceController::class);
+Route::post('device/delete', [DeviceController::class, 'destroy']);
+Route::post('user/delete', [UserController::class, 'destroy']);
+
 Route::resource('camera', CameraController::class);
 
 Route::resource('vehicle_document', VehicleDocumentController::class);
