@@ -256,6 +256,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::controller(AssignGeofenceController::class)->group(function () {
             Route::post('assigned_fence_list', 'assigned_fence_list');
+            Route::get('assign_geofencelist/{geofenceId}', 'assign_geofencelist');
+            Route::get('geofence_not_assign_vehicles', 'geofence_not_assign_vehicles');
             Route::put('notify/update/{id}', 'update');
         });
     });

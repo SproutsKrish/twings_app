@@ -123,4 +123,42 @@ class AssignGeofenceController extends Controller
             return response()->json($response, 404);
         }
     }
+
+    public function assign_geofencelist($geofenceId)
+    {
+        $data = DB::table('assign_geofences as a')
+            ->join('geofences as b', 'a.geofence_id', '=', 'b.id')
+            ->where('b.id', $geofenceId)
+            ->select('a.id', 'b.location_short_name', 'b.latitude', 'b.longitude', 'b.circle_size', 'b.radius', 'a.device_imei')
+            ->get();
+
+        if ($data->isEmpty()) {
+            $response = ["success" => false, "message" => 'Geofence not assigned to any vehicles', "status_code" => 404];
+            return response()->json($response, 404);
+        }
+        $response = ["success" => true, "data" => $data, "status_code" => 200];
+        return response()->json($response, 200);
+    }
+
+    public function geofence_not_assign_vehicles()
+    {
+        $results = DB::table('assign_geofences')
+            ->select('device_imei')
+            ->distinct()
+            ->get();
+
+        $imeiValues = $results->pluck('device_imei')->toArray();
+
+        $response = DB::table('vehicles')
+            ->whereNotIn('device_imei', $imeiValues)
+            ->select('id', 'device_imei', 'vehicle_name')
+            ->get();
+
+        if ($response->isEmpty()) {
+            $response = ["success" => false, "message" => 'All vehicles have Geofence', "status_code" => 404];
+            return response()->json($response, 404);
+        }
+        $response = ["success" => true, "data" => $response, "status_code" => 200];
+        return response()->json($response, 200);
+    }
 }
