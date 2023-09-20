@@ -308,11 +308,11 @@ class LiveDataController extends Controller
         // dd($inactive);
 
         $expired_vehicles = Vehicle::where('expire_date', '<', now())
-            ->where('vehicle_status', 1)
+            ->where('status', 1)
             ->count();
 
         $expiry_vehicles = Vehicle::whereBetween('expire_date', [DB::raw('CURDATE()'), DB::raw('DATE_ADD(CURDATE(), INTERVAL 15 DAY)')])
-            ->where('vehicle_status', 1)
+            ->where('status', 1)
             ->count();
 
         $vehicle_count = array(
@@ -721,7 +721,7 @@ class LiveDataController extends Controller
         $expired_vehicles = DB::connection($connectionName)
             ->table('vehicles') // Replace 'vehicles' with your actual table name
             ->where('expire_date', '<', now())
-            ->where('vehicle_status', 1)
+            ->where('status', 1)
             ->where('client_id', $client_id)
             ->count();
 
@@ -729,7 +729,7 @@ class LiveDataController extends Controller
             ->table('vehicles') // Replace 'vehicles' with your actual table name
             ->whereBetween('expire_date', [DB::raw('CURDATE()'), DB::raw('DATE_ADD(CURDATE(), INTERVAL 15 DAY)')])
             ->where('client_id', $client_id)
-            ->where('vehicle_status', 1)
+            ->where('status', 1)
             ->count();
 
         $vehicle_count = [
