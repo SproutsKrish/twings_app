@@ -4,10 +4,12 @@ namespace App\Http\Controllers\License;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
+use App\Models\Period;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\Plan;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class PlanController extends BaseController
@@ -25,6 +27,26 @@ class PlanController extends BaseController
         }
 
         return $this->sendSuccess($plans);
+    }
+
+    public function plan_days(Request $request)
+    {
+        $newinstallDate = Carbon::now();
+        $newinstallDateFormatted = $newinstallDate->format('Y-m-d');
+
+        // The rest of your code remains the same
+        $plan_id = $request->input('plan_id');
+        $plan = Plan::find($plan_id);
+        $period_id = $plan->period_id;
+        $period = Period::find($period_id);
+
+        $newexpireDate = $newinstallDate->copy()->addDays($period->period_days);
+        $data['installation_date'] = $newinstallDateFormatted;
+        $data['expire_date'] = $newexpireDate->format('Y-m-d');
+        $data['extend_date'] = $newexpireDate->addDays(15)->format('Y-m-d');
+
+        $response = ["success" => true, "data" => $data, "status_code" => 200];
+        return response()->json($response, 200);
     }
 
     public function user_plan_list(Request $request)

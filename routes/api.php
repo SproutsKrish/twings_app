@@ -362,6 +362,8 @@ Route::post('recharge', [RechargeController::class, 'recharge']);
 Route::post('generate_fcm_token', [LoginController::class, 'generate_fcm_token']);
 Route::put('sim_assign/{id}', [SimController::class, 'sim_assign']);
 Route::put('device_assign/{id}', [DeviceController::class, 'device_assign']);
+Route::post('plan_days', [PlanController::class, 'plan_days']);
+
 
 //App Contact
 Route::get('contact_address/{id}', [ClientController::class, 'contact_address']);

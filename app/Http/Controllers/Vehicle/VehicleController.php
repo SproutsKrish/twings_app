@@ -99,6 +99,11 @@ class VehicleController extends BaseController
         $data['service_person_name'] = $request->input('service_person_name');
         $data['description'] = $request->input('description');
 
+        $data['installation_date'] = $request->input('installation_date');
+        $data['expire_date'] = $request->input('expire_date');
+        $data['extend_date'] = $request->input('extend_date');
+        $data['vehicle_expire_date'] = $request->input('vehicle_expire_date');
+
         $result = Point::where('total_point', '>', 0)
             ->where('admin_id', $data['admin_id'])
             ->where('distributor_id', $data['distributor_id'])
@@ -114,15 +119,21 @@ class VehicleController extends BaseController
             $result->total_point = $result->total_point - 1;
             $result->save();
 
-            $plan_id = $result->plan_id;
-            $plan = Plan::find($plan_id);
-            $period_id = $plan->period_id;
-            $period = Period::find($period_id);
+            // $plan_id = $result->plan_id;
+            // $plan = Plan::find($plan_id);
+            // $period_id = $plan->period_id;
+            // $period = Period::find($period_id);
 
-            $newstart_date = Carbon::createFromFormat('Y-m-d', $request->input('installation_date')); // Create a Carbon instance from the given date
-            $newDateTime = $newstart_date->addDays($period->period_days); // Add 10 days
-            $data['expire_date'] = $newDateTime->format('Y-m-d'); // Format the result as yyyy-mm-dd
-            $data['installation_date'] = $request->input('installation_date');
+            // $newstart_date = Carbon::createFromFormat('Y-m-d', $request->input('installation_date')); // Create a Carbon instance from the given date
+            // $newDateTime = $newstart_date->addDays($period->period_days); // Add 10 days
+            // $data['expire_date'] = $newDateTime->format('Y-m-d'); // Format the result as yyyy-mm-dd
+            // $data['installation_date'] = $request->input('installation_date');
+
+            $newstart_date = Carbon::createFromFormat('Y-m-d', $request->input('vehicle_expire_date')); // Create a Carbon instance from the given date
+            $newDateTime = $newstart_date->addDays(15); // Add 10 days
+            $data['vehicle_extend_date'] = $newDateTime->format('Y-m-d'); // Format the result as yyyy-mm-dd
+
+            // return response()->json($data, 200);
 
             //Main Vehicles
             $vehicle = new Vehicle($data);
@@ -131,8 +142,6 @@ class VehicleController extends BaseController
             //Licenses
             License::where('id', $request->input('license_id'))->update([
                 'vehicle_id' => $vehicle->id,
-                'start_date' => $vehicle->installation_date,
-                'expiry_date' => $vehicle->expire_date,
                 'client_id' => $vehicle->client_id
             ]);
 
@@ -191,6 +200,9 @@ class VehicleController extends BaseController
                 'service_person_name' => $vehicleArray['service_person_name'],
                 'description' => $vehicleArray['description'],
                 'expire_date' => $vehicleArray['expire_date'],
+                'extend_date' => $vehicleArray['extend_date'],
+                'vehicle_expire_date' => $vehicleArray['vehicle_expire_date'],
+                'vehicle_extend_date' => $vehicleArray['vehicle_extend_date'],
                 'admin_id' => $vehicleArray['admin_id'],
                 'distributor_id' => $vehicleArray['distributor_id'],
                 'dealer_id' => $vehicleArray['dealer_id'],

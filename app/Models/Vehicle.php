@@ -42,6 +42,9 @@ class Vehicle extends Model
         'expire_date',
         'extend_date',
 
+        'vehicle_expire_date',
+        'vehicle_extend_date',
+
         'immobilizer_option',
         'safe_parking',
 
