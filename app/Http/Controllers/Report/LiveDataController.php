@@ -81,6 +81,7 @@ class LiveDataController extends Controller
                 ->leftJoin('twings.device_makes as F', 'F.id', '=', 'A.device_make_id')
                 ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
                 ->leftJoin(DB::raw("(SELECT device_imei, max(odometer), min(odometer), round(max(odometer) - min(odometer), 2) AS today_distance FROM play_back_histories WHERE DATE_ADD(device_datetime, INTERVAL 330 MINUTE) >= '$startDate' AND DATE_ADD(device_datetime, INTERVAL 330 MINUTE) <= '$endDate' GROUP by device_imei) AS E"), 'E.device_imei', '=', 'A.device_imei')
+                ->where('A.status', 1)
                 ->get();
 
             if ($result->isEmpty()) {
@@ -145,6 +146,7 @@ class LiveDataController extends Controller
                 ->leftJoin('twings.device_makes as F', 'F.id', '=', 'A.device_make_id')
                 ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
                 ->whereIn('B.deviceimei', $device_imei)
+                ->where('A.status', 1)
                 ->get();
 
             if ($result->isEmpty()) {
@@ -218,6 +220,7 @@ class LiveDataController extends Controller
             ->leftJoin('twings.device_makes as F', 'F.id', '=', 'A.device_make_id')
             ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
             ->where('B.deviceimei', $device_imei)
+            ->where('A.status', 1)
             ->first();
 
         if (empty($result)) {
@@ -270,26 +273,33 @@ class LiveDataController extends Controller
                 ->update(['vehicle_current_status' => 6]);
         }
 
-        $total_vehicles = Vehicle::count();
+        $total_vehicles = DB::table('vehicles')
+            ->where('status', 1)
+            ->count();
 
         $parking = DB::table('live_data')
             ->where('vehicle_current_status', 1)
+            ->where('vehicle_status', 1)
             ->count();
 
         $idle = DB::table('live_data')
             ->where('vehicle_current_status', 2)
+            ->where('vehicle_status', 1)
             ->count();
 
         $moving = DB::table('live_data')
             ->where('vehicle_current_status', 3)
+            ->where('vehicle_status', 1)
             ->count();
 
         $no_data = DB::table('live_data')
             ->where('vehicle_current_status', 4)
+            ->where('vehicle_status', 1)
             ->count();
 
         $inactive = DB::table('live_data')
             ->where('vehicle_current_status', 5)
+            ->where('vehicle_status', 1)
             ->count();
 
         // dd($parking);
@@ -297,9 +307,12 @@ class LiveDataController extends Controller
         // dd($moving);
         // dd($inactive);
 
-        $expired_vehicles = Vehicle::where('expire_date', '<', now())->count();
+        $expired_vehicles = Vehicle::where('expire_date', '<', now())
+            ->where('vehicle_status', 1)
+            ->count();
 
         $expiry_vehicles = Vehicle::whereBetween('expire_date', [DB::raw('CURDATE()'), DB::raw('DATE_ADD(CURDATE(), INTERVAL 15 DAY)')])
+            ->where('vehicle_status', 1)
             ->count();
 
         $vehicle_count = array(
@@ -484,6 +497,7 @@ class LiveDataController extends Controller
                 ->leftJoin('twings.device_makes as F', 'F.id', '=', 'A.device_make_id')
                 ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
                 ->where('A.client_id', $client_id)
+                ->where('A.status', 1)
                 ->get();
 
             if ($result->isEmpty()) {
@@ -547,6 +561,7 @@ class LiveDataController extends Controller
                 ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
                 ->whereIn('B.deviceimei', $device_imei)
                 ->where('A.client_id', $client_id)
+                ->where('A.status', 1)
                 ->get();
 
             if ($result->isEmpty()) {
@@ -631,6 +646,7 @@ class LiveDataController extends Controller
             ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
             ->where('B.deviceimei', $device_imei)
             ->where('A.client_id', $client_id)
+            ->where('A.status', 1)
             ->first();
 
         if (empty($result)) {
@@ -664,41 +680,48 @@ class LiveDataController extends Controller
         $total_vehicles = DB::connection($connectionName)
             ->table('vehicles') // Replace 'vehicles' with your actual table name
             ->where('client_id', $client_id)
+            ->where('status', 1)
             ->count();
 
         $parking = DB::connection($connectionName)
             ->table('live_data')
             ->where('vehicle_current_status', 1)
+            ->where('vehicle_status', 1)
             ->where('client_id', $client_id)
             ->count();
 
         $idle = DB::connection($connectionName)
             ->table('live_data')
             ->where('vehicle_current_status', 2)
+            ->where('vehicle_status', 1)
             ->where('client_id', $client_id)
             ->count();
 
         $moving = DB::connection($connectionName)
             ->table('live_data')
             ->where('vehicle_current_status', 3)
+            ->where('vehicle_status', 1)
             ->where('client_id', $client_id)
             ->count();
 
         $no_data = DB::connection($connectionName)
             ->table('live_data')
             ->where('vehicle_current_status', 4)
+            ->where('vehicle_status', 1)
             ->where('client_id', $client_id)
             ->count();
 
         $inactive = DB::connection($connectionName)
             ->table('live_data')
             ->where('vehicle_current_status', 5)
+            ->where('vehicle_status', 1)
             ->where('client_id', $client_id)
             ->count();
 
         $expired_vehicles = DB::connection($connectionName)
             ->table('vehicles') // Replace 'vehicles' with your actual table name
             ->where('expire_date', '<', now())
+            ->where('vehicle_status', 1)
             ->where('client_id', $client_id)
             ->count();
 
@@ -706,6 +729,7 @@ class LiveDataController extends Controller
             ->table('vehicles') // Replace 'vehicles' with your actual table name
             ->whereBetween('expire_date', [DB::raw('CURDATE()'), DB::raw('DATE_ADD(CURDATE(), INTERVAL 15 DAY)')])
             ->where('client_id', $client_id)
+            ->where('vehicle_status', 1)
             ->count();
 
         $vehicle_count = [
