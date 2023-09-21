@@ -100,8 +100,7 @@ class GeofenceController extends Controller
             return response()->json($response, 404);
         }
 
-        $Geofence->active_code = 0;
-        if ($Geofence->save()) {
+        if ($Geofence->delete()) {
             $response = ["success" => true, "message" => 'Geofence Deleted Successfully', "status_code" => 200];
             return response()->json($response, 200);
         } else {
