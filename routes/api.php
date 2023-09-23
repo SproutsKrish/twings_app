@@ -284,6 +284,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('client_single_dashboard', 'client_single_dashboard');
             Route::post('client_vehicle_count', 'client_vehicle_count');
         });
+
+        Route::controller(VehicleController::class)->group(function () {
+            Route::post('customer_vehicle_update', 'customer_vehicle_update');
+            Route::post('customer_vehicle_delete', 'customer_vehicle_delete');
+        });
     });
     Route::group(['middleware' => ['auth', 'checkrole:4,5']], function () {
     });
@@ -364,12 +369,16 @@ Route::put('sim_assign/{id}', [SimController::class, 'sim_assign']);
 Route::put('device_assign/{id}', [DeviceController::class, 'device_assign']);
 Route::post('plan_days', [PlanController::class, 'plan_days']);
 
+Route::get('change_live_data', [VehicleController::class, 'change_live_data']);
+
+
 
 //App Contact
 Route::get('contact_address/{id}', [ClientController::class, 'contact_address']);
 Route::post('live_address', [AddressController::class, 'live_address']);
 
 Route::post('sim_new', [SimController::class, 'sim_new']);
+Route::get('demo_time', [LiveDataController::class, 'demo_time']);
 
 
 //Not Use

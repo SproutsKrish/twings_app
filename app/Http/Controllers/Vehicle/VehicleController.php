@@ -269,6 +269,7 @@ class VehicleController extends BaseController
             $data = Vehicle::select(
                 'vehicles.id',
                 'vehicle_types.vehicle_type',
+                'vehicles.vehicle_type_id',
                 'vehicles.vehicle_name',
                 'vehicles.sim_mob_no',
                 'vehicles.device_imei',
@@ -289,6 +290,7 @@ class VehicleController extends BaseController
                 ->join('clients', 'vehicles.client_id', '=', 'clients.id')
                 ->join('dealers', 'vehicles.dealer_id', '=', 'dealers.id')
                 ->leftJoin('sub_dealers', 'vehicles.subdealer_id', '=', 'sub_dealers.id')
+                ->where('vehicles.status', 1)
                 ->get();
         } else if ($role_id == 2) {
             $data = User::find($user_id);
@@ -296,6 +298,7 @@ class VehicleController extends BaseController
             $data = Vehicle::select(
                 'vehicles.id',
                 'vehicle_types.vehicle_type',
+                'vehicles.vehicle_type_id',
                 'vehicles.vehicle_name',
                 'vehicles.sim_mob_no',
                 'vehicles.device_imei',
@@ -317,6 +320,7 @@ class VehicleController extends BaseController
                 ->join('dealers', 'vehicles.dealer_id', '=', 'dealers.id')
                 ->leftJoin('sub_dealers', 'vehicles.subdealer_id', '=', 'sub_dealers.id')
                 ->where('vehicles.admin_id', $admin_id)
+                ->where('vehicles.status', 1)
                 ->get();
         } else if ($role_id == 3) {
             $data = User::find($user_id);
@@ -324,6 +328,7 @@ class VehicleController extends BaseController
             $data = Vehicle::select(
                 'vehicles.id',
                 'vehicle_types.vehicle_type',
+                'vehicles.vehicle_type_id',
                 'vehicles.vehicle_name',
                 'vehicles.sim_mob_no',
                 'vehicles.device_imei',
@@ -345,6 +350,7 @@ class VehicleController extends BaseController
                 ->join('dealers', 'vehicles.dealer_id', '=', 'dealers.id')
                 ->leftJoin('sub_dealers', 'vehicles.subdealer_id', '=', 'sub_dealers.id')
                 ->where('vehicles.distributor_id', $distributor_id)
+                ->where('vehicles.status', 1)
                 ->get();
         } else if ($role_id == 4) {
             $data = User::find($user_id);
@@ -352,6 +358,7 @@ class VehicleController extends BaseController
             $data = Vehicle::select(
                 'vehicles.id',
                 'vehicle_types.vehicle_type',
+                'vehicles.vehicle_type_id',
                 'vehicles.vehicle_name',
                 'vehicles.sim_mob_no',
                 'vehicles.device_imei',
@@ -373,6 +380,7 @@ class VehicleController extends BaseController
                 ->join('dealers', 'vehicles.dealer_id', '=', 'dealers.id')
                 ->leftJoin('sub_dealers', 'vehicles.subdealer_id', '=', 'sub_dealers.id')
                 ->where('vehicles.dealer_id', $dealer_id)
+                ->where('vehicles.status', 1)
                 ->get();
         } else if ($role_id == 5) {
             $data = User::find($user_id);
@@ -380,6 +388,7 @@ class VehicleController extends BaseController
             $data = Vehicle::select(
                 'vehicles.id',
                 'vehicle_types.vehicle_type',
+                'vehicles.vehicle_type_id',
                 'vehicles.vehicle_name',
                 'vehicles.sim_mob_no',
                 'vehicles.device_imei',
@@ -401,6 +410,7 @@ class VehicleController extends BaseController
                 ->join('dealers', 'vehicles.dealer_id', '=', 'dealers.id')
                 ->leftJoin('sub_dealers', 'vehicles.subdealer_id', '=', 'sub_dealers.id')
                 ->where('vehicles.subdealer_id', $subdealer_id)
+                ->where('vehicles.status', 1)
                 ->get();
         } else if ($role_id == 6) {
             $data = User::find($user_id);
@@ -408,6 +418,7 @@ class VehicleController extends BaseController
             $data = Vehicle::select(
                 'vehicles.id',
                 'vehicle_types.vehicle_type',
+                'vehicles.vehicle_type_id',
                 'vehicles.vehicle_name',
                 'vehicles.sim_mob_no',
                 'vehicles.device_imei',
@@ -429,6 +440,7 @@ class VehicleController extends BaseController
                 ->join('dealers', 'vehicles.dealer_id', '=', 'dealers.id')
                 ->leftJoin('sub_dealers', 'vehicles.subdealer_id', '=', 'sub_dealers.id')
                 ->where('vehicles.client_id', $client_id)
+                ->where('vehicles.status', 1)
                 ->get();
         }
 
@@ -535,6 +547,151 @@ class VehicleController extends BaseController
         } else {
             $response = ["success" => false, "message" => "Failed to Update Vehicle Type", "status_code" => 404];
             return response()->json($response, 404);
+        }
+    }
+
+
+    public function customer_vehicle_update(Request $request)
+    {
+        $id = $request->input('id');
+        $vehicle = Vehicle::find($id);
+        $client_id = $vehicle->client_id;
+        $vehicle_type_id = $request->input('vehicle_type_id');
+        $vehicle_name = $request->input('vehicle_name');
+
+        DB::table('vehicles')
+            ->where('id', $id)
+            ->where('client_id', $client_id)
+            ->update([
+                'vehicle_type_id' => $vehicle_type_id,
+                'vehicle_name' => $vehicle_name,
+            ]);
+
+        DB::table('live_data')
+            ->where('vehicle_id', $id)
+            ->update([
+                'vehicle_name' => $vehicle_name,
+            ]);
+
+        DB::table('configurations')
+            ->where('vehicle_id', $id)
+            ->update([
+                'vehicle_name' => $vehicle_name,
+            ]);
+
+        $result = CustomerConfiguration::where('client_id', $client_id)
+            ->first();
+
+        $connectionName = $result->db_name;
+        $connectionConfig = [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST'), // Use the environment variable for host
+            'port' => env('DB_PORT'), // Use the environment variable for port
+            'database' => $result->db_name,    // Change this to the actual database name
+            'username' => env('DB_USERNAME'), // Use the environment variable for username
+            'password' => env('DB_PASSWORD'), // Use the environment variable for password
+        ];
+
+        Config::set("database.connections.$connectionName", $connectionConfig);
+        DB::purge($connectionName);
+
+        $client_vehicle_data = array(
+            'vehicle_type_id' => $vehicle_type_id,
+            'vehicle_name' => $vehicle_name
+        );
+        DB::connection($connectionName)->table('vehicles')->where('id', $id)->update($client_vehicle_data);
+
+        $live_data = array(
+            'vehicle_name' => $vehicle_name
+        );
+        DB::connection($connectionName)->table('live_data')->where('vehicle_id', $id)->update($live_data);
+
+        $config_details = array(
+            'vehicle_name' => $vehicle_name
+        );
+        DB::connection($connectionName)->table('configurations')->where('vehicle_id', $id)->update($config_details);
+
+        DB::disconnect($connectionName);
+    }
+
+
+    public function customer_vehicle_delete(Request $request)
+    {
+        $id = $request->input('id');
+        $vehicle = Vehicle::find($id);
+        $client_id = $vehicle->client_id;
+
+        DB::table('vehicles')
+            ->where('id', $id)
+            ->where('client_id', $client_id)
+            ->update([
+                'status' => 0,
+            ]);
+
+        DB::table('live_data')
+            ->where('vehicle_id', $id)
+            ->update([
+                'vehicle_status' => 0,
+            ]);
+
+        $result = CustomerConfiguration::where('client_id', $client_id)
+            ->first();
+
+        $connectionName = $result->db_name;
+        $connectionConfig = [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST'), // Use the environment variable for host
+            'port' => env('DB_PORT'), // Use the environment variable for port
+            'database' => $result->db_name,    // Change this to the actual database name
+            'username' => env('DB_USERNAME'), // Use the environment variable for username
+            'password' => env('DB_PASSWORD'), // Use the environment variable for password
+        ];
+
+        Config::set("database.connections.$connectionName", $connectionConfig);
+        DB::purge($connectionName);
+
+        $client_vehicle_data = array(
+            'status' => 0,
+        );
+        DB::connection($connectionName)->table('vehicles')->where('id', $id)->update($client_vehicle_data);
+
+        $live_data = array(
+            'vehicle_status' => 0
+        );
+        DB::connection($connectionName)->table('live_data')->where('vehicle_id', $id)->update($live_data);
+
+        DB::disconnect($connectionName);
+    }
+
+    public function change_live_data()
+    {
+        $clients =  DB::table('customer_configurations')->pluck('client_id');
+
+        foreach ($clients as $client_id) {
+            $result = CustomerConfiguration::where('client_id', $client_id)
+                ->first();
+
+            $connectionName = $result->db_name;
+            $connectionConfig = [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST'), // Use the environment variable for host
+                'port' => env('DB_PORT'), // Use the environment variable for port
+                'database' => $result->db_name,    // Change this to the actual database name
+                'username' => env('DB_USERNAME'), // Use the environment variable for username
+                'password' => env('DB_PASSWORD'), // Use the environment variable for password
+            ];
+
+            Config::set("database.connections.$connectionName", $connectionConfig);
+            DB::purge($connectionName);
+
+            $live_data = array(
+                'ac_status' => null,
+                'temperature' => null,
+                'door_status' => null
+            );
+            DB::connection($connectionName)->table('live_data')->update($live_data);
+
+            DB::disconnect($connectionName);
         }
     }
 }

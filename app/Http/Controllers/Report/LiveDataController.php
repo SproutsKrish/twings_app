@@ -11,20 +11,27 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 
 use App\Models\Vehicle;
-
-
-
-
+use Carbon\Carbon;
 
 class LiveDataController extends Controller
 {
+
+    public function demo_time()
+    {
+        $endDate = date('Y-m-d H:i:s', strtotime('330 minutes'));
+        $carbonDatetime = Carbon::parse($endDate);
+        $startDate = $carbonDatetime->toDateString() . " 00:00:00";
+        // dd("S-" . $startDate . "__" . "E-" . $endDate);
+    }
+
     public function multi_dashboard(Request $request)
     {
-        // $startDate = date('Y-m-d H:i:s', strtotime('-330 minutes'));
-        // $endDate = date('Y-m-d H:i:s', strtotime('-330 minutes'));
+        $endDate = date('Y-m-d H:i:s', strtotime('330 minutes'));
+        $carbonDatetime = Carbon::parse($endDate);
+        $startDate = $carbonDatetime->toDateString() . " 00:00:00";
 
-        $startDate = date('Y-m-d') . ' 00:00:00';
-        $endDate = date('Y-m-d H:i:s');
+        // $startDate = date('Y-m-d') . ' 00:00:00';
+        // $endDate = date('Y-m-d H:i:s');
 
 
         $search = $request->input('search');
@@ -163,8 +170,9 @@ class LiveDataController extends Controller
         // $startDate = date('Y-m-d H:i:s', strtotime('-330 minutes'));
         // $endDate = date('Y-m-d H:i:s', strtotime('-330 minutes'));
 
-        $startDate = date('Y-m-d') . ' 00:00:00';
-        $endDate = date('Y-m-d H:i:s');
+        $endDate = date('Y-m-d H:i:s', strtotime('330 minutes'));
+        $carbonDatetime = Carbon::parse($endDate);
+        $startDate = $carbonDatetime->toDateString() . " 00:00:00";
 
 
         $result = DB::table('live_data as B')

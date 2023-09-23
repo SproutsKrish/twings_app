@@ -199,50 +199,194 @@ class ImportController extends BaseController
     }
 
 
+    // public function user_import(Request $request)
+    // {
+    //     $file_path = $request->input('file_path');
+
+    //     if (!$file_path) {
+    //         return $this->sendError("No File Path Provided");
+    //     }
+
+    //     $validator = Validator::make($request->all(), ['file_path' => 'required']);
+
+    //     if ($validator->fails()) {
+    //         return $this->sendError("Invalid File Format");
+    //     }
+
+    //     try {
+    //         $path = $file_path;
+    //         $data = array_map('str_getcsv', file($path));
+
+    //         DB::beginTransaction();
+
+    //         foreach ($data as $row) {
+    //             $rowValidator = Validator::make($row, [
+    //                 0 => 'required', // name (unique in 'users' table)
+    //                 1 => 'required|unique:users,email', // email (unique in 'users' table)
+    //                 2 => 'required', // password
+    //                 3 => 'required', // secondary_password
+    //                 4 => 'required', // role_id
+    //             ]);
+
+    //             if ($rowValidator->fails()) {
+    //                 DB::rollBack();
+    //                 return $this->sendError($rowValidator->errors());
+    //             }
+
+    //             $user =  User::create([
+    //                 'name' => $row[0],
+    //                 'email' => $row[1],
+    //                 'password' => bcrypt($row[2]),
+    //                 'secondary_password' => bcrypt($row[3]),
+    //                 'mobile_no' => $row[4],
+    //                 'role_id' => $row[5],
+    //                 'admin_id' => $row[6],
+    //                 'distributor_id' => $row[7],
+    //                 'dealer_id' => $row[8],
+    //                 'created_by' => auth()->user()->id,
+    //                 'ip_address' => $request->ip(),
+    //             ]);
+
+    //             $client = Client::create(
+    //                 [
+    //                     'client_company' => $user->name,
+    //                     'client_name' => $user->name,
+    //                     'client_email' => $user->email,
+    //                     'client_mobile' => $user->mobile_no,
+    //                     'user_id' => $user->id,
+    //                     'admin_id' => $user->admin_id,
+    //                     'distributor_id' => $user->distributor_id,
+    //                     'dealer_id' => $user->dealer_id,
+    //                     'created_by' => auth()->user()->id,
+    //                     'ip_address' => $request->ip(),
+    //                 ]
+    //             );
+
+    //             User::where('id', $user->id)
+    //                 ->update([
+    //                     'client_id' => $client->id
+    //                 ]);
+
+
+    //             $alert_types =  DB::table('alert_types')
+    //                 ->where('status', '1')
+    //                 ->select('id')
+    //                 ->get();
+
+    //             foreach ($alert_types as $alert_type) {
+    //                 $userdata = array(
+    //                     'user_id' => $user->id,
+    //                     'client_id' => $client->id,
+    //                     'alert_type_id' => $alert_type->id,
+    //                     'user_status' => 0,
+    //                     'active_status' => 1,
+    //                 );
+    //                 DB::table('alert_notifications')->insert($userdata);
+    //             }
+
+    //             $tenant = Tenant::create(['id' => $client->id]);
+
+    //             $customer_configurations = CustomerConfiguration::create(
+    //                 [
+    //                     'user_id' => $user->id,
+    //                     'client_id' => $client->id,
+    //                     'db_name' => $tenant->tenancy_db_name,
+    //                     'user_name' => $user->name,
+    //                     'password' => $user->password
+    //                 ]
+    //             );
+    //             $tenant->domains()->create(['domain' => $user->name . '.' . 'localhost']);
+
+
+    //             $result = CustomerConfiguration::where('client_id', $client->id)
+    //                 ->first();
+
+    //             $connectionName = $result->db_name;
+    //             $connectionConfig = [
+    //                 'driver' => 'mysql',
+    //                 'host' => env('DB_HOST'), // Use the environment variable for host
+    //                 'port' => env('DB_PORT'), // Use the environment variable for port
+    //                 'database' => $result->db_name,   // Change this to the actual database name
+    //                 'username' => env('DB_USERNAME'), // Use the environment variable for username
+    //                 'password' => env('DB_PASSWORD'), // Use the environment variable for password
+    //             ];
+
+    //             Config::set("database.connections.$connectionName", $connectionConfig);
+    //             DB::purge($connectionName);
+
+    //             $userdata = array(
+    //                 'id' => $user->id,
+    //                 'name' => $user->name,
+    //                 'email' => $user->email,
+    //                 'mobile_no' => $user->mobile_no,
+    //                 'password' => $user->password,
+    //                 'secondary_password' => $user->secondary_password,
+    //                 'role_id' => $user->role_id,
+    //                 'admin_id' => $user->admin_id,
+    //                 'distributor_id' => $user->distributor_id,
+    //                 'dealer_id' => $user->dealer_id,
+    //                 'subdealer_id' => $user->subdealer_id,
+    //                 'client_id' => $client->id,
+    //                 'vehicle_owner_id' => $user->vehicle_owner_id,
+    //                 'staff_id' => $user->staff_id,
+    //                 'country_id' => $user->country_id,
+    //                 'country_name' => $user->country_name,
+    //                 'timezone_name' => $user->timezone_name,
+    //                 'timezone_offset' => $user->timezone_offset,
+    //                 'timezone_minutes' => $user->timezone_minutes,
+    //                 'created_by' => $user->created_by,
+    //                 'ip_address' => $request->ip()
+    //             );
+    //             DB::connection($connectionName)->table('users')->insert($userdata);
+    //         }
+
+    //         DB::commit();
+
+    //         return $this->sendSuccess('User Imported Successfully');
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         return $this->sendError('An error occurred during CSV import: ' . $e->getMessage());
+    //     }
+    // }
+
+
     public function user_import(Request $request)
     {
-        $file_path = $request->input('file_path');
-
-        if (!$file_path) {
-            return $this->sendError("No File Path Provided");
-        }
-
-        $validator = Validator::make($request->all(), ['file_path' => 'required']);
-
-        if ($validator->fails()) {
-            return $this->sendError("Invalid File Format");
-        }
-
         try {
-            $path = $file_path;
-            $data = array_map('str_getcsv', file($path));
+            // $path = $file_path;
+            // $data = array_map('str_getcsv', file($path));
 
             DB::beginTransaction();
 
-            foreach ($data as $row) {
-                $rowValidator = Validator::make($row, [
-                    0 => 'required', // name (unique in 'users' table)
-                    1 => 'required|unique:users,email', // email (unique in 'users' table)
-                    2 => 'required', // password
-                    3 => 'required', // secondary_password
-                    4 => 'required', // role_id
-                ]);
+            $data = DB::table('demo_import.ciss')->whereBetween('id', [201, 210])->select('name', 'email', 'password', 'sec_pass', 'mobile_no', 'role_id', 'admin_id', 'distributor_id', 'dealer_id')->get();
 
-                if ($rowValidator->fails()) {
-                    DB::rollBack();
-                    return $this->sendError($rowValidator->errors());
-                }
+
+            foreach ($data as $row) {
+
+                // dd($row->name);
+                // $rowValidator = Validator::make($row, [
+                //     0 => 'required', // name (unique in 'users' table)
+                //     1 => 'required|unique:users,email', // email (unique in 'users' table)
+                //     2 => 'required', // password
+                //     3 => 'required', // secondary_password
+                //     4 => 'required', // role_id
+                // ]);
+
+                // if ($rowValidator->fails()) {
+                //     DB::rollBack();
+                //     return $this->sendError($rowValidator->errors());
+                // }
 
                 $user =  User::create([
-                    'name' => $row[0],
-                    'email' => $row[1],
-                    'password' => bcrypt($row[2]),
-                    'secondary_password' => bcrypt($row[3]),
-                    'mobile_no' => $row[4],
-                    'role_id' => $row[5],
-                    'admin_id' => $row[6],
-                    'distributor_id' => $row[7],
-                    'dealer_id' => $row[8],
+                    'name' => $row->name,
+                    'email' => $row->email,
+                    'password' => bcrypt($row->password),
+                    'secondary_password' => bcrypt($row->sec_pass),
+                    'mobile_no' => $row->mobile_no,
+                    'role_id' => $row->role_id,
+                    'admin_id' => $row->admin_id,
+                    'distributor_id' => $row->distributor_id,
+                    'dealer_id' => $row->dealer_id,
                     'created_by' => auth()->user()->id,
                     'ip_address' => $request->ip(),
                 ]);
