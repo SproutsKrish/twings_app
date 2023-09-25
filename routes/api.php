@@ -156,14 +156,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::controller(UserController::class)->group(function () {
         Route::post('user/store', 'store');
         Route::post('user/update', 'update');
+        Route::delete('user/delete/{id}', 'destroy');
+
         Route::get('user', 'index');
         Route::get('user/show/{id}', 'show');
-        Route::delete('user/delete/{id}', 'destroy');
         Route::get('user/details', 'showdetails');
     });
 
     Route::post('user_list', [UserController::class, 'user_list']);
     Route::post('role_based_user_list', [UserController::class, 'role_based_user_list']);
+
     Route::post('role_rights_list', [RoleRightsController::class, 'role_rights_list']);
     Route::post('user_point_list', [UserController::class, 'user_point_list']);
     Route::post('point_stock_list', [PointController::class, 'point_stock_list']);
@@ -290,6 +292,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('customer_vehicle_delete', 'customer_vehicle_delete');
         });
     });
+
+    Route::controller(ShareLinkController::class)->group(function () {
+        Route::get('share_link_list/{client_id}', 'share_link_list');
+        Route::post('share_link_save', 'share_link_save');
+        Route::get('share_link_show/{id}', 'share_link_show');
+        Route::delete('share_link_delete/{id}', 'share_link_delete');
+    });
+
     Route::group(['middleware' => ['auth', 'checkrole:4,5']], function () {
     });
 });
