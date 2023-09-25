@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PlaybackContoller;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +14,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+Route::get('playback/live_track', [PlaybackContoller::class, 'live_track'])->name('live_track');
+Route::resource('playback',PlaybackContoller::class);
+
+Auth::routes();
+
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
