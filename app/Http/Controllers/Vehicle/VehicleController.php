@@ -160,6 +160,15 @@ class VehicleController extends BaseController
 
             DB::table('live_data')->insert($main_live_data);
 
+            $documents = array(
+                'client_id' => $vehicle->client_id,
+                'client_id' => $vehicle->client_id,
+
+                'vehicle_id' => $vehicle->id,
+            );
+
+            DB::table('vehicle_documents')->insert($documents);
+
             //Main Configurations
             $main_config_details = array(
                 'client_id' => $vehicle->client_id,
@@ -252,10 +261,12 @@ class VehicleController extends BaseController
         $vehicle = Vehicle::find($id);
 
         if (!$vehicle) {
-            return $this->sendError('Vehicle Not Found');
+            $response = ["success" => false, "message" => "No Vehicle Found", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => $vehicle, "status_code" => 200];
+            return response()->json($response, 200);
         }
-
-        return $this->sendSuccess($vehicle);
     }
 
 

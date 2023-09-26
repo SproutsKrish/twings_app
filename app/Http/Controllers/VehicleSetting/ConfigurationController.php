@@ -54,7 +54,13 @@ class ConfigurationController extends BaseController
 
         DB::connection($connectionName)->table('configurations')->where('device_imei', $configuration->device_imei)->update($input);
 
-        return response()->json("OK");
+        if (empty($result)) {
+            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => "Configuration Updated Successfully", "status_code" => 200];
+            return response()->json($response, 200);
+        }
     }
 
     public function store_all(Request $request)
@@ -112,13 +118,14 @@ class ConfigurationController extends BaseController
             ->first();
 
         if (empty($configuration)) {
-            $response = ["success" => false, "message" => "No Datas Found", "status_code" => 404];
+            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
             return response()->json($response, 404);
         } else {
             $response = ["success" => true, "data" => $configuration, "status_code" => 200];
             return response()->json($response, 200);
         }
     }
+
     public function update(Request $request, $id)
     {
         $configuration = Configuration::find($id);

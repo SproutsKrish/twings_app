@@ -39,8 +39,7 @@ class AcReportController extends Controller
             ->where('A.device_imei', $request->input('device_imei'))
             ->get();
 
-
-        if (empty($results)) {
+        if ($results->isEmpty()) {
             $response = ["success" => false, "message" => 'No AC Data Found', "status_code" => 404];
             return response($response, 404);
         }
