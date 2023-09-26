@@ -215,26 +215,33 @@ class VehicleDocumentController extends BaseController
             $response = ["success" => false, "message" => "Vehicle Not Found", "status_code" => 404];
             return response()->json($response, 404);
         } else {
+            $fileContents = $request->getContent();
+
+
             $insurance_front_image = $vehicle->vehicle_name . '_insurance_front_image.' . $request->insurance_front_image->extension();
-            $insurance_front_image_loc = $request->insurance_front_image->storeAs('public/images/login_logo/', $insurance_front_image);
+
+            // $insurance_front_image = $vehicle->vehicle_name . '_insurance_front_image_name.' . $request->file('insurance_front_image')->getClientOriginalExtension();
+            // $insurance_front_image_loc = file_put_contents(public_path('storage/uploads/' . $insurance_front_image), $fileContents);
+
+            $insurance_front_image_loc = $request->insurance_front_image->storeAs('public/uploads/', $insurance_front_image);
             $insurance_back_image = $vehicle->vehicle_name . '_insurance_back_image.' . $request->insurance_back_image->extension();
-            $insurance_back_image_loc = $request->insurance_back_image->storeAs('public/images/login_logo/', $insurance_back_image);
+            $insurance_back_image_loc = $request->insurance_back_image->storeAs('public/uploads/', $insurance_back_image);
             $fitness_front_image = $vehicle->vehicle_name . '_fitness_front_image.' . $request->fitness_front_image->extension();
-            $fitness_front_image_loc = $request->fitness_front_image->storeAs('public/images/login_logo/', $fitness_front_image);
+            $fitness_front_image_loc = $request->fitness_front_image->storeAs('public/uploads/', $fitness_front_image);
             $fitness_back_image = $vehicle->vehicle_name . '_fitness_back_image.' . $request->fitness_back_image->extension();
-            $fitness_back_image_loc = $request->fitness_back_image->storeAs('public/images/login_logo/', $fitness_back_image);
+            $fitness_back_image_loc = $request->fitness_back_image->storeAs('public/uploads/', $fitness_back_image);
             $tax_front_image = $vehicle->vehicle_name . '_tax_front_image.' . $request->tax_front_image->extension();
-            $tax_front_image_loc = $request->tax_front_image->storeAs('public/images/login_logo/', $tax_front_image);
+            $tax_front_image_loc = $request->tax_front_image->storeAs('public/uploads/', $tax_front_image);
             $tax_back_image = $vehicle->vehicle_name . '_tax_back_image.' . $request->tax_back_image->extension();
-            $tax_back_image_loc = $request->tax_back_image->storeAs('public/images/login_logo/', $tax_back_image);
+            $tax_back_image_loc = $request->tax_back_image->storeAs('public/uploads/', $tax_back_image);
             $permit_front_image = $vehicle->vehicle_name . '_permit_front_image.' . $request->permit_front_image->extension();
-            $permit_front_image_loc =  $request->permit_front_image->storeAs('public/images/login_logo/', $permit_front_image);
+            $permit_front_image_loc =  $request->permit_front_image->storeAs('public/uploads/', $permit_front_image);
             $permit_back_image = $vehicle->vehicle_name . '_permit_back_image.' . $request->permit_back_image->extension();
-            $permit_back_image_loc = $request->permit_back_image->storeAs('public/images/login_logo/', $permit_back_image);
+            $permit_back_image_loc = $request->permit_back_image->storeAs('public/uploads/', $permit_back_image);
             $rc_front_image = $vehicle->vehicle_name . '_rc_front_image.' . $request->rc_front_image->extension();
-            $rc_front_image_loc = $request->rc_front_image->storeAs('public/images/login_logo/', $rc_front_image);
+            $rc_front_image_loc = $request->rc_front_image->storeAs('public/uploads/', $rc_front_image);
             $rc_back_image = $vehicle->vehicle_name . '_rc_back_image.' . $request->rc_back_image->extension();
-            $rc_back_image_loc = $request->rc_back_image->storeAs('public/images/login_logo/', $rc_back_image);
+            $rc_back_image_loc = $request->rc_back_image->storeAs('public/uploads/', $rc_back_image);
 
             $vehicle_document->insurance_front_image = $insurance_front_image_loc;
             $vehicle_document->insurance_back_image = $insurance_back_image_loc;
