@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Vehicle;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
-use Validator;
+use App\Models\Vehicle;
+use Illuminate\Support\Facades\Validator;
 
 use App\Models\VehicleDocument;
 
@@ -84,7 +85,7 @@ class VehicleDocumentController extends BaseController
 
     public function show($id)
     {
-        $vehicle_document = VehicleDocument::find($id);
+        $vehicle_document = VehicleDocument::where('vehicle_id', $id)->get();
 
         if (!$vehicle_document) {
             return $this->sendError('Vehicle Document Not Found');
@@ -191,6 +192,77 @@ class VehicleDocumentController extends BaseController
             return $this->sendSuccess('Vehicle Document Deleted Successfully');
         } else {
             return $this->sendError('Failed to Delete Vehicle Document');
+        }
+    }
+
+    public function upload_vehicle_document(Request $request)
+    {
+        //Validation Code
+        $validator = Validator::make($request->all(), [
+            'vehicle_id' => 'required',
+            'login_image1' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'login_image2' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+        if ($validator->fails()) {
+            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+            return response()->json($response, 403);
+        }
+
+        $vehicle_document = VehicleDocument::find($request->input('vehicle_id'));
+        $vehicle = Vehicle::where('id', $request->input('vehicle_id'))->first();
+
+        if (!$vehicle_document && !$vehicle) {
+            $response = ["success" => false, "message" => "Vehicle Not Found", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $insurance_front_image = $vehicle->vehicle_name . '_insurance_front_image.' . $request->insurance_front_image->extension();
+            $insurance_front_image_loc = $request->insurance_front_image->storeAs('public/images/login_logo/', $insurance_front_image);
+            $insurance_back_image = $vehicle->vehicle_name . '_insurance_back_image.' . $request->insurance_back_image->extension();
+            $insurance_back_image_loc = $request->insurance_back_image->storeAs('public/images/login_logo/', $insurance_back_image);
+            $fitness_front_image = $vehicle->vehicle_name . '_fitness_front_image.' . $request->fitness_front_image->extension();
+            $fitness_front_image_loc = $request->fitness_front_image->storeAs('public/images/login_logo/', $fitness_front_image);
+            $fitness_back_image = $vehicle->vehicle_name . '_fitness_back_image.' . $request->fitness_back_image->extension();
+            $fitness_back_image_loc = $request->fitness_back_image->storeAs('public/images/login_logo/', $fitness_back_image);
+            $tax_front_image = $vehicle->vehicle_name . '_tax_front_image.' . $request->tax_front_image->extension();
+            $tax_front_image_loc = $request->tax_front_image->storeAs('public/images/login_logo/', $tax_front_image);
+            $tax_back_image = $vehicle->vehicle_name . '_tax_back_image.' . $request->tax_back_image->extension();
+            $tax_back_image_loc = $request->tax_back_image->storeAs('public/images/login_logo/', $tax_back_image);
+            $permit_front_image = $vehicle->vehicle_name . '_permit_front_image.' . $request->permit_front_image->extension();
+            $permit_front_image_loc =  $request->permit_front_image->storeAs('public/images/login_logo/', $permit_front_image);
+            $permit_back_image = $vehicle->vehicle_name . '_permit_back_image.' . $request->permit_back_image->extension();
+            $permit_back_image_loc = $request->permit_back_image->storeAs('public/images/login_logo/', $permit_back_image);
+            $rc_front_image = $vehicle->vehicle_name . '_rc_front_image.' . $request->rc_front_image->extension();
+            $rc_front_image_loc = $request->rc_front_image->storeAs('public/images/login_logo/', $rc_front_image);
+            $rc_back_image = $vehicle->vehicle_name . '_rc_back_image.' . $request->rc_back_image->extension();
+            $rc_back_image_loc = $request->rc_back_image->storeAs('public/images/login_logo/', $rc_back_image);
+
+            $vehicle_document->insurance_front_image = $insurance_front_image_loc;
+            $vehicle_document->insurance_back_image = $insurance_back_image_loc;
+            $vehicle_document->fitness_front_image = $fitness_front_image_loc;
+            $vehicle_document->fitness_back_image = $fitness_back_image_loc;
+            $vehicle_document->tax_front_image = $tax_front_image_loc;
+            $vehicle_document->tax_back_image = $tax_back_image_loc;
+            $vehicle_document->permit_front_image = $permit_front_image_loc;
+            $vehicle_document->permit_back_image = $permit_back_image_loc;
+            $vehicle_document->rc_front_image = $rc_front_image_loc;
+            $vehicle_document->rc_back_image = $rc_back_image_loc;
+            $vehicle_document->policy_no = $request->input('policy_no');
+            $vehicle_document->insurance_company_name = $request->input('insurance_company_name');
+            $vehicle_document->insurance_type = $request->input('insurance_type');
+            $vehicle_document->insurance_start_date = $request->input('insurance_start_date');
+            $vehicle_document->insurance_expiry_date = $request->input('insurance_expiry_date');
+            $vehicle_document->fitness_certificate_expiry_date = $request->input('fitness_certificate_expiry_date');
+            $vehicle_document->tax_expiry_date = $request->input('tax_expiry_date');
+            $vehicle_document->permit_expiry_date = $request->input('permit_expiry_date');
+            $vehicle_document->rc_expiry_date = $request->input('rc_expiry_date');
+            $result = $vehicle_document->update();
+            if ($result) {
+                $response = ["success" => true, "message" => "Vehicle Document Uploaded Successfully", "status_code" => 200];
+                return response()->json($response, 200);
+            } else {
+                $response = ["success" => false, "message" => "No Documents Uploaded", "status_code" => 404];
+                return response()->json($response, 404);
+            }
         }
     }
 }

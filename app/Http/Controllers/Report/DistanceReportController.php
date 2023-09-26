@@ -42,16 +42,12 @@ class DistanceReportController extends Controller
             ->orderBy('date')
             ->get();
 
-
-
-        // dd($results);
-
-        if (empty($results)) {
+        if ($results->isEmpty()) {
             $response = ["success" => false, "message" => 'No Distance Data Found', "status_code" => 404];
             return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => $results, "status_code" => 200];
+            return response()->json($response, 200);
         }
-
-        $response = ["success" => true, "data" => $results, "status_code" => 200];
-        return response()->json($response, 200);
     }
 }

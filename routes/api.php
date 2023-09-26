@@ -354,6 +354,8 @@ Route::post('user/delete', [UserController::class, 'destroy']);
 Route::resource('camera', CameraController::class);
 
 Route::resource('vehicle_document', VehicleDocumentController::class);
+Route::post('upload_vehicle_document', [VehicleDocumentController::class, 'upload_vehicle_document']);
+
 Route::resource('vehicle_service', VehicleServiceController::class);
 Route::resource('vehicle_type', VehicleTypeController::class);
 

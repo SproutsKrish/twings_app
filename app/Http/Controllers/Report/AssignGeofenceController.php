@@ -155,8 +155,8 @@ class AssignGeofenceController extends Controller
             ->get();
 
         if ($response->isEmpty()) {
-            $response = ["success" => false, "message" => 'All vehicles have Geofence', "status_code" => 404];
-            return response()->json($response, 404);
+            $response = ["success" => false, "message" => $response, "status_code" => 200];
+            return response()->json($response, 200);
         }
         $response = ["success" => true, "data" => $response, "status_code" => 200];
         return response()->json($response, 200);
