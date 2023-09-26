@@ -109,7 +109,6 @@ class AssignGeofenceController extends Controller
     public function destroy(Request $request, $id)
     {
         $data = AssignGeofence::find($id);
-
         if (!$data) {
             $response = ["success" => false, "message" => 'Data Not Found', "status_code" => 404];
             return response()->json($response, 404);
