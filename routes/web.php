@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Auth;
 //     return view('welcome');
 // });
 
-Auth::routes();
+
 Route::get('playback/live_track', [PlaybackContoller::class, 'live_track'])->name('live_track');
 Route::resource('playback',PlaybackContoller::class);
 
