@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
+use App\Models\AssignGeofence;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -96,6 +97,9 @@ class GeofenceController extends Controller
         $Geofence = Geofence::find($id);
 
         if (!$Geofence) {
+
+            AssignGeofence::where('geofence_id', $id)->delete();
+
             $response = ["success" => false, "message" => 'Geofence Not Found', "status_code" => 404];
             return response()->json($response, 404);
         }
