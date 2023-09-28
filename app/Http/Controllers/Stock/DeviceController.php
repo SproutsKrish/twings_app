@@ -135,6 +135,7 @@ class DeviceController extends BaseController
                 ->where('a.subdealer_id', $subdealer_id)
                 ->where('a.client_id', null)
                 ->where('a.status', '1')
+                ->orderBy('a.id', 'desc')
                 ->get();
 
             if ($device_data->isEmpty()) {

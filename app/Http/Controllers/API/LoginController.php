@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\User;
 use App\Models\Tenant;
-
+use Carbon\Carbon;
 use Exception;
 
 class LoginController extends BaseController
@@ -73,7 +73,13 @@ class LoginController extends BaseController
         try {
             if ($request->user()) {
                 $token_id = $request->user()->currentAccessToken()->id;
-                $request->user()->tokens()->where('id', $token_id)->delete();
+
+                $last_used_at = Carbon::now();
+
+                $tokens = DB::table('personal_access_tokens')->where('id', $token_id)->update(['last_used_at' => $last_used_at]);
+
+
+                // $request->user()->tokens()->where('id', $token_id)->delete();
             }
             $response = ["success" => true, "message" => 'Successfully Logged Out', "status_code" => 200];
             return response($response, 200);
