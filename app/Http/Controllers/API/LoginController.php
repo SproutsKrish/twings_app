@@ -74,10 +74,8 @@ class LoginController extends BaseController
             if ($request->user()) {
                 $token_id = $request->user()->currentAccessToken()->id;
 
-                $last_used_at = Carbon::now();
-
+                $last_used_at = null;
                 $tokens = DB::table('personal_access_tokens')->where('id', $token_id)->update(['last_used_at' => $last_used_at]);
-
 
                 // $request->user()->tokens()->where('id', $token_id)->delete();
             }
