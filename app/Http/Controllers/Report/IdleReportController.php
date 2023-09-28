@@ -13,7 +13,7 @@ class IdleReportController extends BaseController
     {
         $idleReports = DB::table('idle_reports as A')
             ->join('vehicles as B', 'A.device_imei', '=', 'B.device_imei')
-            ->join('vehicle_types as C', 'B.vehicle_type_id', '=', 'C.id')
+            ->join('twings.vehicle_types as C', 'B.vehicle_type_id', '=', 'C.id')
             ->whereRaw("DATE_ADD(A.start_datetime, INTERVAL 330 MINUTE) >= ?", [$request->input('start_day')])
             ->whereRaw("DATE_ADD(A.end_datetime, INTERVAL 330 MINUTE) <= ?", [$request->input('end_day')])
             ->when($request->input('device_imei') !== 'All', function ($query) use ($request) {
