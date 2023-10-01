@@ -17,7 +17,7 @@ class AlertReportController extends Controller
             ->join('twings.alert_types as b', 'a.alert_type_id', '=', 'b.id')
             ->join('twings.vehicles as c', 'a.device_imei', '=', 'c.device_imei')
             ->where('a.user_id', $user->client_id)
-            ->select('a.alert_type_id', 'b.alert_type', 'a.device_imei', 'c.vehicle_name', 'a.lattitute', 'a.longitute', 'a.speed', 'a.odometer', 'a.device_updatedtime')
+            ->select('a.alert_type_id', 'b.alert_type', 'a.device_imei', 'c.vehicle_name', 'a.lattitute', 'a.longitute', 'a.speed', 'a.odometer', DB::raw("DATE_ADD(a.device_updatedtime, INTERVAL '330' MINUTE) as device_updatedtime"))
             ->orderBy('a.id', 'desc')
             ->get();
 
@@ -39,7 +39,7 @@ class AlertReportController extends Controller
             ->join('twings.vehicles as c', 'a.device_imei', '=', 'c.device_imei')
             ->where('a.device_imei', $device_imei)
             ->where('a.user_id', $user->client_id)
-            ->select('a.alert_type_id', 'b.alert_type', 'a.device_imei', 'c.vehicle_name', 'a.lattitute', 'a.longitute', 'a.speed', 'a.odometer', 'a.device_updatedtime')
+            ->select('a.alert_type_id', 'b.alert_type', 'a.device_imei', 'c.vehicle_name', 'a.lattitute', 'a.longitute', 'a.speed', 'a.odometer', DB::raw("DATE_ADD(a.device_updatedtime, INTERVAL '330' MINUTE) as device_updatedtime"))
             ->orderBy('a.id', 'desc')
             ->get();
 
