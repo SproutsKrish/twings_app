@@ -352,8 +352,6 @@ class ImportController extends BaseController
 
     public function user_import(Request $request)
     {
-
-
         try {
             ini_set('max_execution_time', 0);
 
