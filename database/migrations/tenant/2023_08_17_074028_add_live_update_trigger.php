@@ -26,8 +26,8 @@ return new class extends Migration
      MINUTE,
      ignition_report_datetime,
      NEW.device_datetime
-   ),current_alert_status
-             INTO @deviceimei,@client_id,@vehicle_id,@vehicle_current_status,@vehicle_status,@odometer,@ignition_report_flag,@ignition_report_datetime,@device_battery_volt,@vehicle_battery_volt,@lattitute,@longitute,@device_updatedtime,@speed,@diff_time,@current_alert_status
+   ),current_alert_status,ac_flag
+             INTO @deviceimei,@client_id,@vehicle_id,@vehicle_current_status,@vehicle_status,@odometer,@ignition_report_flag,@ignition_report_datetime,@device_battery_volt,@vehicle_battery_volt,@lattitute,@longitute,@device_updatedtime,@speed,@diff_time,@current_alert_status,@ac_flag
              FROM live_data
              WHERE
              deviceimei = NEW.deviceimei  ORDER BY  vehicle_id DESC LIMIT 1;
@@ -129,7 +129,12 @@ SELECT ignition_flag INTO @current_ignition FROM twings.live_notifications WHERE
  /* LIVE DATA UPDATING */
 
  /* INSERT LIVE NOTIFICATION DATA - IGINITON ON  - STARTS HERE*/
- INSERT INTO twings.live_notifications(`vehicle_id`, `device_imei`, `alert_type_id`, `lattitute`, `longitute`, `ignition`, `speed`, `angle`, `odometer`, `device_updatedtime`, `ignition_flag`, `user_id`, `created_at`, `updated_at`) VALUES (@vehicle_id,@deviceimei,3,NEW.lattitute,NEW.longitute,NEW.ignition,NEW.speed,NEW.angle,current_odometer,NEW.device_datetime,1,@client_id,now(),now());
+ IF (@current_alert_status!=3 OR @current_alert_status=0) THEN
+ INSERT INTO twings.live_notifications(`vehicle_id`, `device_imei`, `alert_type_id`, `lattitute`, `longitute`, `ignition`, `speed`, `angle`, `odometer`, `device_updatedtime`, `ignition_flag`, `user_id`, `created_at`, `updated_at`) VALUES (@vehicle_id,@deviceimei,3,@lattitute,@longitute,NEW.ignition,NEW.speed,NEW.angle,current_odometer,NEW.device_datetime,1,@client_id,now(),now());
+ UPDATE live_data
+ SET
+ current_alert_status=3 WHERE deviceimei = NEW.deviceimei;
+ END IF;
  /* INSERT LIVE NOTIFICATION DATA - IGINITON ON - ENDS HERE */
 
  /* KEYON KEY OFF REPORT - STARTS HERE */
@@ -190,7 +195,10 @@ SELECT ignition_flag INTO @current_ignition FROM twings.live_notifications WHERE
                              last_ignition_off_time = NEW.device_datetime
                              WHERE
                              deviceimei = NEW.deviceimei;
- INSERT INTO twings.live_notifications(`vehicle_id`, `device_imei`, `alert_type_id`, `lattitute`, `longitute`, `ignition`, `speed`, `angle`, `odometer`, `device_updatedtime`, `ignition_flag`, `user_id`, `created_at`, `updated_at`) VALUES (@vehicle_id,@deviceimei,4,NEW.lattitute,NEW.longitute,NEW.ignition,NEW.speed,NEW.angle,current_odometer,NEW.device_datetime,0,@client_id,now(),now());
+ IF (@current_alert_status!=4 OR @current_alert_status=0) THEN
+ INSERT INTO twings.live_notifications(`vehicle_id`, `device_imei`, `alert_type_id`, `lattitute`, `longitute`, `ignition`, `speed`, `angle`, `odometer`, `device_updatedtime`, `ignition_flag`, `user_id`, `created_at`, `updated_at`) VALUES (@vehicle_id,@deviceimei,4,@lattitute,@longitute,,NEW.ignition,NEW.speed,NEW.angle,current_odometer,NEW.device_datetime,0,@client_id,now(),now());
+ UPDATE live_data SET current_alert_status=4 WHERE eviceimei = NEW.deviceimei;
+ END IF;
                              UPDATE
                              keyoff_keyon_reports
                              SET
@@ -300,6 +308,35 @@ SELECT ignition_flag INTO @current_ignition FROM twings.live_notifications WHERE
          deviceimei = NEW.deviceimei;
      /* UPDATING VEHICLE CURRENT STATUS - END HERE */
  /* LIVE ALERT UPDATION STARTS HERE*/
+ SELECT parking_alert_time,idle_alert_time,speed_limit INTO @parking_alert_time,@idle_alert_time,@speed_limit FROM twings.configurations WHERE  device_imei = NEW.deviceimei ORDER BY device_imei DESC LIMIT 1;
+ IF (@current_alert_status!=20 OR @current_alert_status=0) AND current_vehicle_status=1 AND @diff_time>@parking_alert_time THEN
+ INSERT INTO twings.live_notifications(`vehicle_id`, `device_imei`, `alert_type_id`, `lattitute`, `longitute`, `ignition`, `speed`, `angle`, `odometer`, `device_updatedtime`, `ignition_flag`, `user_id`, `created_at`, `updated_at`) VALUES (@vehicle_id,@deviceimei,20,NEW.lattitute,NEW.longitute,NEW.ignition,NEW.speed,NEW.angle,current_odometer,NEW.device_datetime,0,@client_id,now(),now());
+ UPDATE live_data SET current_alert_status=20 WHERE deviceimei = NEW.deviceimei;
+ END IF;
+ IF (@current_alert_status!=21 OR @current_alert_status=0) AND current_vehicle_status= 2 AND @diff_time>@idle_alert_time THEN
+ INSERT INTO twings.live_notifications(`vehicle_id`, `device_imei`, `alert_type_id`, `lattitute`, `longitute`, `ignition`, `speed`, `angle`, `odometer`, `device_updatedtime`, `ignition_flag`, `user_id`, `created_at`, `updated_at`) VALUES (@vehicle_id,@deviceimei,21,NEW.lattitute,NEW.longitute,NEW.ignition,NEW.speed,NEW.angle,current_odometer,NEW.device_datetime,0,@client_id,now(),now());
+ UPDATE live_data SET current_alert_status=21 WHERE deviceimei = NEW.deviceimei;
+ END IF;
+ IF (@current_alert_status!=5 OR @current_alert_status=0) AND current_vehicle_status=3 AND NEW.speed < @speed_limit THEN
+ INSERT INTO twings.live_notifications(`vehicle_id`, `device_imei`, `alert_type_id`, `lattitute`, `longitute`, `ignition`, `speed`, `angle`, `odometer`, `device_updatedtime`, `ignition_flag`, `user_id`, `created_at`, `updated_at`) VALUES (@vehicle_id,@deviceimei,5,NEW.lattitute,NEW.longitute,NEW.ignition,NEW.speed,NEW.angle,current_odometer,NEW.device_datetime,1,@client_id,now(),now());
+ UPDATE live_data SET current_alert_status=5 WHERE deviceimei = NEW.deviceimei;
+
+ IF (@current_alert_status = 5) AND current_vehicle_status=3 AND NEW.speed > @speed_limit THEN
+  UPDATE live_data SET current_alert_status=0 WHERE deviceimei = NEW.deviceimei;
+ END IF;
+ /* ADD OVERSPEED REPORT HERE */
+ END IF;
+
+  IF (@current_alert_status!=1 OR @current_alert_status=0) AND NEW.ac_status=1 AND (@ac_flag IS NULL OR @ac_flag = 0) AND (NEW.io_state!=1) THEN
+ INSERT INTO twings.live_notifications(`vehicle_id`, `device_imei`, `alert_type_id`, `lattitute`, `longitute`, `ignition`, `speed`, `angle`, `odometer`, `device_updatedtime`, `ignition_flag`, `user_id`, `created_at`, `updated_at`) VALUES (@vehicle_id,@deviceimei,1,NEW.lattitute,NEW.longitute,NEW.ignition,NEW.speed,NEW.angle,current_odometer,NEW.device_datetime,NEW.ignition,@client_id,now(),now());
+ UPDATE live_data SET ac_status=1,current_alert_status=1,ac_flag=1 WHERE deviceimei = NEW.deviceimei;
+ INSERT INTO `ac_reports`(`vehicle_id`, `device_imei`, `start_latitude`, `start_longitude`, `start_datetime`,`start_odometer`,`flag`, `created_at`) VALUES (@vehicle_id,@device_imei,NEW.lattitute,NEW.longitute, NEW.device_datetime,current_odometer,1,now());
+ END IF;
+ IF (@current_alert_status!=2 OR @current_alert_status=0) AND NEW.ac_status=0  AND @ac_flag = 1 AND (NEW.io_state!=1) THEN
+ INSERT INTO twings.live_notifications(`vehicle_id`, `device_imei`, `alert_type_id`, `lattitute`, `longitute`, `ignition`, `speed`, `angle`, `odometer`, `device_updatedtime`, `ignition_flag`, `user_id`, `created_at`, `updated_at`) VALUES (@vehicle_id,@deviceimei,2,NEW.lattitute,NEW.longitute,NEW.ignition,NEW.speed,NEW.angle,current_odometer,NEW.device_datetime,NEW.ignition,@client_id,now(),now());
+ UPDATE live_data SET ac_status=0,current_alert_status=2,ac_flag=0 WHERE deviceimei = NEW.deviceimei;
+ UPDATE `ac_reports` SET `end_latitude`=NEW.lattitute,`end_longitude`=NEW.longitute,`end_datetime`=NEW.device_datetime,`end_odometer`=current_odometer,`flag`=2,`updated_at`=now() WHERE device_imei=NEW.deviceimei;
+ END IF;
  /* LIVE ALERT UPDATION ENDS HERE*/
  END IF;
  END");
