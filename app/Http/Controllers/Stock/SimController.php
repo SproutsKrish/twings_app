@@ -120,6 +120,7 @@ class SimController extends BaseController
             $distributor_id = auth()->user()->distributor_id;
             $dealer_id = auth()->user()->dealer_id;
             $subdealer_id = auth()->user()->subdealer_id;
+            return response()->json($admin_id);
 
             $sim_data = DB::table('sims as a')
                 ->join('network_providers as b', 'a.network_id', '=', 'b.id')
@@ -132,6 +133,8 @@ class SimController extends BaseController
                 ->where('a.status', '1')
                 ->orderBy('a.id', 'desc')
                 ->get();
+
+            return response()->json($request->all());
 
             if ($sim_data->isEmpty()) {
                 $response = ["success" => false, "message" => "No Sims Found", "status_code" => 404];

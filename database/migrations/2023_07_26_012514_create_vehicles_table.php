@@ -25,6 +25,8 @@ return new class extends Migration
             $table->bigInteger('sim_mob_no')->nullable();
             $table->bigInteger('device_make_id')->nullable();
             $table->bigInteger('device_model_id')->nullable();
+            $table->bigInteger('device_type_id')->default(1);
+
             $table->bigInteger('device_id')->nullable();
             $table->bigInteger('device_imei')->nullable();
 
@@ -44,7 +46,8 @@ return new class extends Migration
             $table->date('installation_date')->nullable();
             $table->date('expire_date')->nullable();
             $table->date('extend_date')->nullable();
-
+            $table->date('vehicle_expire_date')->nullable();
+            $table->date('vehicle_extend_date')->nullable();
             $table->tinyInteger('immobilizer_option')->nullable();
             $table->tinyInteger('safe_parking')->nullable();
 
@@ -54,6 +57,10 @@ return new class extends Migration
             $table->bigInteger('subdealer_id')->nullable();
             $table->bigInteger('client_id')->nullable();
             $table->tinyInteger('status')->nullable()->default(1);
+
+            $table->string('install_person_name')->nullable();
+            $table->string('service_person_name')->nullable();
+            $table->string('description')->nullable();
 
             $table->timestamps();
             $table->softDeletes(); // Use soft delete to handle deletion gracefully

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('ccid', 60)->nullable();
             $table->string('uid', 60)->nullable();
             $table->date('purchase_date')->nullable();
+            $table->string('description')->nullable();
 
             $table->bigInteger('admin_id')->nullable();
             $table->bigInteger('distributor_id')->nullable();

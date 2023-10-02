@@ -353,30 +353,11 @@ class ImportController extends BaseController
     public function user_import(Request $request)
     {
         try {
-            // $path = $file_path;
-            // $data = array_map('str_getcsv', file($path));
+            ini_set('max_execution_time', 0);
 
             DB::beginTransaction();
-
-            $data = DB::table('demo_import.ciss')->whereBetween('id', [201, 210])->select('name', 'email', 'password', 'sec_pass', 'mobile_no', 'role_id', 'admin_id', 'distributor_id', 'dealer_id')->get();
-
-
+            $data = DB::table('demo_import.ciss')->whereBetween('id', [201, 300])->select('name', 'email', 'password', 'sec_pass', 'mobile_no', 'role_id', 'admin_id', 'distributor_id', 'dealer_id')->get();
             foreach ($data as $row) {
-
-                // dd($row->name);
-                // $rowValidator = Validator::make($row, [
-                //     0 => 'required', // name (unique in 'users' table)
-                //     1 => 'required|unique:users,email', // email (unique in 'users' table)
-                //     2 => 'required', // password
-                //     3 => 'required', // secondary_password
-                //     4 => 'required', // role_id
-                // ]);
-
-                // if ($rowValidator->fails()) {
-                //     DB::rollBack();
-                //     return $this->sendError($rowValidator->errors());
-                // }
-
                 $user =  User::create([
                     'name' => $row->name,
                     'email' => $row->email,
@@ -439,7 +420,7 @@ class ImportController extends BaseController
                         'password' => $user->password
                     ]
                 );
-                $tenant->domains()->create(['domain' => $user->name . '.' . 'localhost']);
+                $tenant->domains()->create(['domain' => $user->id . '.' . 'localhost']);
 
 
                 $result = CustomerConfiguration::where('client_id', $client->id)
@@ -566,6 +547,7 @@ class ImportController extends BaseController
 
     public function distributor_import(Request $request)
     {
+
         $file_path = $request->input('file_path');
 
         if (!$file_path) {
@@ -603,19 +585,17 @@ class ImportController extends BaseController
                     'email' => $row[1],
                     'password' => bcrypt($row[2]),
                     'secondary_password' => bcrypt($row[3]),
-                    'mobile_no' => $row[4],
-                    'role_id' => $row[5],
-                    'admin_id' => $row[7],
+                    'role_id' => $row[4],
+                    'admin_id' => $row[5],
                     'created_by' => auth()->user()->id,
                     'ip_address' => $request->ip(),
                 ]);
 
                 $distributor = Distributor::create(
                     [
-                        'distributor_company' => $row[6],
+                        'distributor_company' => $row[0],
                         'distributor_name' => $user->name,
                         'distributor_email' => $user->email,
-                        'distributor_mobile' => $user->mobile_no,
                         'user_id' => $user->id,
                         'admin_id' => $user->admin_id,
                         'created_by' => auth()->user()->id,
@@ -675,20 +655,18 @@ class ImportController extends BaseController
                     'email' => $row[1],
                     'password' => bcrypt($row[2]),
                     'secondary_password' => bcrypt($row[3]),
-                    'mobile_no' => $row[4],
-                    'role_id' => $row[5],
-                    'admin_id' => $row[7],
-                    'distributor_id' => $row[8],
+                    'role_id' => $row[4],
+                    'admin_id' => $row[5],
+                    'distributor_id' => $row[6],
                     'created_by' => auth()->user()->id,
                     'ip_address' => $request->ip(),
                 ]);
 
                 $dealer = Dealer::create(
                     [
-                        'dealer_company' => $row[6],
+                        'dealer_company' => $row[0],
                         'dealer_name' => $user->name,
                         'dealer_email' => $user->email,
-                        'dealer_mobile' => $user->mobile_no,
                         'user_id' => $user->id,
                         'admin_id' => $user->admin_id,
                         'distributor_id' => $user->distributor_id,

@@ -15,32 +15,29 @@ return new class extends Migration
     {
         Schema::create('vehicle_documents', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('vehicle_id');
+            $table->bigInteger('client_id')->nullable();
 
-            $table->string('policy_no');
-            $table->string('insurance_company_name');
-            $table->string('insurance_type');
-            $table->date('insurance_start_date');
-            $table->date('insurance_expiry_date');
-            $table->string('insurance_front_image');
-            $table->string('insurance_back_image');
-
-            $table->date('fitness_certificate_expiry_date');
-            $table->string('fitness_front_image');
-            $table->string('fitness_back_image');
-
-            $table->date('tax_expiry_date');
-            $table->string('tax_front_image');
-            $table->string('tax_back_image');
-
-            $table->date('permit_expiry_date');
-            $table->string('permit_front_image');
-            $table->string('permit_back_image');
-
-            $table->date('rc_expiry_date');
-            $table->string('rc_front_image');
-            $table->string('rc_back_image');
-
+            $table->bigInteger('vehicle_id')->nullable();
+            $table->bigInteger('device_imei')->nullable();
+            $table->string('policy_no')->nullable();
+            $table->string('insurance_company_name')->nullable();
+            $table->string('insurance_type')->nullable();
+            $table->date('insurance_start_date')->nullable();
+            $table->date('insurance_expiry_date')->nullable();
+            $table->string('insurance_front_image')->nullable();
+            $table->string('insurance_back_image')->nullable();
+            $table->date('fitness_certificate_expiry_date')->nullable();
+            $table->string('fitness_front_image')->nullable();
+            $table->string('fitness_back_image')->nullable();
+            $table->date('tax_expiry_date')->nullable();
+            $table->string('tax_front_image')->nullable();
+            $table->string('tax_back_image')->nullable();
+            $table->date('permit_expiry_date')->nullable();
+            $table->string('permit_front_image')->nullable();
+            $table->string('permit_back_image')->nullable();
+            $table->date('rc_expiry_date')->nullable();
+            $table->string('rc_front_image')->nullable();
+            $table->string('rc_back_image')->nullable();
             $table->tinyInteger('status')->nullable()->default(1);
 
             $table->timestamps();

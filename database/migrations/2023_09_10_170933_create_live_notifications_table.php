@@ -28,6 +28,7 @@ return new class extends Migration
 
             $table->datetime('device_updatedtime')->nullable();
             $table->tinyInteger('ignition_flag')->nullable();
+            $table->tinyInteger('notification_status')->default(0);
 
             $table->bigInteger('user_id')->nullable();
             $table->timestamps();

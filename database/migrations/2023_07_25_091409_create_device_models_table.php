@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('device_models', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('make_id')->nullable();
             $table->string('device_model');
             $table->tinyInteger('status')->nullable()->default(1);
 

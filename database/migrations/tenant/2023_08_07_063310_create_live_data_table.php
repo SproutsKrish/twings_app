@@ -26,20 +26,22 @@ return new class extends Migration
             $table->tinyInteger('vehicle_status')->nullable();
 
             $table->unsignedBigInteger('deviceimei')->nullable(); // Use unsignedBigInteger
+            $table->bigInteger('device_type_id')->default(1);
+
             $table->double('lattitute', 10, 6)->nullable(); // Corrected typo "lattitute" to "latitude"
             $table->double('longitute', 10, 6)->nullable(); // Corrected typo "longitute" to "longitude"
             $table->double('altitude')->nullable();
 
             // Use boolean for columns that represent true/false values
             $table->tinyInteger('ignition')->nullable();
-            $table->tinyInteger('ac_status')->default(0);
+            $table->tinyInteger('ac_status')->nullable();
 
             $table->double('speed')->default(0);
             $table->integer('angle')->nullable(); // Removed unnecessary length parameter
             $table->double('odometer')->default(0);
             $table->datetime('device_updatedtime')->nullable();
 
-            $table->double('temperature', 8, 2)->default(0.00);
+            $table->double('temperature', 8, 2)->nullable();
             $table->double('device_battery_volt', 8, 2)->nullable();
             $table->double('vehicle_battery_volt', 8, 2)->nullable();
             $table->datetime('last_ignition_on_time')->nullable();
@@ -58,13 +60,15 @@ return new class extends Migration
             $table->tinyInteger('ignition_report_flag')->nullable();
             $table->datetime('ignition_report_datetime')->nullable();
 
-            $table->tinyInteger('door_status')->default(0);
+            $table->tinyInteger('door_status')->nullable();
             $table->tinyInteger('power_status')->default(1);
 
             $table->double('battery_percentage', 8, 2)->nullable();
             $table->double('today_distance', 8, 2)->nullable();
-            $table->tinyInteger('expiry_status')->default(false);
+            $table->tinyInteger('expiry_status')->default(0);
             $table->smallInteger('current_alert_status')->default(0);
+            $table->tinyInteger('ac_flag')->nullable();
+
 
             $table->timestamps();
         });
