@@ -134,7 +134,7 @@ class SimController extends BaseController
                 ->orderBy('a.id', 'desc')
                 ->get();
 
-            return response()->json($request->all());
+            // return response()->json($request->all());
 
             if ($sim_data->isEmpty()) {
                 $response = ["success" => false, "message" => "No Sims Found", "status_code" => 404];
