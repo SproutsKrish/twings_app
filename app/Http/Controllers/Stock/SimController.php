@@ -120,7 +120,7 @@ class SimController extends BaseController
             $distributor_id = auth()->user()->distributor_id;
             $dealer_id = auth()->user()->dealer_id;
             $subdealer_id = auth()->user()->subdealer_id;
-            return response()->json($admin_id);
+            // return response()->json($admin_id);
 
             $sim_data = DB::table('sims as a')
                 ->join('network_providers as b', 'a.network_id', '=', 'b.id')
