@@ -356,7 +356,7 @@ class ImportController extends BaseController
             ini_set('max_execution_time', 0);
 
             DB::beginTransaction();
-            $data = DB::table('twings.user')->whereBetween('id', [2, 9])->select('name', 'email', 'password', 'sec_pass', 'mobile_no', 'role_id', 'admin_id', 'distributor_id', 'dealer_id')->get();
+            $data = DB::table('twings.user')->whereBetween('id', [6, 9])->select('name', 'email', 'password', 'sec_pass', 'mobile_no', 'role_id', 'admin_id', 'distributor_id', 'dealer_id')->get();
             foreach ($data as $row) {
                 $user =  User::create([
                     'name' => $row->name,
