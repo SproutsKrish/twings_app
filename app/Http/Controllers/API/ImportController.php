@@ -352,11 +352,15 @@ class ImportController extends BaseController
 
     public function user_import(Request $request)
     {
+        $res = DB::table('test_no')->first();
+        $s_no = $res->s_no;
+        $e_no = $res->e_no;
+
         try {
             ini_set('max_execution_time', 0);
 
             DB::beginTransaction();
-            $data = DB::table('twings.user')->whereBetween('id', [4001, 5000])->select('name', 'email', 'password', 'sec_pass', 'mobile_no', 'role_id', 'admin_id', 'distributor_id', 'dealer_id')->get();
+            $data = DB::table('twings.user')->whereBetween('id', [$s_no, $e_no])->select('name', 'email', 'password', 'sec_pass', 'mobile_no', 'role_id', 'admin_id', 'distributor_id', 'dealer_id')->get();
             foreach ($data as $row) {
                 $user =  User::create([
                     'name' => $row->name,
