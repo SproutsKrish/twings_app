@@ -275,7 +275,7 @@ class UserController extends BaseController
     {
         //Validation Code
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:users,name',
+            'name' => 'required',
             'email' => 'required|email|unique:users,email',
             'mobile_no' => 'required',
             'password' => 'required',
@@ -558,7 +558,7 @@ class UserController extends BaseController
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:users,name,' . $request->input('id') . 'id',
+            'name' => 'required',
             'email' => 'required|email|unique:users,email,' . $request->input('id') . 'id',
             'mobile_no' => 'required',
             'role_id' => 'required|exists:roles,id',
