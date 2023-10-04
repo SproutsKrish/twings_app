@@ -104,8 +104,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('dealer_import', [ImportController::class, 'dealer_import']);
     Route::post('user_import', [ImportController::class, 'user_import']);
     Route::post('vehicle_import', [ImportController::class, 'vehicle_import']);
-
-
+    Route::get('about_us', [LoginController::class, 'about_us']);
 
     Route::post('change_user_password', [UserController::class, 'change_user_password']);
     Route::post('login_image_save', [UserDomainController::class, 'login_image_save']);
@@ -356,6 +355,8 @@ Route::resource('camera', CameraController::class);
 Route::resource('vehicle_document', VehicleDocumentController::class);
 Route::post('upload_vehicle_document', [VehicleDocumentController::class, 'upload_vehicle_document']);
 
+Route::get('delete_dummy_data', [ImportController::class, 'delete_dummy_data']);
+
 Route::resource('vehicle_service', VehicleServiceController::class);
 Route::resource('vehicle_type', VehicleTypeController::class);
 
@@ -385,12 +386,15 @@ Route::get('change_live_data', [VehicleController::class, 'change_live_data']);
 
 
 
+
 //App Contact
 Route::get('contact_address/{id}', [ClientController::class, 'contact_address']);
 Route::post('live_address', [AddressController::class, 'live_address']);
 
 Route::post('sim_new', [SimController::class, 'sim_new']);
 Route::get('demo_time', [LiveDataController::class, 'demo_time']);
+
+Route::post('due_vehicle_list', [VehicleController::class, 'due_vehicle_list']);
 
 
 //Not Use

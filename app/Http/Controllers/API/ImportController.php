@@ -902,4 +902,36 @@ class ImportController extends BaseController
             return $this->sendError('An error occurred during CSV import: ' . $e->getMessage());
         }
     }
+
+    public function delete_dummy_data()
+    {
+        $res = DB::table('dummy_data')->get();
+
+        foreach ($res as $ress) {
+            ini_set('max_execution_time', 0);
+
+            $result = CustomerConfiguration::where('client_id', $ress->client_id)
+                ->first();
+
+            $connectionName = $result->db_name;
+            $connectionConfig = [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST'), // Use the environment variable for host
+                'port' => env('DB_PORT'), // Use the environment variable for port
+                'database' => $result->db_name,    // Change this to the actual database name
+                'username' => env('DB_USERNAME'), // Use the environment variable for username
+                'password' => env('DB_PASSWORD'), // Use the environment variable for password
+            ];
+
+            Config::set("database.connections.$connectionName", $connectionConfig);
+            DB::purge($connectionName);
+
+            DB::connection($connectionName)->table('vehicles')->truncate();
+            DB::connection($connectionName)->table('live_data')->truncate();
+            DB::connection($connectionName)->table('configurations')->truncate();
+            DB::disconnect($connectionName);
+
+            DB::table('dummy_data')->where('client_id', $ress->client_id)->update(['status' => 1]);
+        }
+    }
 }

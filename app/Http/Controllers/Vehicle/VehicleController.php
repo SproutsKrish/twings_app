@@ -104,6 +104,10 @@ class VehicleController extends BaseController
         $data['extend_date'] = $request->input('extend_date');
         $data['vehicle_expire_date'] = $request->input('vehicle_expire_date');
 
+
+        $data['due_amount'] = $request->input('due_amount');
+
+
         $result = Point::where('total_point', '>', 0)
             ->where('admin_id', $data['admin_id'])
             ->where('distributor_id', $data['distributor_id'])
@@ -703,6 +707,24 @@ class VehicleController extends BaseController
             DB::connection($connectionName)->table('live_data')->update($live_data);
 
             DB::disconnect($connectionName);
+        }
+    }
+
+    public function due_vehicle_list(Request $request)
+    {
+        $client_id = $request->input('client_id');
+
+        $result = DB::table('vehicles')->select('id', 'vehicle_name', 'device_imei', 'sim_mob_no', 'installation_date', 'vehicle_expire_date', 'due_amount')
+            ->where('client_id',  $client_id)
+            ->where('due_amount', '>', 0)
+            ->get();
+
+        if ($result->isEmpty()) {
+            $response = ["success" => false, "message" => "No Due Payment Vehicle", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => $result, "status_code" => 200];
+            return response()->json($response, 200);
         }
     }
 }

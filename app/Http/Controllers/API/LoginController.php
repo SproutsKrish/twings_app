@@ -116,4 +116,11 @@ class LoginController extends BaseController
             return response()->json($response, 404);
         }
     }
+
+    public function about_us()
+    {
+        $result = DB::table('about_company')->pluck('content');
+        $response = ["success" => true, "data" => $result, "status_code" => 200];
+        return response()->json($response, 200);
+    }
 }
