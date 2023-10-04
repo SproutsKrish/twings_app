@@ -12,10 +12,10 @@ class ExecutiveReportController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $data = "Executive Report";
+            $data = $request->input('start_day');
             $response = ["success" => true, "data" => $data, "status_code" => 200];
             return response()->json($response, 200);
             } catch (\Throwable $th) {
