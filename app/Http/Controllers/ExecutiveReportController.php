@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
+use App\Models\PlaybackReport;
 
 class ExecutiveReportController extends Controller
 {
@@ -16,8 +17,11 @@ class ExecutiveReportController extends Controller
     {
 
         try {
-            $data = $request->input('start_day');
-            $response = ["success" => true, "data" => $data, "status_code" => 200];
+            $start_date = $request->input('start_day');
+            $end_date = $request->input('end_day');
+            $device_imei = $request->input('device_imei');
+            $result = PlaybackReport::where('device_imei',$device_imei)->get();
+            $response = ["success" => true, "data" => $result, "status_code" => 200];
             return response()->json($response, 200);
             } catch (\Throwable $th) {
             //throw $th;
