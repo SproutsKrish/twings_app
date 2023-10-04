@@ -71,6 +71,7 @@ use App\Http\Controllers\VehicleSetting\AlertNotificationController;
 use App\Http\Controllers\VehicleSetting\ConfigurationController;
 use App\Http\Controllers\VehicleSetting\NotificationController;
 use App\Http\Controllers\VehicleSetting\ShareLinkController;
+use App\Http\Controllers\ExecutiveReportController;
 
 /*
 |--------------------------------------------------------------------------
