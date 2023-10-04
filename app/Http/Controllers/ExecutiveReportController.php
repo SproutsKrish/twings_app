@@ -22,7 +22,7 @@ class ExecutiveReportController extends Controller
             $start_date = $request->input('start_day');
             $end_date = $request->input('end_day');
             $device_imei = $request->input('device_imei');
-            $result = DB::table('play_back_histories')->selectRaw('MIN(odometer) as start_odometer,MAX(odometer) as end_odometer,MIN(speed) as min_speed,MAX(speed) as max_speed,AVG(speed) as avg_speed')->where('device_date_time','>=',$start_date)->where('device_date_time','<=',$end_date)->where('device_imei',$device_imei)->groupBy('device_date_time')->get();
+            $result = DB::table('play_back_histories')->selectRaw('MIN(odometer) as start_odometer,MAX(odometer) as end_odometer,MIN(speed) as min_speed,MAX(speed) as max_speed,AVG(speed) as avg_speed')->where('device_date_time','>=',$start_date)->where('device_date_time','<=',$end_date)->where('device_imei',$device_imei)->groupBy('device_datetime')->get();
             $response = ["success" => true, "data" => $result, "status_code" => 200];
             return response()->json($response, 200);
             } catch (\Throwable $th) {
