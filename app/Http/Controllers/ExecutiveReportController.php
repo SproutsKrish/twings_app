@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
 
 class ExecutiveReportController extends Controller
@@ -13,7 +14,14 @@ class ExecutiveReportController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $data = "Executive Report";
+            $response = ["success" => true, "data" => $data, "status_code" => 200];
+            return response()->json($response, 200);
+            } catch (\Throwable $th) {
+            //throw $th;
+            return response($th,500);
+        }
     }
 
     /**
