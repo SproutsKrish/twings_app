@@ -14,15 +14,15 @@ class ExecutiveReportController extends Controller
      */
     public function index(Request $request)
     {
-        dd(now());
-        // try {
-        //     $data = $request->input('start_day');
-        //     $response = ["success" => true, "data" => $data, "status_code" => 200];
-        //     return response()->json($response, 200);
-        //     } catch (\Throwable $th) {
-        //     //throw $th;
-        //     return response($th,500);
-        // }
+
+        try {
+            $data = $request->input('start_day');
+            $response = ["success" => true, "data" => $data, "status_code" => 200];
+            return response()->json($response, 200);
+            } catch (\Throwable $th) {
+            //throw $th;
+            return response($th,500);
+        }
     }
 
     /**
