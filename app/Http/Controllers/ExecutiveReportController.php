@@ -14,7 +14,7 @@ class ExecutiveReportController extends Controller
      */
     public function index(Request $request)
     {
-        dd($request->input('start_day'));
+        dd(now());
         // try {
         //     $data = $request->input('start_day');
         //     $response = ["success" => true, "data" => $data, "status_code" => 200];
