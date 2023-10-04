@@ -715,192 +715,188 @@ class ImportController extends BaseController
             ini_set('max_execution_time', 0);
             $path = $file_path;
             $data = array_map('str_getcsv', file($path));
+            DB::beginTransaction();
+            foreach ($data as $row) {
+                $rowValidator = Validator::make($row, [
+                    0 => 'required|unique:vehicles,sim_id',
+                    1 => 'required|unique:vehicles,device_id',
+                    2 => 'required', // vehicle_type_id
+                    3 => 'required', // vehicle_name
+                    4 => 'required', // installation_date
+                    5 => 'required', // plan_id
+                    6 => 'required', // license_id
+                ]);
 
-            print_r($data);
+                if ($rowValidator->fails()) {
+                    DB::rollBack();
+                    return $this->sendError($rowValidator->errors());
+                }
 
-            // DB::beginTransaction();
+                $sim_data = Sim::find($row[0]);
+                $sim_mob_no =  $sim_data->sim_mob_no1;
 
-            // foreach ($data as $row) {
-            //     $rowValidator = Validator::make($row, [
-            //         0 => 'required|unique:vehicles,sim_id',
-            //         1 => 'required|unique:vehicles,device_id',
-            //         2 => 'required', // vehicle_type_id
-            //         3 => 'required', // vehicle_name
-            //         4 => 'required', // installation_date
-            //         5 => 'required', // plan_id
-            //         6 => 'required', // license_id
-            //     ]);
+                $device_data = Device::find($row[1]);
+                $device_imei =  $device_data->device_imei_no;
+                $device_make_id =  $device_data->device_make_id;
+                $device_model_id =  $device_data->device_model_id;
 
-            //     if ($rowValidator->fails()) {
-            //         DB::rollBack();
-            //         print_r($rowValidator->errors());
-            //         // return $this->sendError($rowValidator->errors());
-            //     }
+                $license_data = License::find($row[6]);
+                $license_no =  $license_data->license_no;
+                // dd($row[5]);
 
-            //     $sim_data = Sim::find($row[0]);
-            //     $sim_mob_no =  $sim_data->sim_mob_no1;
+                if ($row[10] == "") {
+                    $row[10] = null;
+                }
+                DB::enableQueryLog();
+                $result = Point::where('total_point', '>', 0)
+                    ->where('admin_id',  $row[7])
+                    ->where('distributor_id', $row[8])
+                    ->where('dealer_id', $row[9])
+                    ->where('subdealer_id', $row[10])
+                    ->where('plan_id', $row[5])
+                    ->where('point_type_id', "1")
+                    ->where('status', 1)
+                    ->first();
 
-            //     $device_data = Device::find($row[1]);
-            //     $device_imei =  $device_data->device_imei_no;
-            //     $device_make_id =  $device_data->device_make_id;
-            //     $device_model_id =  $device_data->device_model_id;
+                // dd(DB::getQueryLog());
+                // dd($result);
 
-            //     $license_data = License::find($row[6]);
-            //     $license_no =  $license_data->license_no;
-            //     // dd($row[5]);
+                if (!empty($result)) {
+                    //Points
+                    $result->total_point = $result->total_point - 1;
+                    $result->save();
 
-            //     if ($row[10] == "") {
-            //         $row[10] = null;
-            //     }
-            //     DB::enableQueryLog();
-            //     $result = Point::where('total_point', '>', 0)
-            //         ->where('admin_id',  $row[7])
-            //         ->where('distributor_id', $row[8])
-            //         ->where('dealer_id', $row[9])
-            //         ->where('subdealer_id', $row[10])
-            //         ->where('plan_id', $row[5])
-            //         ->where('point_type_id', "1")
-            //         ->where('status', 1)
-            //         ->first();
+                    $plan_id = $result->plan_id;
+                    $plan = Plan::find($plan_id);
+                    $period_id = $plan->period_id;
+                    $period = Period::find($period_id);
 
-            //     // dd(DB::getQueryLog());
-            //     // dd($result);
+                    $newstart_date = \Carbon\Carbon::createFromFormat('d-m-Y', $row[4]);
+                    $newDateTime = $newstart_date->addDays($period->period_days);
+                    $expire_date = $newDateTime->format('Y-m-d');
+                    $installation_date = \Carbon\Carbon::createFromFormat('d-m-Y', $row[4])->format('Y-m-d');
 
-            //     if (!empty($result)) {
-            //         //Points
-            //         $result->total_point = $result->total_point - 1;
-            //         $result->save();
+                    $vehicle =  Vehicle::create([
+                        'sim_id' => $row[0],
+                        'device_id' => $row[1],
+                        'vehicle_type_id' => $row[2],
+                        'vehicle_name' => $row[3],
+                        'installation_date' => $installation_date,
+                        'admin_id' => $row[7],
+                        'distributor_id' => $row[8],
+                        'dealer_id' => $row[9],
+                        'subdealer_id' => $row[10],
+                        'client_id' => $row[11],
+                        'sim_mob_no' => $sim_mob_no,
+                        'device_make_id' => $device_make_id,
+                        'device_model_id' => $device_model_id,
+                        'device_imei' => $device_imei,
+                        'license_no' => $license_no,
+                        'expire_date' => $expire_date,
+                        'created_by' => auth()->user()->id,
+                        'ip_address' => $request->ip(),
+                    ]);
 
-            //         $plan_id = $result->plan_id;
-            //         $plan = Plan::find($plan_id);
-            //         $period_id = $plan->period_id;
-            //         $period = Period::find($period_id);
+                    //Licenses
+                    License::where('id', $row[6])->update([
+                        'vehicle_id' => $vehicle->id,
+                        'start_date' => $vehicle->installation_date,
+                        'expiry_date' => $vehicle->expire_date,
+                        'client_id' => $vehicle->client_id
+                    ]);
 
-            //         $newstart_date = \Carbon\Carbon::createFromFormat('d-m-Y', $row[4]);
-            //         $newDateTime = $newstart_date->addDays($period->period_days);
-            //         $expire_date = $newDateTime->format('Y-m-d');
-            //         $installation_date = \Carbon\Carbon::createFromFormat('d-m-Y', $row[4])->format('Y-m-d');
+                    $vehicle = Vehicle::find($vehicle->id);
+                    $vehicleArray = $vehicle->toArray();
 
-            //         $vehicle =  Vehicle::create([
-            //             'sim_id' => $row[0],
-            //             'device_id' => $row[1],
-            //             'vehicle_type_id' => $row[2],
-            //             'vehicle_name' => $row[3],
-            //             'installation_date' => $installation_date,
-            //             'admin_id' => $row[7],
-            //             'distributor_id' => $row[8],
-            //             'dealer_id' => $row[9],
-            //             'subdealer_id' => $row[10],
-            //             'client_id' => $row[11],
-            //             'sim_mob_no' => $sim_mob_no,
-            //             'device_make_id' => $device_make_id,
-            //             'device_model_id' => $device_model_id,
-            //             'device_imei' => $device_imei,
-            //             'license_no' => $license_no,
-            //             'expire_date' => $expire_date,
-            //             'created_by' => auth()->user()->id,
-            //             'ip_address' => $request->ip(),
-            //         ]);
+                    //Main Live Data
+                    $main_live_data = array(
+                        'client_id' => $vehicle->client_id,
+                        'vehicle_id' => $vehicle->id,
+                        'vehicle_name' => $vehicle->vehicle_name,
+                        'vehicle_current_status' => '4',
+                        'vehicle_status' => '1',
+                        'deviceimei' => $vehicle->device_imei
+                    );
 
-            //         //Licenses
-            //         License::where('id', $row[6])->update([
-            //             'vehicle_id' => $vehicle->id,
-            //             'start_date' => $vehicle->installation_date,
-            //             'expiry_date' => $vehicle->expire_date,
-            //             'client_id' => $vehicle->client_id
-            //         ]);
+                    DB::table('live_data')->insert($main_live_data);
 
-            //         $vehicle = Vehicle::find($vehicle->id);
-            //         $vehicleArray = $vehicle->toArray();
+                    //Main Configurations
+                    $main_config_details = array(
+                        'client_id' => $vehicle->client_id,
+                        'vehicle_id' => $vehicle->id,
+                        'vehicle_name' => $vehicle->vehicle_name,
+                        'device_imei' => $vehicle->device_imei
+                    );
+                    DB::table('configurations')->insert($main_config_details);
 
-            //         //Main Live Data
-            //         $main_live_data = array(
-            //             'client_id' => $vehicle->client_id,
-            //             'vehicle_id' => $vehicle->id,
-            //             'vehicle_name' => $vehicle->vehicle_name,
-            //             'vehicle_current_status' => '4',
-            //             'vehicle_status' => '1',
-            //             'deviceimei' => $vehicle->device_imei
-            //         );
 
-            //         DB::table('live_data')->insert($main_live_data);
+                    $result = CustomerConfiguration::where('client_id', $vehicle->client_id)
+                        ->first();
 
-            //         //Main Configurations
-            //         $main_config_details = array(
-            //             'client_id' => $vehicle->client_id,
-            //             'vehicle_id' => $vehicle->id,
-            //             'vehicle_name' => $vehicle->vehicle_name,
-            //             'device_imei' => $vehicle->device_imei
-            //         );
-            //         DB::table('configurations')->insert($main_config_details);
+                    $connectionName = $result->db_name;
+                    $connectionConfig = [
+                        'driver' => 'mysql',
+                        'host' => env('DB_HOST'), // Use the environment variable for host
+                        'port' => env('DB_PORT'), // Use the environment variable for port
+                        'database' => $result->db_name,    // Change this to the actual database name
+                        'username' => env('DB_USERNAME'), // Use the environment variable for username
+                        'password' => env('DB_PASSWORD'), // Use the environment variable for password
+                    ];
 
-            //         $result = CustomerConfiguration::where('client_id', $vehicle->client_id)
-            //             ->first();
+                    Config::set("database.connections.$connectionName", $connectionConfig);
+                    DB::purge($connectionName);
+                    $client_vehicle_data = array(
+                        'id' => $vehicleArray['id'],
+                        'vehicle_type_id' => $vehicleArray['vehicle_type_id'],
+                        'vehicle_name' => $vehicleArray['vehicle_name'],
+                        'device_id' => $vehicleArray['device_id'],
+                        'device_imei' => $vehicleArray['device_imei'],
+                        'sim_id' => $vehicleArray['sim_id'],
+                        'sim_mob_no' => $vehicleArray['sim_mob_no'],
+                        'device_make_id' => $vehicleArray['device_make_id'],
+                        'device_model_id' => $vehicleArray['device_model_id'],
+                        'installation_date' => $vehicleArray['installation_date'],
+                        'expire_date' => $vehicleArray['expire_date'],
+                        'admin_id' => $vehicleArray['admin_id'],
+                        'distributor_id' => $vehicleArray['distributor_id'],
+                        'dealer_id' => $vehicleArray['dealer_id'],
+                        'subdealer_id' => $vehicleArray['subdealer_id'],
+                        'client_id' => $vehicleArray['client_id'],
+                        'created_by' => $vehicleArray['created_by']
+                    );
+                    // Client Vehicles
+                    DB::connection($connectionName)->table('vehicles')->insert($client_vehicle_data);
+                    $live_data = array(
+                        'client_id' => $vehicle->client_id,
+                        'vehicle_id' => $vehicle->id,
+                        'vehicle_name' => $vehicle->vehicle_name,
+                        'vehicle_current_status' => '4',
+                        'vehicle_status' => '1',
+                        'deviceimei' => $vehicle->device_imei
+                    );
+                    // Client Live Data
+                    DB::connection($connectionName)->table('live_data')->insert($live_data);
 
-            //         $connectionName = $result->db_name;
-            //         $connectionConfig = [
-            //             'driver' => 'mysql',
-            //             'host' => env('DB_HOST'), // Use the environment variable for host
-            //             'port' => env('DB_PORT'), // Use the environment variable for port
-            //             'database' => $result->db_name,    // Change this to the actual database name
-            //             'username' => env('DB_USERNAME'), // Use the environment variable for username
-            //             'password' => env('DB_PASSWORD'), // Use the environment variable for password
-            //         ];
+                    $config_details = array(
+                        'client_id' => $vehicle->client_id,
+                        'vehicle_id' => $vehicle->id,
+                        'vehicle_name' => $vehicle->vehicle_name,
+                        'device_imei' => $vehicle->device_imei
+                    );
 
-            //         Config::set("database.connections.$connectionName", $connectionConfig);
-            //         DB::purge($connectionName);
-            //         $client_vehicle_data = array(
-            //             'id' => $vehicleArray['id'],
-            //             'vehicle_type_id' => $vehicleArray['vehicle_type_id'],
-            //             'vehicle_name' => $vehicleArray['vehicle_name'],
-            //             'device_id' => $vehicleArray['device_id'],
-            //             'device_imei' => $vehicleArray['device_imei'],
-            //             'sim_id' => $vehicleArray['sim_id'],
-            //             'sim_mob_no' => $vehicleArray['sim_mob_no'],
-            //             'device_make_id' => $vehicleArray['device_make_id'],
-            //             'device_model_id' => $vehicleArray['device_model_id'],
-            //             'installation_date' => $vehicleArray['installation_date'],
-            //             'expire_date' => $vehicleArray['expire_date'],
-            //             'admin_id' => $vehicleArray['admin_id'],
-            //             'distributor_id' => $vehicleArray['distributor_id'],
-            //             'dealer_id' => $vehicleArray['dealer_id'],
-            //             'subdealer_id' => $vehicleArray['subdealer_id'],
-            //             'client_id' => $vehicleArray['client_id'],
-            //             'created_by' => $vehicleArray['created_by']
-            //         );
-            //         // Client Vehicles
-            //         DB::connection($connectionName)->table('vehicles')->insert($client_vehicle_data);
-            //         $live_data = array(
-            //             'client_id' => $vehicle->client_id,
-            //             'vehicle_id' => $vehicle->id,
-            //             'vehicle_name' => $vehicle->vehicle_name,
-            //             'vehicle_current_status' => '4',
-            //             'vehicle_status' => '1',
-            //             'deviceimei' => $vehicle->device_imei
-            //         );
-            //         // Client Live Data
-            //         DB::connection($connectionName)->table('live_data')->insert($live_data);
+                    // Client Configurations
+                    DB::connection($connectionName)->table('configurations')->insert($config_details);
 
-            //         $config_details = array(
-            //             'client_id' => $vehicle->client_id,
-            //             'vehicle_id' => $vehicle->id,
-            //             'vehicle_name' => $vehicle->vehicle_name,
-            //             'device_imei' => $vehicle->device_imei
-            //         );
+                    DB::disconnect($connectionName);
 
-            //         // Client Configurations
-            //         DB::connection($connectionName)->table('configurations')->insert($config_details);
+                    //Sim and Device
+                    Sim::where('id', $vehicle->sim_id)->update(['client_id' => $vehicle->client_id]);
+                    Device::where('id', $vehicle->device_id)->update(['client_id' => $vehicle->client_id]);
+                }
+            }
 
-            //         DB::disconnect($connectionName);
-
-            //         //Sim and Device
-            //         Sim::where('id', $vehicle->sim_id)->update(['client_id' => $vehicle->client_id]);
-            //         Device::where('id', $vehicle->device_id)->update(['client_id' => $vehicle->client_id]);
-            //     }
-            // }
-
-            // DB::commit();
-            // return $this->sendSuccess('Vehicle Imported Successfully');
+            DB::commit();
+            return $this->sendSuccess('Vehicle Imported Successfully');
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->sendError('An error occurred during CSV import: ' . $e->getMessage());
