@@ -24,7 +24,7 @@ class ExecutiveReportController extends Controller
             $device_imei = $request->input('device_imei');
             $result = DB::table('play_back_histories')
             ->join('vehicles','vehicles.device_imei','=','play_back_histories.device_imei')
-            ->selectRaw('vehicles.vehicle_name as vehicle_name,vehicles.client_id as client_id,vehicles.device_imei as device_imei,vehicles.vehicle_name as vehicle_name,DATE(device_datetime) as report_date,MIN(odometer) as start_odometer,MAX(odometer) as end_odometer,MAX(odometer)-MIN(odometer) as distance,MIN(speed) as min_speed,MAX(speed) as max_speed,ROUND(AVG(speed),2) as avg_speed')->where('play_back_histories.device_datetime','>=',$start_date)->where('play_back_histories.device_datetime','<=',$end_date)->where('play_back_histories.device_imei',$device_imei)->groupBy(DB::raw('DATE(play_back_histories.device_datetime)'))->get();
+            ->selectRaw('vehicles.vehicle_name as vehicle_name,vehicles.client_id as client_id,vehicles.device_imei as device_imei,vehicles.vehicle_name as vehicle_name,DATE(device_datetime) as report_date,MIN(odometer) as start_odometer,MAX(odometer) as end_odometer,MAX(odometer)-MIN(odometer) as distance,MIN(speed) as min_speed,MAX(speed) as max_speed,ROUND(AVG(speed),2) as avg_speed')->where('play_back_histories.device_datetime','>=',$start_date)->where('play_back_histories.device_datetime','<=',$end_date)->where('play_back_histories.device_imei',$device_imei)->groupBy(DB::raw('DATE(play_back_histories.device_datetime)'),'report_date')->get();
             $response = ["success" => true, "data" => $result, "status_code" => 200];
             return response()->json($response, 200);
             } catch (\Throwable $th) {
