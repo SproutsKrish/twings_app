@@ -712,9 +712,9 @@ class ImportController extends BaseController
         }
 
         try {
+            ini_set('max_execution_time', 0);
             $path = $file_path;
             $data = array_map('str_getcsv', file($path));
-
             DB::beginTransaction();
             foreach ($data as $row) {
                 $rowValidator = Validator::make($row, [
@@ -729,7 +729,14 @@ class ImportController extends BaseController
 
                 if ($rowValidator->fails()) {
                     DB::rollBack();
-                    return $this->sendError($rowValidator->errors());
+
+                    $errors = $rowValidator->errors()->all();
+
+                    foreach ($errors as $error) {
+                        echo $error . '<br>';
+                    }
+
+                    // return $this->sendError($rowValidator->errors());
                 }
 
                 $sim_data = Sim::find($row[0]);
