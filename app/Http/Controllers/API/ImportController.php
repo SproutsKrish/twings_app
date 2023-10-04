@@ -730,10 +730,15 @@ class ImportController extends BaseController
                 if ($rowValidator->fails()) {
                     DB::rollBack();
 
-                    $errors = $rowValidator->errors()->all();
+                    $errors = collect($rowValidator->errors());
 
-                    foreach ($errors as $error) {
-                        echo $error . '<br>';
+                    // Loop through errors and associate them with the corresponding row
+                    foreach ($errors as $rowIndex => $rowErrors) {
+                        echo "Errors for Row $rowIndex:<br>";
+
+                        foreach ($rowErrors as $error) {
+                            echo "- $error<br>";
+                        }
                     }
 
                     // return $this->sendError($rowValidator->errors());
@@ -906,7 +911,7 @@ class ImportController extends BaseController
             return $this->sendSuccess('Vehicle Imported Successfully');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('An error occurred during CSV import: ' . $e->getMessage());
+            return $this->sendError('An error occurred during CSV import: ' . $e->all());
         }
     }
 
