@@ -27,21 +27,15 @@ class ExecutiveReportController extends Controller
             // ->select('vehicles.vehicle_name',DB::Raw())
             // ->groupBy()
             // ->get();
-            $result = DB::table('play_back_histories as A')
-            ->join('vehicles as B', 'A.device_imei', '=', 'B.device_imei')
-            ->whereBetween(DB::raw('DATE_ADD(A.device_datetime, INTERVAL 330 MINUTE)'), [$request->input('start_day'), $request->input('end_day')])
-            ->where('A.device_imei', $request->input('deviceimei'))
-            ->select('A.id', 'A.device_imei', 'A.latitude', 'A.longitude', 'A.speed', 'A.odometer', 'A.angle', DB::raw("DATE_ADD(A.device_datetime, INTERVAL '330' MINUTE) as device_datetime"), 'A.ignition', 'A.ac_status', 'B.vehicle_name')
-            ->orderBy('A.device_datetime')
-            ->get();
-            $queryBuilder = $result->toBase();
-            echo $queryBuilder->toSql();
-            // $result = DB::table('play_back_histories as p')
-            // ->join('vehicles as v','v.device_imei','=','p.device_imei')
-            // ->where('p.device_datetime','>=',$start_date)->where('p.device_datetime','<=',$end_date)->where('p.device_imei',$device_imei)
-            // ->select(DB::Raw('DATE(p.device_datetime) as report_date,MIN(p.odometer) as start_odometer,MAX(p.odometer) as end_odometer,ROUND(MAX(p.odometer)-MIN(p.odometer),2) as distance,MIN(p.speed) as min_speed,MAX(speed) as max_speed,ROUND(AVG(p.speed),2) as avg_speed'),'v.vehicle_name')->groupBy(DB::raw('DATE(p.device_datetime)'),'report_date')->get();
-            //$response = ["success" => true, "data" => $result, "status_code" => 200];
-            //return response()->json($response, 200);
+
+
+            $result = DB::table('play_back_histories as p')
+            ->join('vehicles as v','v.device_imei','=','p.device_imei')
+            ->where('p.device_datetime','>=',$start_date)->where('p.device_datetime','<=',$end_date)->where('p.device_imei',$device_imei)
+            ->select(DB::Raw('DATE(p.device_datetime) as report_date'),
+            DB::Raw('MIN(p.odometer) as start_odometer'),DB::Raw('MAX(p.odometer) as end_odometer'),DB::Raw('ROUND(MAX(p.odometer)-MIN(p.odometer),2) as distance'),DB::Raw('MIN(p.speed) as min_speed'),DB::Raw('MAX(speed) as max_speed'),DB::Raw('ROUND(AVG(p.speed),2) as avg_speed'),'v.vehicle_name')->groupBy(DB::raw('DATE(p.device_datetime)'),'report_date')->get();
+            $response = ["success" => true, "data" => $result, "status_code" => 200];
+            return response()->json($response, 200);
             } catch (\Throwable $th) {
             //throw $th;
             return response($th,500);
