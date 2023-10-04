@@ -71,6 +71,7 @@ use App\Http\Controllers\VehicleSetting\AlertNotificationController;
 use App\Http\Controllers\VehicleSetting\ConfigurationController;
 use App\Http\Controllers\VehicleSetting\NotificationController;
 use App\Http\Controllers\VehicleSetting\ShareLinkController;
+use App\Http\Controllers\ExecutiveReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -261,6 +262,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('geofence_not_assign_vehicles', 'geofence_not_assign_vehicles');
             Route::put('notify/update/{id}', 'update');
         });
+        Route::resource('executive_report',ExecutiveReportController::class);
     });
 
     Route::controller(LoginController::class)->group(function () {

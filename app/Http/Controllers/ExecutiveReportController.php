@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
+use App\Models\PlaybackReport;
+use Illuminate\Support\Facades\DB;
+
 
 class ExecutiveReportController extends Controller
 {
@@ -11,9 +15,29 @@ class ExecutiveReportController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+
+        try {
+            $start_date = $request->input('start_day');
+            $end_date = $request->input('end_day');
+            $device_imei = $request->input('device_imei');
+            // $result = DB::table('play_back_histories')
+            // ->join('vehicles','vehicles.device_imei','=','play_back_histories.device_imei')
+            // ->select('vehicles.vehicle_name',DB::Raw())
+            // ->groupBy()
+            // ->get();
+
+            $result = DB::table('play_back_histories as p')
+            ->join('vehicles as v','v.device_imei','=','p.device_imei')
+            ->where('p.device_datetime','>=',$start_date)->where('p.device_datetime','<=',$end_date)->where('p.device_imei',$device_imei)
+            ->select('v.vehicle_name',DB::Raw('DATE(p.device_datetime) as report_date,MIN(p.odometer) as start_odometer,MAX(p.odometer) as end_odometer,ROUND(MAX(p.odometer)-MIN(p.odometer),2) as distance,MIN(p.speed) as min_speed,MAX(speed) as max_speed,ROUND(AVG(p.speed),2) as avg_speed'))->groupBy(DB::raw('DATE(p.device_datetime)'),'report_date','v.vehicle_name')->get();
+            $response = ["success" => true, "data" => $result, "status_code" => 200];
+            return response()->json($response, 200);
+            } catch (\Throwable $th) {
+            //throw $th;
+            return response($th,500);
+        }
     }
 
     /**
