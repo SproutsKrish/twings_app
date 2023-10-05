@@ -246,9 +246,9 @@ class DeviceController extends BaseController
             return response()->json($response, 404);
         }
 
-        $device->status = 0;
-        $device->deleted_by = $request->input('user_id');
-        $device->save();
+        // $device->status = 0;
+        // $device->deleted_by = $request->input('user_id');
+        // $device->save();
         if ($device->delete()) {
             $response = ["success" => true, "message" => "Device Deleted Successfully", "status_code" => 200];
             return response()->json($response, 200);

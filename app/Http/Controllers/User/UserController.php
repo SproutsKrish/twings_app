@@ -67,6 +67,7 @@ class UserController extends BaseController
                 $user_list =  DB::table('users')
                     ->select('id', 'name', 'email', 'role_id')
                     ->where('role_id', 2)
+                    ->where('status', '1')
                     ->get();
                 break;
             case $role_id == 2:
@@ -76,6 +77,7 @@ class UserController extends BaseController
                     ->select('id', 'name', 'email', 'role_id')
                     ->where('role_id', 3)
                     ->where('admin_id', $admin_id)
+                    ->where('status', '1')
                     ->get();
                 break;
             case $role_id == 3:
@@ -85,6 +87,7 @@ class UserController extends BaseController
                     ->select('id', 'name', 'email', 'role_id')
                     ->where('role_id', 4)
                     ->where('distributor_id', $distributor_id)
+                    ->where('status', '1')
                     ->get();
                 break;
             case $role_id == 4:
@@ -96,13 +99,14 @@ class UserController extends BaseController
                     ->where('role_id', 6)
                     ->where('dealer_id', $dealer_id)
                     ->where('subdealer_id', null)
-
+                    ->where('status', '1')
                     ->get();
 
                 $subdealer_list = DB::table('users')
                     ->select('id', 'name', 'email', 'role_id')
                     ->where('role_id', 5)
                     ->where('dealer_id', $dealer_id)
+                    ->where('status', '1')
                     ->get();
                 break;
 
@@ -113,6 +117,7 @@ class UserController extends BaseController
                     ->select('id', 'name', 'email', 'role_id')
                     ->where('role_id', 6)
                     ->where('subdealer_id', $subdealer_id)
+                    ->where('status', '1')
                     ->get();
                 break;
 
@@ -869,5 +874,16 @@ class UserController extends BaseController
                 return response()->json($response, 404);
             }
         }
+    }
+
+    public function gen_pass()
+    {
+        // $p = "sbj@123";
+
+        // $password = bcrypt($p);
+
+        // $result = DB::table('users')->where('id', 13384)->update(['password' => $password]);
+
+        // dd($result);
     }
 }

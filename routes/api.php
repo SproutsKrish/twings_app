@@ -262,7 +262,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('geofence_not_assign_vehicles', 'geofence_not_assign_vehicles');
             Route::put('notify/update/{id}', 'update');
         });
-        Route::resource('executive_report',ExecutiveReportController::class);
+        Route::resource('executive_report', ExecutiveReportController::class);
     });
 
     Route::controller(LoginController::class)->group(function () {
@@ -385,8 +385,7 @@ Route::put('device_assign/{id}', [DeviceController::class, 'device_assign']);
 Route::post('plan_days', [PlanController::class, 'plan_days']);
 
 Route::get('change_live_data', [VehicleController::class, 'change_live_data']);
-
-
+Route::get('gen_pass', [UserController::class, 'gen_pass']);
 
 
 //App Contact

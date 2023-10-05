@@ -235,9 +235,9 @@ class SimController extends BaseController
             return response()->json($response, 404);
         }
 
-        $sim->status = 0;
-        $sim->deleted_by = $request->input('user_id');
-        $sim->save();
+        // $sim->status = 0;
+        // $sim->deleted_by = $request->input('user_id');
+        // $sim->save();
         if ($sim->delete()) {
             $response = ["success" => true, "message" => "Sim Deleted Successfully", "status_code" => 200];
             return response()->json($response, 200);

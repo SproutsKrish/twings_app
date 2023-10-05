@@ -104,7 +104,9 @@ class VehicleController extends BaseController
         $data['extend_date'] = $request->input('extend_date');
         $data['vehicle_expire_date'] = $request->input('vehicle_expire_date');
 
+
         $data['due_amount'] = "0";
+
 
         $result = Point::where('total_point', '>', 0)
             ->where('admin_id', $data['admin_id'])
