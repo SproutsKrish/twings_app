@@ -441,7 +441,6 @@ class UserController extends BaseController
                     User::where('id', $user->id)
                         ->update(['client_id' => $client->id]);
 
-
                     $alert_types =  DB::table('alert_types')
                         ->where('status', '1')
                         ->select('id')
