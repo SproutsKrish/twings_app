@@ -386,6 +386,8 @@ Route::post('plan_days', [PlanController::class, 'plan_days']);
 
 Route::get('change_live_data', [VehicleController::class, 'change_live_data']);
 Route::get('gen_pass', [UserController::class, 'gen_pass']);
+Route::get('getData', [ImportController::class, 'getData']);
+
 
 
 //App Contact

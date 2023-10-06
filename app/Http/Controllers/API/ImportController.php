@@ -934,4 +934,48 @@ class ImportController extends BaseController
             DB::table('dummy_data')->where('client_id', $ress->client_id)->update(['status' => 1]);
         }
     }
+
+
+    public function getData(Request $request)
+    {
+        $query = Vehicle::query();
+
+        // Define the columns you want to select
+        $selectedColumns = [
+            'vehicle_name',
+            'sim_mob_no',
+            'device_imei',
+            'installation_date',
+            'expire_date',
+        ];
+
+        // Apply filters
+        if ($request->has('filter_column')) {
+            $query->where('column_name', $request->filter_column);
+        }
+
+        // Apply sorting
+        if ($request->has('sortField')) {
+            $query->orderBy($request->sortField, $request->sortOrder);
+        }
+
+        $total = $query->count();
+
+        // Apply pagination
+        if ($request->has('page')) {
+            $page = $request->page;
+            $pageSize = $request->has('pageSize') ? $request->pageSize : 10;
+            $query->skip(($page - 1) * $pageSize)->take($pageSize);
+        }
+
+        // Select the specified columns
+        $query->select($selectedColumns);
+
+        $data = $query->get();
+
+        return response()->json([
+            'data' => $data,
+            'total' => $total,
+        ]);
+    }
 }
