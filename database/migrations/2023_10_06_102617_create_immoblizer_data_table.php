@@ -26,7 +26,8 @@ return new class extends Migration
             $table->string('device_name')->nullable();
             $table->bigInteger('dealer_id');
             $table->bigInteger('subdealer_id');
-            $table->bigInteger('created_by');
+            $table->string('created_by');
+            $table->dateTime('created_on');
             $table->timestamps();
         });
     }
