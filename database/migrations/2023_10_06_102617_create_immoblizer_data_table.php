@@ -24,10 +24,9 @@ return new class extends Migration
             $table->text('address')->nullable();
             $table->integer('device_port')->nullable();
             $table->string('device_name')->nullable();
-            $table->bigInteger('dealer_id');
-            $table->bigInteger('subdealer_id');
-            $table->string('created_by');
-            $table->dateTime('created_on');
+            $table->bigInteger('dealer_id')->nullable();
+            $table->bigInteger('subdealer_id')->nullable();
+            $table->string('created_by')->nullable();
             $table->timestamps();
         });
     }
