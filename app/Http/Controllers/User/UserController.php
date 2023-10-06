@@ -142,129 +142,59 @@ class UserController extends BaseController
         $user_id = $request->input('user_id');
         $role_id = $request->input('role_id');
 
-        if ($role_id == 1) {
-            $result =  DB::table('users as a')
-                ->join('roles as b', 'a.role_id', '=', 'b.id')
-                ->select(
-                    'a.id',
-                    'a.name',
-                    'a.email',
-                    'a.password',
-                    'a.mobile_no',
-                    'a.country_id',
-                    'a.country_name',
-                    'a.role_id',
-                    'b.name as role'
-                )
-                ->where('a.role_id', '>', '1')
-                ->where('a.status', '1')
-                ->orderBy('a.id', 'desc')
-                ->get();
-        } else if ($role_id == 2) {
-            $data = User::find($user_id);
-            $admin_id  = $data->admin_id;
-            $result =  DB::table('users as a')
-                ->join('roles as b', 'a.role_id', '=', 'b.id')
-                ->select(
-                    'a.id',
-                    'a.name',
-                    'a.email',
-                    'a.password',
-                    'a.mobile_no',
-                    'a.country_id',
-                    'a.country_name',
-                    'a.role_id',
-                    'b.name as role'
-                )
-                ->where('a.role_id', '>', '2')
-                ->where('a.status', '1')
-                ->where('a.admin_id', '=', $admin_id)
-                ->orderBy('a.id', 'desc')
-                ->get();
-        } else if ($role_id == 3) {
-            $data = User::find($user_id);
-            $distributor_id  = $data->distributor_id;
-            $result =  DB::table('users as a')
-                ->join('roles as b', 'a.role_id', '=', 'b.id')
-                ->select(
-                    'a.id',
-                    'a.name',
-                    'a.email',
-                    'a.password',
-                    'a.mobile_no',
-                    'a.country_id',
-                    'a.country_name',
-                    'a.role_id',
-                    'b.name as role'
-                )
-                ->where('a.role_id', '>', '3')
-                ->where('a.status', '1')
-                ->where('a.distributor_id', '=', $distributor_id)
-                ->orderBy('a.id', 'desc')
-                ->get();
-        } else if ($role_id == 4) {
-            $data = User::find($user_id);
-            $dealer_id  = $data->dealer_id;
-            $result =  DB::table('users as a')
-                ->join('roles as b', 'a.role_id', '=', 'b.id')
-                ->select(
-                    'a.id',
-                    'a.name',
-                    'a.email',
-                    'a.password',
-                    'a.mobile_no',
-                    'a.country_id',
-                    'a.country_name',
-                    'a.role_id',
-                    'b.name as role'
-                )
-                ->where('a.role_id', '>', '4')
-                ->where('a.status', '1')
-                ->where('a.dealer_id', '=', $dealer_id)
-                ->orderBy('a.id', 'desc')
-                ->get();
-        } else if ($role_id == 5) {
-            $data = User::find($user_id);
-            $subdealer_id  = $data->subdealer_id;
-            $result =  DB::table('users as a')
-                ->join('roles as b', 'a.role_id', '=', 'b.id')
-                ->select(
-                    'a.id',
-                    'a.name',
-                    'a.email',
-                    'a.password',
-                    'a.mobile_no',
-                    'a.country_id',
-                    'a.country_name',
-                    'a.role_id',
-                    'b.name as role'
-                )
-                ->where('a.role_id', '>', '5')
-                ->where('a.status', '1')
-                ->where('a.subdealer_id', '=', $subdealer_id)
-                ->orderBy('a.id', 'desc')
-                ->get();
-        } else if ($role_id == 6) {
-            $data = User::find($user_id);
-            $client_id  = $data->client_id;
-            $result =  DB::table('users as a')
-                ->join('roles as b', 'a.role_id', '=', 'b.id')
-                ->select(
-                    'a.id',
-                    'a.name',
-                    'a.email',
-                    'a.password',
-                    'a.mobile_no',
-                    'a.country_id',
-                    'a.country_name',
-                    'a.role_id',
-                    'b.name as role'
-                )
-                ->where('a.role_id', '>', '6')
-                ->where('a.status', '1')
-                ->where('a.client_id', '=', $client_id)
-                ->orderBy('a.id', 'desc')
-                ->get();
+        // Define a base query for the common parts of your queries
+        $query = DB::table('users as a')
+            ->join('roles as b', 'a.role_id', '=', 'b.id')
+            ->select(
+                'a.id',
+                'a.name',
+                'a.email',
+                'a.password',
+                'a.mobile_no',
+                'a.country_id',
+                'a.country_name',
+                'a.role_id',
+                'b.name as role'
+            )
+            ->where('a.status', '1')
+            ->orderBy('a.id', 'desc');
+
+        switch ($role_id) {
+            case 1:
+                $result = $query->where('a.role_id', '>', 1)->get();
+                break;
+            case 2:
+                $admin_id = User::find($user_id)->admin_id;
+                $result = $query->where('a.role_id', '>', 2)
+                    ->where('a.admin_id', '=', $admin_id)
+                    ->get();
+                break;
+            case 3:
+                $distributor_id = User::find($user_id)->distributor_id;
+                $result = $query->where('a.role_id', '>', 3)
+                    ->where('a.distributor_id', '=', $distributor_id)
+                    ->get();
+                break;
+            case 4:
+                $dealer_id = User::find($user_id)->dealer_id;
+                $result = $query->where('a.role_id', '>', 4)
+                    ->where('a.dealer_id', '=', $dealer_id)
+                    ->get();
+                break;
+            case 5:
+                $subdealer_id = User::find($user_id)->subdealer_id;
+                $result = $query->where('a.role_id', '>', 5)
+                    ->where('a.subdealer_id', '=', $subdealer_id)
+                    ->get();
+                break;
+            case 6:
+                $client_id = User::find($user_id)->client_id;
+                $result = $query->where('a.role_id', '>', 6)
+                    ->where('a.client_id', '=', $client_id)
+                    ->get();
+                break;
+            default:
+                $result = [];
         }
 
         if (empty($result)) {
@@ -275,6 +205,7 @@ class UserController extends BaseController
         $response = ["success" => true, "data" => $result, "status_code" => 200];
         return response()->json($response, 200);
     }
+
 
     public function store(Request $request)
     {
