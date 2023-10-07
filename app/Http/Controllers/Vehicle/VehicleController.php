@@ -298,11 +298,13 @@ class VehicleController extends BaseController
             'vehicles.license_no',
             'vehicles.installation_date',
             'vehicles.expire_date',
-            'clients.client_name'
+            'clients.client_name',
+            'e.speed_limit'
         )
             ->join('vehicle_types', 'vehicles.vehicle_type_id', '=', 'vehicle_types.id')
             ->join('device_makes as c', 'vehicles.device_make_id', '=', 'c.id')
             ->join('device_models as d', 'vehicles.device_model_id', '=', 'd.id')
+            ->join('configurations as e', 'vehicles.id', '=', 'e.vehicle_id')
             ->join('clients', 'vehicles.client_id', '=', 'clients.id')
             ->where('vehicles.status', 1);
 

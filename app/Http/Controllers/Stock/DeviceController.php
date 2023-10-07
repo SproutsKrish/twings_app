@@ -80,14 +80,35 @@ class DeviceController extends BaseController
                 return response()->json($response, 403);
             }
 
-            $request['admin_id'] = auth()->user()->admin_id;
-            $request['distributor_id'] = auth()->user()->distributor_id;
-            $request['dealer_id'] = auth()->user()->dealer_id;
-            $request['subdealer_id'] = auth()->user()->subdealer_id;
-            $request['created_by'] = auth()->user()->id;
-            $request['purchase_date'] = date('Y-m-d');
+            $data['supplier_id'] =  $request->input('supplier_id');
+            $data['device_make_id'] =  $request->input('device_make_id');
+            $data['device_model_id'] =  $request->input('device_model_id');
+            $data['device_imei_no'] =  $request->input('device_imei_no');
 
-            $device = new Device($request->all());
+            $data['uid'] =  $request->input('uid');
+            $data['ccid'] =  $request->input('ccid');
+            $data['description'] =  $request->input('description');
+
+            $data['purchase_date'] = date('Y-m-d');
+            $data['admin_id'] =  $request->input('admin_id');
+
+            $distributor_id = $request->input('distributor_id');
+            $user = User::find($distributor_id);
+            $data['distributor_id'] = $user->distributor_id;
+
+            $dealer_id = $request->input('dealer_id');
+            $user = User::find($dealer_id);
+            $data['dealer_id'] = $user->dealer_id;
+            $data['subdealer_id'] = null;
+            if ($request->input('subdealer_id') != null) {
+                $subdealer_id = $request->input('subdealer_id');
+                $user = User::find($subdealer_id);
+                $data['subdealer_id'] = $user->subdealer_id;
+            }
+
+            $data['created_by'] = auth()->user()->id;
+
+            $device = new Device($data);
 
             if ($device->save()) {
                 $response = ["success" => true, "message" => "Device Inserted Successfully", "status_code" => 200];
@@ -212,6 +233,7 @@ class DeviceController extends BaseController
                 ->where('subdealer_id', $subdealer_id)
                 ->where('client_id', null)
                 ->where('status', '1')
+                ->orderBy('id', 'desc')
                 ->get();
         } else if ($role_id == 5) {
             $subdealer_id = $data->subdealer_id;
@@ -221,6 +243,7 @@ class DeviceController extends BaseController
                 ->where('subdealer_id', $subdealer_id)
                 ->where('client_id', null)
                 ->where('status', '1')
+                ->orderBy('id', 'desc')
                 ->get();
         }
         if (empty($results)) {

@@ -77,14 +77,29 @@ class SimController extends BaseController
                 return response()->json($response, 403);
             }
 
-            $request['admin_id'] = auth()->user()->admin_id;
-            $request['distributor_id'] = auth()->user()->distributor_id;
-            $request['dealer_id'] = auth()->user()->dealer_id;
-            $request['subdealer_id'] = auth()->user()->subdealer_id;
-            $request['created_by'] = auth()->user()->id;
-            $request['purchase_date'] = date('Y-m-d');
+            $data['network_id'] =  $request->input('network_id');
+            $data['sim_imei_no'] =  $request->input('sim_imei_no');
+            $data['sim_mob_no1'] =  $request->input('sim_mob_no1');
+            $data['sim_mob_no2'] =  $request->input('sim_mob_no2');
+            $data['purchase_date'] = date('Y-m-d');
+            $data['admin_id'] =  $request->input('admin_id');
 
-            $sim = new Sim($request->all());
+            $distributor_id = $request->input('distributor_id');
+            $user = User::find($distributor_id);
+            $data['distributor_id'] = $user->distributor_id;
+
+            $dealer_id = $request->input('dealer_id');
+            $user = User::find($dealer_id);
+            $data['dealer_id'] = $user->dealer_id;
+            $data['subdealer_id'] = null;
+            if ($request->input('subdealer_id') != null) {
+                $subdealer_id = $request->input('subdealer_id');
+                $user = User::find($subdealer_id);
+                $data['subdealer_id'] = $user->subdealer_id;
+            }
+
+            $data['created_by'] = auth()->user()->id;
+            $sim = new Sim($data);
 
             if ($sim->save()) {
                 $response = ["success" => true, "message" => "Sim Inserted Successfully", "status_code" => 200];
