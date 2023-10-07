@@ -55,23 +55,21 @@ class UserController extends BaseController
         $data = User::where('id', $user_id)->first();
 
         if (empty($data)) {
-            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
-            return response()->json($response, 404);
+            return response()->json(["success" => false, "message" => "No Data Found", "status_code" => 404], 404);
         }
-        $role_id = $data->role_id;
 
+        $role_id = $data->role_id;
         $user_list = $subdealer_list = [];
 
         switch ($role_id) {
-            case $role_id == 1:
+            case 1:
                 $user_list =  DB::table('users')
                     ->select('id', 'name', 'email', 'role_id')
                     ->where('role_id', 2)
                     ->where('status', '1')
                     ->get();
                 break;
-            case $role_id == 2:
-                $data = User::find($user_id);
+            case 2:
                 $admin_id  = $data->admin_id;
                 $user_list = DB::table('users')
                     ->select('id', 'name', 'email', 'role_id')
@@ -80,8 +78,7 @@ class UserController extends BaseController
                     ->where('status', '1')
                     ->get();
                 break;
-            case $role_id == 3:
-                $data = User::find($user_id);
+            case 3:
                 $distributor_id  = $data->distributor_id;
                 $user_list = DB::table('users')
                     ->select('id', 'name', 'email', 'role_id')
@@ -90,8 +87,7 @@ class UserController extends BaseController
                     ->where('status', '1')
                     ->get();
                 break;
-            case $role_id == 4:
-                $data = User::find($user_id);
+            case 4:
                 $dealer_id  = $data->dealer_id;
 
                 $user_list = DB::table('users')
@@ -110,8 +106,7 @@ class UserController extends BaseController
                     ->get();
                 break;
 
-            case $role_id == 5:
-                $data = User::find($user_id);
+            case 5:
                 $subdealer_id  = $data->subdealer_id;
                 $user_list = DB::table('users')
                     ->select('id', 'name', 'email', 'role_id')
@@ -122,20 +117,18 @@ class UserController extends BaseController
                 break;
 
             default:
-                $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
-                return response()->json($response, 404);
+                return response()->json(["success" => false, "message" => "No Data Found", "status_code" => 404], 404);
         }
 
         $result = ['user_list' => $user_list, 'subdealer_list' => $subdealer_list];
 
         if (empty($result['user_list']) && empty($result['subdealer_list'])) {
-            $response = ["success" => false, "message" => "No Datas Found", "status_code" => 404];
-            return response()->json($response, 404);
+            return response()->json(["success" => false, "message" => "No Datas Found", "status_code" => 404], 404);
         } else {
-            $response = ["success" => true, "data" => $result, "status_code" => 200];
-            return response()->json($response, 200);
+            return response()->json(["success" => true, "data" => $result, "status_code" => 200], 200);
         }
     }
+
 
     public function user_list(Request $request)
     {
