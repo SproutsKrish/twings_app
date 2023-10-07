@@ -108,6 +108,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('about_us', [LoginController::class, 'about_us']);
 
     Route::post('change_user_password', [UserController::class, 'change_user_password']);
+    Route::post('change_password', [UserController::class, 'change_password']);
+
     Route::post('login_image_save', [UserDomainController::class, 'login_image_save']);
 
     Route::controller(SimController::class)->group(function () {

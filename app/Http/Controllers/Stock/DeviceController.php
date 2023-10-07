@@ -65,6 +65,47 @@ class DeviceController extends BaseController
         }
     }
 
+    public function device_store(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'supplier_id' => 'required|max:255',
+                'device_make_id' => 'required',
+                'device_model_id' => 'required',
+                'device_imei_no' => 'required|unique:devices,device_imei_no'
+            ]);
+
+            if ($validator->fails()) {
+                $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+                return response()->json($response, 403);
+            }
+
+            $request['admin_id'] = auth()->user()->admin_id;
+            $request['distributor_id'] = auth()->user()->distributor_id;
+            $request['dealer_id'] = auth()->user()->dealer_id;
+            $request['subdealer_id'] = auth()->user()->subdealer_id;
+            $request['created_by'] = auth()->user()->id;
+            $request['purchase_date'] = date('Y-m-d');
+
+            $device = new Device($request->all());
+
+            if ($device->save()) {
+                $response = ["success" => true, "message" => "Device Inserted Successfully", "status_code" => 200];
+                return response()->json($response, 200);
+            } else {
+                $response = ["success" => false, "message" => "Failed to Insert Device", "status_code" => 404];
+                return response()->json($response, 404);
+            }
+        } catch (\Exception $e) {
+
+            return $e->getMessage();
+
+            $response = ["success" => false, "message" => $e->getMessage(), "status_code" => 404];
+            return response()->json($response, 404);
+        }
+    }
+
+
     public function device_transfer(Request $request)
     {
         try {

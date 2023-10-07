@@ -629,17 +629,52 @@ class UserController extends BaseController
         if (!$user) {
             $response = ["success" => false, "message" => "User Not Found", "status_code" => 404];
             return response()->json($response, 404);
-        }
-
-        $user->status = 0;
-        $user->deleted_by = $request->input('user_id');
-        $user->save();
-        if ($user->delete()) {
-            $response = ["success" => true, "message" => "User Deleted Successfully", "status_code" => 200];
-            return response()->json($response, 200);
         } else {
-            $response = ["success" => false, "message" => "Failed To Delete User", "status_code" => 404];
-            return response()->json($response, 404);
+            $role_id = $user->role_id;
+            $query = DB::table('vehicles')->where('status', 1);
+
+            switch ($role_id) {
+                case 2:
+                    $admin_id = $user->admin_id;
+                    $result = $query->where('admin_id', $admin_id)
+                        ->count();
+                    break;
+                case 3:
+                    $distributor_id = $user->distributor_id;
+                    $result = $query->where('distributor_id', $distributor_id)
+                        ->count();
+                    break;
+                case 4:
+                    $dealer_id = $user->dealer_id;
+                    $result = $query->where('dealer_id', $dealer_id)
+                        ->count();
+                    break;
+                case 5:
+                    $subdealer_id = $user->subdealer_id;
+                    $result = $query->where('subdealer_id', $subdealer_id)
+                        ->count();
+                    break;
+                case 6:
+                    $client_id = $user->client_id;
+                    $result = $query->where('client_id', $client_id)
+                        ->count();
+                    break;
+                default:
+                    $result = [];
+            }
+
+            if ($result == 0) {
+                $user->status = 0;
+                $user->deleted_by = $request->input('user_id');
+                $user->save();
+                if ($user->delete()) {
+                    return response()->json("User Deleted Successfully", 200);
+                } else {
+                    return response()->json("User Not Deleted", 404);
+                }
+            } else {
+                return response()->json($user->name . " have vehicle. You Can't Delete", 200);
+            }
         }
     }
 
@@ -806,6 +841,30 @@ class UserController extends BaseController
             }
         }
     }
+
+    public function change_password(Request $request)
+    {
+        $new_password = $request->input('new_password');
+        $user_id = $request->input('user_id');
+        $data = User::whereId($user_id)->update([
+            'password' => Hash::make($new_password)
+        ]);
+
+        if ($data) {
+
+            $last_used_at = Carbon::now();
+
+            $tokens = DB::table('personal_access_tokens')->where('tokenable_id', $user_id)->update(['last_used_at' => $last_used_at]);
+
+            $response = ["success" => true, "message" => "Password Changed Successfully", "status_code" => 200];
+            return response()->json($response, 200);
+        } else {
+            $response = ["success" => false, "message" => "Current Password is not Correct", "status_code" => 404];
+            return response()->json($response, 404);
+        }
+    }
+
+
 
     public function gen_pass()
     {

@@ -63,6 +63,45 @@ class SimController extends BaseController
         }
     }
 
+    public function sim_store(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'network_id' => 'required|max:255',
+                'sim_imei_no' => 'required|unique:sims,sim_imei_no',
+                'sim_mob_no1' => 'required|unique:sims,sim_mob_no1'
+            ]);
+
+            if ($validator->fails()) {
+                $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+                return response()->json($response, 403);
+            }
+
+            $request['admin_id'] = auth()->user()->admin_id;
+            $request['distributor_id'] = auth()->user()->distributor_id;
+            $request['dealer_id'] = auth()->user()->dealer_id;
+            $request['subdealer_id'] = auth()->user()->subdealer_id;
+            $request['created_by'] = auth()->user()->id;
+            $request['purchase_date'] = date('Y-m-d');
+
+            $sim = new Sim($request->all());
+
+            if ($sim->save()) {
+                $response = ["success" => true, "message" => "Sim Inserted Successfully", "status_code" => 200];
+                return response()->json($response, 200);
+            } else {
+                $response = ["success" => false, "message" => "Failed to Insert Sim", "status_code" => 404];
+                return response()->json($response, 404);
+            }
+        } catch (\Exception $e) {
+
+            return $e->getMessage();
+
+            $response = ["success" => false, "message" => $e->getMessage(), "status_code" => 404];
+            return response()->json($response, 404);
+        }
+    }
+
     public function sim_transfer(Request $request)
     {
         try {
