@@ -49,7 +49,15 @@ class LiveDataController extends Controller
                 A.expire_date,
                 A.safe_parking,
                 A.immobilizer_option,
-                B.vehicle_current_status,
+                CASE
+                    WHEN B.ignition = 0 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "1"
+                    WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "2"
+                    WHEN B.ignition = 1 AND B.speed > 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "3"
+                    WHEN B.device_updatedtime IS NULL THEN "4"
+                    WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "5"
+                    WHEN A.expire_date < CURDATE() THEN "6"
+                ELSE NULL
+                END AS vehicle_current_status,
                 B.vehicle_status,
                 B.lattitute,
                 B.longitute,
@@ -113,7 +121,15 @@ class LiveDataController extends Controller
                 A.expire_date,
                 A.safe_parking,
                 A.immobilizer_option,
-                B.vehicle_current_status,
+                CASE
+                WHEN B.ignition = 0 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "1"
+                WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "2"
+                WHEN B.ignition = 1 AND B.speed > 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "3"
+                WHEN B.device_updatedtime IS NULL THEN "4"
+                WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "5"
+                WHEN A.expire_date < CURDATE() THEN "6"
+            ELSE NULL
+            END AS vehicle_current_status,
                 B.vehicle_status,
                 B.lattitute,
                 B.longitute,
@@ -188,7 +204,15 @@ class LiveDataController extends Controller
             A.expire_date,
             A.safe_parking,
             A.immobilizer_option,
-            B.vehicle_current_status,
+            CASE
+            WHEN B.ignition = 0 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "1"
+            WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "2"
+            WHEN B.ignition = 1 AND B.speed > 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "3"
+            WHEN B.device_updatedtime IS NULL THEN "4"
+            WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "5"
+            WHEN A.expire_date < CURDATE() THEN "6"
+        ELSE NULL
+        END AS vehicle_current_status,
             B.vehicle_status,
             B.lattitute,
             B.longitute,
@@ -242,18 +266,6 @@ class LiveDataController extends Controller
 
     public function vehicle_count()
     {
-        //inactive
-        $live_datas = DB::table('live_data')
-            ->where('device_updatedtime', '<', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
-            ->get();
-
-        foreach ($live_datas as $live_data) {
-            // print_r($live_data);
-            DB::table('live_data')
-                ->where('id', $live_data->id)
-                ->update(['vehicle_current_status' => 5]);
-        }
-
         //expiry date
         $expiry_datas = DB::table('live_data as a')
             ->join('vehicles as b', 'a.deviceimei', '=', 'b.device_imei')
@@ -286,27 +298,33 @@ class LiveDataController extends Controller
             ->count();
 
         $parking = DB::table('live_data')
-            ->where('vehicle_current_status', 1)
+            ->where('ignition', 0)
+            ->where('speed', 0)
+            ->where('device_updatedtime', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
             ->where('vehicle_status', 1)
             ->count();
 
         $idle = DB::table('live_data')
-            ->where('vehicle_current_status', 2)
+            ->where('ignition', 1)
+            ->where('speed', 0)
+            ->where('device_updatedtime', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
             ->where('vehicle_status', 1)
             ->count();
 
         $moving = DB::table('live_data')
-            ->where('vehicle_current_status', 3)
+            ->where('ignition', 1)
+            ->where('speed', '>', 0)
+            ->where('device_updatedtime', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
             ->where('vehicle_status', 1)
             ->count();
 
         $no_data = DB::table('live_data')
-            ->where('vehicle_current_status', 4)
+            ->where('device_updatedtime', '=', null)
             ->where('vehicle_status', 1)
             ->count();
 
         $inactive = DB::table('live_data')
-            ->where('vehicle_current_status', 5)
+            ->where('device_updatedtime', '<', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
             ->where('vehicle_status', 1)
             ->count();
 
@@ -376,39 +394,52 @@ class LiveDataController extends Controller
         }
 
         // dd($vehicle_data);
-        $total_vehicles = Vehicle::count();
+        $total_vehicles = DB::table('vehicles')
+            ->where('status', 1)
+            ->count();
 
         $parking = DB::table('live_data')
-            ->where('vehicle_current_status', 1)
-            ->whereIn('vehicle_id', $vehicle_data)
+            ->where('ignition', 0)
+            ->where('speed', 0)
+            ->where('device_updatedtime', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
+            ->where('vehicle_status', 1)
             ->count();
 
         $idle = DB::table('live_data')
-            ->where('vehicle_current_status', 2)
-            ->whereIn('vehicle_id', $vehicle_data)
+            ->where('ignition', 1)
+            ->where('speed', 0)
+            ->where('device_updatedtime', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
+            ->where('vehicle_status', 1)
             ->count();
 
         $moving = DB::table('live_data')
-            ->where('vehicle_current_status', 3)
-            ->whereIn('vehicle_id', $vehicle_data)
+            ->where('ignition', 1)
+            ->where('speed', '>', 0)
+            ->where('device_updatedtime', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
+            ->where('vehicle_status', 1)
             ->count();
 
         $no_data = DB::table('live_data')
-            ->where('vehicle_current_status', 4)
-            ->whereIn('vehicle_id', $vehicle_data)
+            ->where('device_updatedtime', '=', null)
+            ->where('vehicle_status', 1)
             ->count();
 
         $inactive = DB::table('live_data')
-            ->where('vehicle_current_status', 5)
-            ->whereIn('vehicle_id', $vehicle_data)
+            ->where('device_updatedtime', '<', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
+            ->where('vehicle_status', 1)
             ->count();
 
+        // dd($parking);
+        // dd($idle);
+        // dd($moving);
+        // dd($inactive);
+
         $expired_vehicles = Vehicle::where('expire_date', '<', now())
-            ->whereIn('id', $vehicle_data)
+            ->where('status', 1)
             ->count();
 
         $expiry_vehicles = Vehicle::whereBetween('expire_date', [DB::raw('CURDATE()'), DB::raw('DATE_ADD(CURDATE(), INTERVAL 15 DAY)')])
-            ->whereIn('id', $vehicle_data)
+            ->where('status', 1)
             ->count();
 
         $vehicle_count = array(
@@ -467,7 +498,15 @@ class LiveDataController extends Controller
                 A.expire_date,
                 A.safe_parking,
                 A.immobilizer_option,
-                B.vehicle_current_status,
+                CASE
+                WHEN B.ignition = 0 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "1"
+                WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "2"
+                WHEN B.ignition = 1 AND B.speed > 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "3"
+                WHEN B.device_updatedtime IS NULL THEN "4"
+                WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "5"
+                WHEN A.expire_date < CURDATE() THEN "6"
+            ELSE NULL
+            END AS vehicle_current_status,
                 B.vehicle_status,
                 B.lattitute,
                 B.longitute,
@@ -530,7 +569,15 @@ class LiveDataController extends Controller
                 A.expire_date,
                 A.safe_parking,
                 A.immobilizer_option,
-                B.vehicle_current_status,
+                CASE
+                WHEN B.ignition = 0 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "1"
+                WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "2"
+                WHEN B.ignition = 1 AND B.speed > 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "3"
+                WHEN B.device_updatedtime IS NULL THEN "4"
+                WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "5"
+                WHEN A.expire_date < CURDATE() THEN "6"
+            ELSE NULL
+            END AS vehicle_current_status,
                 B.vehicle_status,
                 B.lattitute,
                 B.longitute,
@@ -615,7 +662,15 @@ class LiveDataController extends Controller
             A.expire_date,
             A.safe_parking,
             A.immobilizer_option,
-            B.vehicle_current_status,
+            CASE
+                WHEN B.ignition = 0 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "1"
+                WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "2"
+                WHEN B.ignition = 1 AND B.speed > 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "3"
+                WHEN B.device_updatedtime IS NULL THEN "4"
+                WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "5"
+                WHEN A.expire_date < CURDATE() THEN "6"
+            ELSE NULL
+            END AS vehicle_current_status,
             B.vehicle_status,
             B.lattitute,
             B.longitute,

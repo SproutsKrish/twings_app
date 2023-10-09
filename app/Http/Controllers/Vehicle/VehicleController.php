@@ -439,6 +439,9 @@ class VehicleController extends BaseController
         }
     }
 
+    public function change_sim()
+    {
+    }
 
     public function customer_vehicle_update(Request $request)
     {
