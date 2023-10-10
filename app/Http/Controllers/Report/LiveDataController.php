@@ -299,7 +299,6 @@ class LiveDataController extends Controller
 
         $parking = DB::table('live_data')
             ->where('ignition', 0)
-            ->where('speed', 0)
             ->where('device_updatedtime', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
             ->where('vehicle_status', 1)
             ->count();
@@ -400,7 +399,6 @@ class LiveDataController extends Controller
 
         $parking = DB::table('live_data')
             ->where('ignition', 0)
-            ->where('speed', 0)
             ->where('device_updatedtime', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
             ->where('vehicle_status', 1)
             ->count();
