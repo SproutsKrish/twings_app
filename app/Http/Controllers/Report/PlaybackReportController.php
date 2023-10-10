@@ -18,17 +18,19 @@ class PlaybackReportController extends Controller
             ->orderBy('A.device_datetime')
             ->get();
 
-        $total_distance = DB::table('play_back_histories')
+        $data = DB::table('play_back_histories')
             ->whereBetween(DB::raw('DATE_ADD(device_datetime, INTERVAL 330 MINUTE)'), [$request->input('start_day'), $request->input('end_day')])
             ->where('device_imei', $request->input('deviceimei'))
             ->select(DB::raw("round(max(odometer) - min(odometer), 2) AS total_distance"))
             ->first();
 
+        $total_distance = $data->total_distance;
+
         if ($playbackReports->isEmpty()) {
             $response = ["success" => false, "message" => 'No Playback Data Found', "status_code" => 404];
             return response($response, 404);
         }
-        $response = ["success" => true, "data" => [$playbackReports, $total_distance], "status_code" => 200];
+        $response = ["success" => true, "data" => ['playback' => $playbackReports, 'total_distance' => $total_distance], "status_code" => 200];
         return response($response, 200);
     }
 }
