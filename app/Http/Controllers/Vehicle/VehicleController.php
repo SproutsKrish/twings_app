@@ -439,8 +439,61 @@ class VehicleController extends BaseController
         }
     }
 
-    public function change_sim()
+    public function change_sim(Request $request)
     {
+        try {
+            $validator = Validator::make($request->all(), [
+                'network_id' => 'required|max:255',
+                'sim_imei_no' => 'required|unique:sims,sim_imei_no',
+                'sim_mob_no1' => 'required|unique:sims,sim_mob_no1'
+            ]);
+
+            if ($validator->fails()) {
+                $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+                return response()->json($response, 403);
+            }
+
+            $vehicle = Vehicle::find($request->input('id'));
+
+            $data['network_id'] =  $request->input('network_id');
+            $data['sim_imei_no'] =  $request->input('sim_imei_no');
+            $data['sim_mob_no1'] =  $request->input('sim_mob_no1');
+            $data['sim_mob_no2'] =  $request->input('sim_mob_no2');
+
+            $data['admin_id'] = $vehicle->admin_id;
+            $data['distributor_id'] = $vehicle->distributor_id;
+            $data['dealer_id'] = $vehicle->dealer_id;
+            $data['subdealer_id'] = $vehicle->subdealer_id;
+            $data['client_id'] = $vehicle->client_id;
+
+            $data['created_by'] = auth()->user()->id;
+            $data['purchase_date'] = date('Y-m-d');
+
+            $sim = new Sim($data);
+
+            if ($sim->save()) {
+
+                DB::table('sims')
+                    ->where('sim_mob_no1', $vehicle->sim_mob_no)
+                    ->update(['client_id' => NULL]);
+
+                DB::table('vehicles')
+                    ->where('id', $request->input('id'))
+                    ->update(['sim_mob_no' => $request->input('sim_mob_no1'), 'sim_id' => $sim->id]);
+
+                $response = ["success" => true, "message" => "Sim Updated Successfully", "status_code" => 200];
+                return response()->json($response, 200);
+            } else {
+                $response = ["success" => false, "message" => "Failed to Insert Sim", "status_code" => 404];
+                return response()->json($response, 404);
+            }
+        } catch (\Exception $e) {
+
+            return $e->getMessage();
+
+            $response = ["success" => false, "message" => $e->getMessage(), "status_code" => 404];
+            return response()->json($response, 404);
+        }
     }
 
     public function customer_vehicle_update(Request $request)

@@ -113,7 +113,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('login_image_save', [UserDomainController::class, 'login_image_save']);
 
     Route::post('sim_store', [SimController::class, 'sim_store']);
+    Route::post('change_sim', [VehicleController::class, 'change_sim']);
     Route::post('device_store', [DeviceController::class, 'device_store']);
+    Route::post('change_device', [VehicleController::class, 'change_device']);
 
     Route::controller(SimController::class)->group(function () {
         Route::post('sim_list', 'sim_list');
