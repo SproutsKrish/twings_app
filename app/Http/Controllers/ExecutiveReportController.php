@@ -38,7 +38,6 @@ class ExecutiveReportController extends Controller
 
     public function index(Request $request)
     {
-
         try {
             $start_date = $request->input('start_day');
             $end_date = $request->input('end_day');
@@ -61,8 +60,6 @@ class ExecutiveReportController extends Controller
                     'avg_speed',
                     'min_speed',
                     'max_speed',
-                    'start_engine_hour_meter',
-                    'end_engine_hour_meter',
                     'rpm_milege_per_hour',
                     'mileage_per_hour',
                     'start_fuel',
@@ -71,6 +68,9 @@ class ExecutiveReportController extends Controller
                     'fuel_dip_litre',
                     'fuel_consumed_litre',
                     'mileage',
+                    'start_engine_hour_meter',
+                    'end_engine_hour_meter',
+                    DB::raw('ROUND(end_engine_hour_meter) - ROUND(start_engine_hour_meter) AS total_engine_hour_meter'),
                     DB::raw('SEC_TO_TIME(parking_duration * 60) AS parking_duration'),
                     DB::raw('SEC_TO_TIME(idle_duration * 60) AS idle_duration'),
                     DB::raw('SEC_TO_TIME(moving_duration * 60) AS moving_duration'),
