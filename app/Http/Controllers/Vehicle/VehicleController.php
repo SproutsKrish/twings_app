@@ -628,7 +628,6 @@ class VehicleController extends BaseController
                 License::where('vehicle_id', $vehicle->id)->update([
                     'vehicle_id' => $new_data->id
                 ]);
-
                 Vehicle::where('id', $request->input('id'))->update([
                     'status' => 0
                 ]);

@@ -88,11 +88,16 @@ class LiveDataController extends Controller
                 G.device_model,
                 A.device_make_id,
                 A.device_model_id,
-                B.vehicle_id
+                B.vehicle_id,
+                K.package_name
+
             ')
                 ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
                 ->leftJoin('twings.vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
                 ->leftJoin('twings.configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
+                ->leftJoin('twings.licenses as I', 'I.vehicle_id', '=', 'A.id')
+                ->leftJoin('twings.plans as J', 'J.id', '=', 'I.plan_id')
+                ->leftJoin('twings.packages as K', 'K.id', '=', 'J.package_id')
                 ->leftJoin('twings.device_makes as F', 'F.id', '=', 'A.device_make_id')
                 ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
                 ->leftJoin(DB::raw("(SELECT device_imei, max(odometer), min(odometer), round(max(odometer) - min(odometer), 2) AS today_distance FROM play_back_histories WHERE DATE_ADD(device_datetime, INTERVAL 330 MINUTE) >= '$startDate' AND DATE_ADD(device_datetime, INTERVAL 330 MINUTE) <= '$endDate' GROUP by device_imei) AS E"), 'E.device_imei', '=', 'A.device_imei')
@@ -160,11 +165,15 @@ class LiveDataController extends Controller
                 G.device_model,
                 A.device_make_id,
                 A.device_model_id,
-                B.vehicle_id
+                B.vehicle_id,
+                K.package_name
         ')
                 ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
                 ->leftJoin('twings.vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
                 ->leftJoin('twings.configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
+                ->leftJoin('twings.licenses as I', 'I.vehicle_id', '=', 'A.id')
+                ->leftJoin('twings.plans as J', 'J.id', '=', 'I.plan_id')
+                ->leftJoin('twings.packages as K', 'K.id', '=', 'J.package_id')
                 ->leftJoin(DB::raw("(SELECT device_imei, max(odometer), min(odometer), round(max(odometer) - min(odometer), 2) AS today_distance FROM play_back_histories WHERE DATE_ADD(device_datetime, INTERVAL 330 MINUTE) >= '$startDate' AND DATE_ADD(device_datetime, INTERVAL 330 MINUTE) <= '$endDate' GROUP by device_imei) AS E"), 'E.device_imei', '=', 'A.device_imei')
                 ->leftJoin('twings.device_makes as F', 'F.id', '=', 'A.device_make_id')
                 ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
@@ -243,11 +252,15 @@ class LiveDataController extends Controller
             G.device_model,
             A.device_make_id,
             A.device_model_id,
-            B.vehicle_id
+            B.vehicle_id,
+            K.package_name
         ')
             ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
             ->leftJoin('twings.vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
             ->leftJoin('twings.configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
+            ->leftJoin('twings.licenses as I', 'I.vehicle_id', '=', 'A.id')
+            ->leftJoin('twings.plans as J', 'J.id', '=', 'I.plan_id')
+            ->leftJoin('twings.packages as K', 'K.id', '=', 'J.package_id')
             ->leftJoin(DB::raw("(SELECT device_imei, max(odometer), min(odometer), round(max(odometer) - min(odometer), 2) AS today_distance FROM play_back_histories WHERE DATE_ADD(device_datetime, INTERVAL 330 MINUTE) >= '$startDate' AND DATE_ADD(device_datetime, INTERVAL 330 MINUTE) <= '$endDate' GROUP by device_imei) AS E"), 'E.device_imei', '=', 'A.device_imei')
             ->leftJoin('twings.device_makes as F', 'F.id', '=', 'A.device_make_id')
             ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
