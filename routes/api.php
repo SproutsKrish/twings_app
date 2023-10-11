@@ -72,7 +72,7 @@ use App\Http\Controllers\VehicleSetting\ConfigurationController;
 use App\Http\Controllers\VehicleSetting\NotificationController;
 use App\Http\Controllers\VehicleSetting\ShareLinkController;
 use App\Http\Controllers\ExecutiveReportController;
-
+use App\Http\Controllers\SmartReportController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -270,6 +270,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::put('notify/update/{id}', 'update');
         });
         Route::resource('executive_report', ExecutiveReportController::class);
+        Route::resource('smart_report', SmartReportController::class);
     });
 
     Route::controller(LoginController::class)->group(function () {
@@ -331,6 +332,8 @@ Route::get('users/usersbyrole/{id}', [ModelHasRoleController::class, 'users_role
 Route::put('users/roleupdate/{id}', [ModelHasRoleController::class, 'user_role_update']);
 
 Route::post('vehicle_list', [VehicleController::class, 'vehicle_list']);
+Route::post('report_vehicle_list', [VehicleController::class, 'report_vehicle_list']);
+
 
 Route::resource('admin', AdminController::class);
 Route::resource('distributor', DistributorController::class);

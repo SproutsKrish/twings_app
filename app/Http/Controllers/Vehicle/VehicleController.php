@@ -166,8 +166,6 @@ class VehicleController extends BaseController
 
             $documents = array(
                 'client_id' => $vehicle->client_id,
-                'client_id' => $vehicle->client_id,
-
                 'vehicle_id' => $vehicle->id,
             );
 
@@ -307,6 +305,74 @@ class VehicleController extends BaseController
             ->join('configurations as e', 'vehicles.id', '=', 'e.vehicle_id')
             ->join('clients', 'vehicles.client_id', '=', 'clients.id')
             ->where('vehicles.status', 1);
+
+        switch ($role_id) {
+            case 1:
+                break; // No additional filters needed
+            case 2:
+                $query->where('vehicles.admin_id', $user->admin_id);
+                break;
+            case 3:
+                $query->where('vehicles.distributor_id', $user->distributor_id);
+                break;
+            case 4:
+                $query->where('vehicles.dealer_id', $user->dealer_id);
+                break;
+            case 5:
+                $query->where('vehicles.subdealer_id', $user->subdealer_id);
+                break;
+            case 6:
+                $query->where('vehicles.client_id', $user->client_id);
+                break;
+            default:
+                $response = ["success" => false, "message" => "Invalid user role", "status_code" => 400];
+                return response()->json($response, 400);
+        }
+
+        $data = $query->get();
+
+        if ($data->isEmpty()) {
+            $response = ["success" => false, "message" => "No Vehicles Found", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => $data, "status_code" => 200];
+            return response()->json($response, 200);
+        }
+    }
+
+
+    public function report_vehicle_list(Request $request)
+    {
+        $user_id = $request->input('user_id');
+        $user = User::find($user_id);
+
+        if (!$user) {
+            $response = ["success" => false, "message" => "User not found", "status_code" => 404];
+            return response()->json($response, 404);
+        }
+
+        $role_id = $user->role_id;
+
+        $query = Vehicle::select(
+            'vehicles.id',
+            'vehicle_types.vehicle_type',
+            'vehicles.vehicle_type_id',
+            'vehicles.vehicle_name',
+            'vehicles.sim_mob_no',
+            'c.device_make',
+            'd.device_model',
+            'vehicles.device_imei',
+            'vehicles.license_no',
+            'vehicles.installation_date',
+            'vehicles.expire_date',
+            'clients.client_name',
+            'e.speed_limit'
+        )
+            ->join('vehicle_types', 'vehicles.vehicle_type_id', '=', 'vehicle_types.id')
+            ->join('device_makes as c', 'vehicles.device_make_id', '=', 'c.id')
+            ->join('device_models as d', 'vehicles.device_model_id', '=', 'd.id')
+            ->join('configurations as e', 'vehicles.id', '=', 'e.vehicle_id')
+            ->join('clients', 'vehicles.client_id', '=', 'clients.id');
 
         switch ($role_id) {
             case 1:
@@ -499,6 +565,157 @@ class VehicleController extends BaseController
 
     public function change_device(Request $request)
     {
+        try {
+            $validator = Validator::make($request->all(), [
+                'supplier_id' => 'required|max:255',
+                'device_make_id' => 'required',
+                'device_model_id' => 'required',
+                'device_imei_no' => 'required|unique:devices,device_imei_no'
+            ]);
+
+            if ($validator->fails()) {
+                $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+                return response()->json($response, 403);
+            }
+
+            $vehicle = Vehicle::find($request->input('id'));
+
+            $data['supplier_id'] =  $request->input('supplier_id');
+            $data['device_make_id'] =  $request->input('device_make_id');
+            $data['device_model_id'] =  $request->input('device_model_id');
+            $data['device_imei_no'] =  $request->input('device_imei_no');
+            $data['uid'] =  $request->input('uid');
+            $data['ccid'] =  $request->input('ccid');
+            $data['description'] =  $request->input('description');
+            $data['admin_id'] = $vehicle->admin_id;
+            $data['distributor_id'] = $vehicle->distributor_id;
+            $data['dealer_id'] = $vehicle->dealer_id;
+            $data['subdealer_id'] = $vehicle->subdealer_id;
+            $data['client_id'] = $vehicle->client_id;
+            $data['created_by'] = auth()->user()->id;
+            $data['purchase_date'] = date('Y-m-d');
+
+            $device = new Device($data);
+
+            if ($device->save()) {
+                $vehicle_data = array(
+                    'vehicle_type_id' => $vehicle->vehicle_type_id,
+                    'vehicle_name' => $vehicle->vehicle_name,
+                    'device_id' => $device->id,
+                    'device_imei' => $device->device_imei_no,
+                    'sim_id' => $vehicle->sim_id,
+                    'sim_mob_no' => $vehicle->sim_mob_no,
+                    'device_make_id' => $vehicle->device_make_id,
+                    'device_model_id' => $vehicle->device_model_id,
+                    'installation_date' => $vehicle->installation_date,
+                    'install_person_name' => $vehicle->install_person_name,
+                    'service_person_name' => $vehicle->service_person_name,
+                    'description' => $vehicle->description,
+                    'expire_date' => $vehicle->expire_date,
+                    'extend_date' => $vehicle->extend_date,
+                    'vehicle_expire_date' => $vehicle->vehicle_expire_date,
+                    'vehicle_extend_date' => $vehicle->vehicle_extend_date,
+                    'admin_id' => $vehicle->admin_id,
+                    'distributor_id' => $vehicle->distributor_id,
+                    'dealer_id' => $vehicle->dealer_id,
+                    'subdealer_id' => $vehicle->subdealer_id,
+                    'client_id' => $vehicle->client_id,
+                    'created_by' => $vehicle->created_by
+                );
+                DB::table('vehicles')->insert($vehicle_data);
+
+                $new_data =  Vehicle::where('device_id', $device->id)->first();
+                License::where('vehicle_id', $vehicle->id)->update([
+                    'vehicle_id' => $new_data->id
+                ]);
+
+                Vehicle::where('id', $request->input('id'))->update([
+                    'status' => 0
+                ]);
+
+                $vehicle = Vehicle::find($vehicle->id);
+                //Main Live Data
+                $main_live_data = array(
+                    'client_id' => $vehicle->client_id,
+                    'vehicle_id' => $vehicle->id,
+                    'vehicle_name' => $vehicle->vehicle_name,
+                    'vehicle_current_status' => '4',
+                    'vehicle_status' => '1',
+                    'deviceimei' => $vehicle->device_imei
+                );
+
+                DB::table('live_data')->insert($main_live_data);
+
+                $documents = array(
+                    'client_id' => $vehicle->client_id,
+                    'vehicle_id' => $vehicle->id,
+                );
+
+                DB::table('vehicle_documents')->insert($documents);
+
+                //Main Configurations
+                $main_config_details = array(
+                    'client_id' => $vehicle->client_id,
+                    'vehicle_id' => $vehicle->id,
+                    'vehicle_name' => $vehicle->vehicle_name,
+                    'device_imei' => $vehicle->device_imei
+                );
+                DB::table('configurations')->insert($main_config_details);
+
+                $result = CustomerConfiguration::where('client_id', $vehicle->client_id)
+                    ->first();
+
+                $connectionName = $result->db_name;
+                $connectionConfig = [
+                    'driver' => 'mysql',
+                    'host' => env('DB_HOST'), // Use the environment variable for host
+                    'port' => env('DB_PORT'), // Use the environment variable for port
+                    'database' => $result->db_name,    // Change this to the actual database name
+                    'username' => env('DB_USERNAME'), // Use the environment variable for username
+                    'password' => env('DB_PASSWORD'), // Use the environment variable for password
+                ];
+
+                Config::set("database.connections.$connectionName", $connectionConfig);
+                DB::purge($connectionName);
+
+                DB::connection($connectionName)->table('vehicles')->insert($vehicle_data);
+                $live_data = array(
+                    'client_id' => $vehicle->client_id,
+                    'vehicle_id' => $vehicle->id,
+                    'vehicle_name' => $vehicle->vehicle_name,
+                    'vehicle_current_status' => '4',
+                    'vehicle_status' => '1',
+                    'deviceimei' => $vehicle->device_imei
+                );
+                // Client Live Data
+                DB::connection($connectionName)->table('live_data')->insert($live_data);
+
+                $config_details = array(
+                    'client_id' => $vehicle->client_id,
+                    'vehicle_id' => $vehicle->id,
+                    'vehicle_name' => $vehicle->vehicle_name,
+                    'device_imei' => $vehicle->device_imei
+                );
+
+                // Client Configurations
+                DB::connection($connectionName)->table('configurations')->insert($config_details);
+
+                DB::disconnect($connectionName);
+
+
+                $response = ["success" => true, "message" => "Device Updated Successfully", "status_code" => 200];
+                return response()->json($response, 200);
+            } else {
+                $response = ["success" => false, "message" => "Failed to Update Device", "status_code" => 404];
+                return response()->json($response, 404);
+            }
+        } catch (\Exception $e) {
+
+            return $e->getMessage();
+
+            $response = ["success" => false, "message" => $e->getMessage(), "status_code" => 404];
+            return response()->json($response, 404);
+        }
     }
     public function customer_vehicle_update(Request $request)
     {
