@@ -190,6 +190,51 @@ class LiveDataController extends Controller
         }
     }
 
+    // public function today_distance()
+    // {
+    //     $getLatlngs = array(
+    //         ["lat_message" => 10.999823, "lon_message" => 76.949936],
+    //         ["lat_message" => 10.992606, "lon_message" => 76.951486]
+    //     );
+    //     $todaykm = $this->GetDistance($getLatlngs);
+    //     echo $todaykm;
+    // }
+
+    // function GetDistance($lanlngs)
+    // {
+    //     $totalDistance = 0;
+    //     $prevLat = null;
+    //     $prevLon = null;
+    //     foreach ($lanlngs as $coord) {
+    //         $lat = $coord["lat_message"];
+    //         $lon = $coord["lon_message"];
+
+    //         if ($prevLat !== null && $prevLon !== null) {
+    //             $totalDistance += $this->haversineDistance($prevLat, $prevLon, $lat, $lon);
+    //         }
+
+    //         $prevLat = $lat;
+    //         $prevLon = $lon;
+    //     }
+    //     return round($totalDistance, 2);
+    // }
+
+    // private function haversineDistance($lat1, $lon1, $lat2, $lon2)
+    // {
+    //     $earthRadius = 6371; // Earth's radius in kilometers
+    //     $latd1 = deg2rad($lat1);
+    //     $lond1 = deg2rad($lon1);
+    //     $latd2 = deg2rad($lat2);
+    //     $lond2 = deg2rad($lon2);
+    //     // Haversine formula
+    //     $deltaLat = $latd2 - $latd1;
+    //     $deltaLon = $lond2 - $lond1;
+    //     $a = sin($deltaLat / 2) * sin($deltaLat / 2) + cos($latd1) * cos($latd2) * sin($deltaLon / 2) * sin($deltaLon / 2);
+    //     $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+    //     return $earthRadius * $c;
+    // }
+
+
     public function single_dashboard($device_imei)
     {
         // $startDate = date('Y-m-d H:i:s', strtotime('-330 minutes'));

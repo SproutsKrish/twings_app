@@ -72,6 +72,9 @@ use App\Http\Controllers\VehicleSetting\ConfigurationController;
 use App\Http\Controllers\VehicleSetting\NotificationController;
 use App\Http\Controllers\VehicleSetting\ShareLinkController;
 use App\Http\Controllers\ExecutiveReportController;
+use App\Http\Controllers\FuelController;
+use App\Http\Controllers\HourMeterReportController;
+use App\Http\Controllers\RpmController;
 use App\Http\Controllers\SmartReportController;
 /*
 |--------------------------------------------------------------------------
@@ -95,6 +98,10 @@ Route::controller(LoginController::class)->group(function () {
 
 Route::controller(UserController::class)->group(function () {
     Route::post('mymethod', 'mymethod');
+});
+
+Route::controller(LiveDataController::class)->group(function () {
+    Route::post('today_distance', 'today_distance');
 });
 
 
@@ -271,6 +278,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         });
         Route::resource('executive_report', ExecutiveReportController::class);
         Route::resource('smart_report', SmartReportController::class);
+        Route::resource('fuel_fill_dip_report', FuelController::class);
+        Route::resource('rpm_controller', RpmController::class);
+        Route::resource('hour_meter_report', HourMeterReportController::class);
     });
 
     Route::controller(LoginController::class)->group(function () {
