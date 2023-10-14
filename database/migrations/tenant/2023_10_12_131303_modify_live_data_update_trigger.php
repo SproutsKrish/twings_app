@@ -359,7 +359,7 @@ SELECT ignition_flag INTO @current_ignition FROM twings.live_notifications WHERE
  UPDATE live_data SET ac_status=0,current_alert_status=2,ac_flag=0 WHERE deviceimei = NEW.deviceimei;
  UPDATE `ac_reports` SET `end_latitude`=NEW.lattitute,`end_longitude`=NEW.longitute,`end_datetime`=NEW.device_datetime,`end_odometer`=current_odometer,`flag`=2,`updated_at`=now() WHERE device_imei=NEW.deviceimei;
  END IF;
- IF (@current_alert_status!=3 OR @current_alert_status=0) AND NEW.ignition=1 AND NEW.io_state!=1 THEN
+ IF ((@current_alert_status!=3 OR @current_alert_status!=5) OR @current_alert_status=0) AND NEW.ignition=1 AND NEW.io_state!=1 THEN
  INSERT INTO twings.live_notifications(`vehicle_id`, `device_imei`, `alert_type_id`, `lattitute`, `longitute`, `ignition`, `speed`, `angle`, `odometer`, `device_updatedtime`, `ignition_flag`, `user_id`, `created_at`, `updated_at`) VALUES (@vehicle_id,@deviceimei,3,@lattitute,@longitute,NEW.ignition,NEW.speed,NEW.angle,current_odometer,NEW.device_datetime,1,@client_id,now(),now());
  UPDATE live_data
  SET
