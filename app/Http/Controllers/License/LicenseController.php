@@ -125,45 +125,37 @@ class LicenseController extends BaseController
         }
     }
 
+    //Vehicle Management License List
     public function user_license_list(Request $request)
     {
         $user_id = $request->input('user_id');
         $plan_id = $request->input('plan_id');
 
         $data = User::find($user_id);
+        $role_id = $data->role_id;
         $dealer_id = null;
         $subdealer_id = null;
 
-        $role_id =  $data->role_id;
+        $query = DB::table('licenses as a')
+            ->select('a.id', 'a.license_no')
+            ->join('plans as b', 'b.id', '=', 'a.plan_id')
+            ->join('periods as c', 'c.id', '=', 'b.period_id')
+            ->join('packages as d', 'd.id', '=', 'b.package_id')
+            ->where('b.id', $plan_id)
+            ->where('a.client_id', null);
 
         if ($role_id == 4) {
             $dealer_id = $data->dealer_id;
-
-            $licenses = DB::table('licenses as a')
-                ->select('a.id', 'a.license_no')
-                ->join('plans as b', 'b.id', '=', 'a.plan_id')
-                ->join('periods as c', 'c.id', '=', 'b.period_id')
-                ->join('packages as d', 'd.id', '=', 'b.package_id')
-                ->where('dealer_id', $dealer_id)
-                ->where('subdealer_id', $subdealer_id)
-                ->where('b.id', $plan_id)
-                ->where('a.client_id', null)
-                ->get();
-        } else if ($role_id == 5) {
+            $query->where('dealer_id', $dealer_id);
+        } elseif ($role_id == 5) {
             $subdealer_id = $data->subdealer_id;
-
-            $licenses = DB::table('licenses as a')
-                ->select('a.id', 'a.license_no')
-                ->join('plans as b', 'b.id', '=', 'a.plan_id')
-                ->join('periods as c', 'c.id', '=', 'b.period_id')
-                ->join('packages as d', 'd.id', '=', 'b.package_id')
-                ->where('subdealer_id', $subdealer_id)
-                ->where('b.id', $plan_id)
-                ->where('a.client_id', null)
-                ->get();
+            $query->where('subdealer_id', $subdealer_id);
         }
-        if (empty($licenses)) {
-            $response = ["success" => false, "message" => "No Datas Found", "status_code" => 404];
+
+        $licenses = $query->get();
+
+        if ($licenses->isEmpty()) {
+            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
             return response()->json($response, 404);
         } else {
             $response = ["success" => true, "data" => $licenses, "status_code" => 200];

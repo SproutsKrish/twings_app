@@ -119,42 +119,37 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('login_image_save', [UserDomainController::class, 'login_image_save']);
 
-    Route::post('sim_store', [SimController::class, 'sim_store']);
     Route::post('change_sim', [VehicleController::class, 'change_sim']);
-    Route::post('device_store', [DeviceController::class, 'device_store']);
     Route::post('change_device', [VehicleController::class, 'change_device']);
 
-    Route::controller(SimController::class)->group(function () {
-        Route::post('sim_list', 'sim_list');
-    });
+    Route::resource('plan', PlanController::class);
+
     Route::controller(SimController::class)->group(function () {
         Route::post('sim/store', 'store');
-    });
-    Route::controller(SimController::class)->group(function () {
-        Route::post('sim/update', 'update');
-    });
-    Route::controller(SimController::class)->group(function () {
+        Route::post('sim_store', 'sim_store');
         Route::post('sim_transfer', 'sim_transfer');
-    });
-    Route::controller(SimController::class)->group(function () {
+        Route::post('sim_list', 'sim_list');
         Route::post('sim_stock_list', 'sim_stock_list');
+        Route::post('sim/update', 'update');
+        Route::post('sim/delete', 'destroy');
+        Route::get('sim/{id}', 'show');
     });
 
     Route::controller(DeviceController::class)->group(function () {
-        Route::post('device_list', 'device_list');
-    });
-    Route::controller(DeviceController::class)->group(function () {
         Route::post('device/store', 'store');
-    });
-    Route::controller(DeviceController::class)->group(function () {
-        Route::post('device/update', 'update');
-    });
-    Route::controller(DeviceController::class)->group(function () {
+        Route::post('device_store', 'device_store');
         Route::post('device_transfer', 'device_transfer');
-    });
-    Route::controller(DeviceController::class)->group(function () {
+        Route::post('device_list', 'device_list');
         Route::post('device_stock_list', 'device_stock_list');
+        Route::post('device/update', 'update');
+        Route::post('delete/delete', 'destroy');
+        Route::get('device/{id}', 'show');
     });
+
+
+
+
+
     Route::controller(AlertTypeController::class)->group(function () {
         Route::get('get_alert_list', 'get_alert_list');
     });
@@ -168,6 +163,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::controller(UserController::class)->group(function () {
+        Route::post('role_based_user_list', 'role_based_user_list');
+        Route::post('user_point_list', 'user_point_list');
+
         Route::post('user/store', 'store');
         Route::post('user/update', 'update');
         Route::delete('user/delete/{id}', 'destroy');
@@ -178,10 +176,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::post('user_list', [UserController::class, 'user_list']);
-    Route::post('role_based_user_list', [UserController::class, 'role_based_user_list']);
+
 
     Route::post('role_rights_list', [RoleRightsController::class, 'role_rights_list']);
-    Route::post('user_point_list', [UserController::class, 'user_point_list']);
     Route::post('point_stock_list', [PointController::class, 'point_stock_list']);
 
     Route::controller(LicenseController::class)->group(function () {
@@ -323,6 +320,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 });
 
+
 //Role Has Permissions
 Route::get('roles/permissions', [RoleHasPermissionController::class, 'index']);
 Route::get('roles/permissions/{role}', [RoleHasPermissionController::class, 'show']);
@@ -366,10 +364,7 @@ Route::resource('camera_type', CameraTypeController::class);
 Route::resource('camera_category', CameraCategoryController::class);
 Route::resource('camera_model', CameraModelController::class);
 
-Route::resource('sim', SimController::class);
-Route::post('sim/delete', [SimController::class, 'destroy']);
-Route::resource('device', DeviceController::class);
-Route::post('device/delete', [DeviceController::class, 'destroy']);
+
 Route::post('user/delete', [UserController::class, 'destroy']);
 
 Route::resource('camera', CameraController::class);
@@ -389,7 +384,6 @@ Route::resource('license', LicenseController::class);
 Route::resource('feature', FeatureController::class);
 Route::resource('package', PackageController::class);
 Route::resource('period', PeriodController::class);
-Route::resource('plan', PlanController::class);
 
 Route::resource('module', ModuleController::class);
 Route::resource('parent_menu', ParentMenuController::class);
@@ -400,8 +394,7 @@ Route::post('device_import', [ImportController::class, 'device_import']);
 Route::post('camera_import', [ImportController::class, 'camera_import']);
 Route::post('recharge', [RechargeController::class, 'recharge']);
 Route::post('generate_fcm_token', [LoginController::class, 'generate_fcm_token']);
-Route::put('sim_assign/{id}', [SimController::class, 'sim_assign']);
-Route::put('device_assign/{id}', [DeviceController::class, 'device_assign']);
+
 Route::post('plan_days', [PlanController::class, 'plan_days']);
 
 Route::get('change_live_data', [VehicleController::class, 'change_live_data']);
@@ -414,7 +407,6 @@ Route::get('getData', [ImportController::class, 'getData']);
 Route::get('contact_address/{id}', [ClientController::class, 'contact_address']);
 Route::post('live_address', [AddressController::class, 'live_address']);
 
-Route::post('sim_new', [SimController::class, 'sim_new']);
 Route::get('demo_time', [LiveDataController::class, 'demo_time']);
 
 Route::post('due_vehicle_list', [VehicleController::class, 'due_vehicle_list']);

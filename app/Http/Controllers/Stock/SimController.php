@@ -8,165 +8,156 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Models\Sim;
 use App\Models\User;
-use Egulias\EmailValidator\Result\Result;
-use Illuminate\Support\Facades\DB;
 
 class SimController extends BaseController
 {
-    public function index()
-    {
-        $sims = Sim::all();
+    // public function index()
+    // {
+    //     $sims = Sim::all();
 
-        if ($sims->isEmpty()) {
-            return $this->sendError('No Sims Found');
-        }
+    //     if ($sims->isEmpty()) {
+    //         return $this->sendError('No Sims Found');
+    //     }
 
-        return $this->sendSuccess($sims);
-    }
+    //     return $this->sendSuccess($sims);
+    // }
 
+    //Stock Management Sim Add
     public function store(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'network_id' => 'required|max:255',
-                'sim_imei_no' => 'required|unique:sims,sim_imei_no',
-                'sim_mob_no1' => 'required|unique:sims,sim_mob_no1'
+            $user = auth()->user();
+
+            $data = $request->only([
+                'network_id', 'sim_imei_no', 'sim_mob_no1', 'sim_mob_no2',
+                'valid_from', 'valid_to'
             ]);
 
+            $validator = Validator::make($data, Sim::validationRules($request->id));
+
             if ($validator->fails()) {
-                $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
-                return response()->json($response, 403);
+                return response()->json([
+                    "success" => false,
+                    "message" => $validator->errors(),
+                    "status_code" => 403
+                ], 403);
             }
 
-            $request['admin_id'] = auth()->user()->admin_id;
-            $request['distributor_id'] = auth()->user()->distributor_id;
-            $request['dealer_id'] = auth()->user()->dealer_id;
-            $request['subdealer_id'] = auth()->user()->subdealer_id;
-            $request['created_by'] = auth()->user()->id;
-            $request['purchase_date'] = date('Y-m-d');
-
-            $sim = new Sim($request->all());
+            $sim = new Sim(array_merge($data, [
+                'purchase_date' => now(),
+                'admin_id' => $user->admin_id,
+                'distributor_id' => $user->distributor_id,
+                'dealer_id' => $user->dealer_id,
+                'subdealer_id' => $user->subdealer_id,
+                'created_by' => $user->id,
+            ]));
 
             if ($sim->save()) {
-                $response = ["success" => true, "message" => "Sim Inserted Successfully", "status_code" => 200];
-                return response()->json($response, 200);
+                return response()->json([
+                    "success" => true,
+                    "message" => "Sim Inserted Successfully",
+                    "status_code" => 200
+                ], 200);
             } else {
-                $response = ["success" => false, "message" => "Failed to Insert Sim", "status_code" => 404];
-                return response()->json($response, 404);
+                return response()->json([
+                    "success" => false,
+                    "message" => "Failed to Insert Sim",
+                    "status_code" => 404
+                ], 404);
             }
         } catch (\Exception $e) {
-
-            return $e->getMessage();
-
-            $response = ["success" => false, "message" => $e->getMessage(), "status_code" => 404];
-            return response()->json($response, 404);
+            return response()->json([
+                "success" => false,
+                "message" => $e->getMessage(),
+                "status_code" => 404
+            ], 404);
         }
     }
 
+    //Vehicle Management Sim Add
     public function sim_store(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'network_id' => 'required|max:255',
-                'sim_imei_no' => 'required|unique:sims,sim_imei_no',
-                'sim_mob_no1' => 'required|unique:sims,sim_mob_no1'
-            ]);
+            $validator = Validator::make($request->all(), Sim::validationRules());
 
             if ($validator->fails()) {
-                $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
-                return response()->json($response, 403);
+                return response()->json(["success" => false, "message" => $validator->errors(), "status_code" => 403], 403);
             }
 
-            $data['network_id'] =  $request->input('network_id');
-            $data['sim_imei_no'] =  $request->input('sim_imei_no');
-            $data['sim_mob_no1'] =  $request->input('sim_mob_no1');
-            $data['sim_mob_no2'] =  $request->input('sim_mob_no2');
-            $data['purchase_date'] = date('Y-m-d');
-            $data['admin_id'] =  $request->input('admin_id');
+            $data = $request->only(['network_id', 'sim_imei_no', 'sim_mob_no1', 'sim_mob_no2', 'admin_id']);
+            $data['purchase_date'] = now(); // Current date and time
 
-            $distributor_id = $request->input('distributor_id');
-            $user = User::find($distributor_id);
-            $data['distributor_id'] = $user->distributor_id;
+            $distributor = User::find($request->input('distributor_id'));
+            $data['distributor_id'] = $distributor->distributor_id;
 
-            $dealer_id = $request->input('dealer_id');
-            $user = User::find($dealer_id);
-            $data['dealer_id'] = $user->dealer_id;
-            $data['subdealer_id'] = null;
-            if ($request->input('subdealer_id') != null) {
-                $subdealer_id = $request->input('subdealer_id');
-                $user = User::find($subdealer_id);
-                $data['subdealer_id'] = $user->subdealer_id;
+            $dealer = User::find($request->input('dealer_id'));
+            $data['dealer_id'] = $dealer->dealer_id;
+
+            $subdealer_id = $request->input('subdealer_id');
+            if ($subdealer_id) {
+                $subdealer = User::find($subdealer_id);
+                $data['subdealer_id'] = $subdealer->subdealer_id;
             }
 
             $data['created_by'] = auth()->user()->id;
-            $sim = new Sim($data);
 
-            if ($sim->save()) {
-                $response = ["success" => true, "message" => "Sim Inserted Successfully", "status_code" => 200];
-                return response()->json($response, 200);
-            } else {
-                $response = ["success" => false, "message" => "Failed to Insert Sim", "status_code" => 404];
-                return response()->json($response, 404);
-            }
+            $sim = Sim::create($data);
+
+            return response()->json(["success" => true, "message" => "Sim Inserted Successfully", "status_code" => 200], 200);
         } catch (\Exception $e) {
-
-            return $e->getMessage();
-
-            $response = ["success" => false, "message" => $e->getMessage(), "status_code" => 404];
-            return response()->json($response, 404);
+            return response()->json(["success" => false, "message" => $e->getMessage(), "status_code" => 404], 404);
         }
     }
 
+    //Stock Management Sim Transfer
     public function sim_transfer(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(["success" => false, "message" => $validator->errors(), "status_code" => 403], 403);
+        }
+
         try {
-            $validator = Validator::make($request->all(), [
-                'id' => 'required|max:255',
-            ]);
-
-            if ($validator->fails()) {
-                $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
-                return response()->json($response, 403);
-            }
-
             $sim = Sim::find($request->input('id'));
 
-            $requestKeys = collect($request->all())->keys();
-
-            if ($requestKeys->contains('admin_id')) {
-                $admin_id = User::find($request->input('admin_id'));
-                $data['admin_id']  = $admin_id->admin_id;
-            }
-            if ($requestKeys->contains('distributor_id')) {
-                $distributor_id = User::find($request->input('distributor_id'));
-                $data['distributor_id']  = $distributor_id->distributor_id;
-            }
-            if ($requestKeys->contains('dealer_id')) {
-                $dealer_id = User::find($request->input('dealer_id'));
-                $data['dealer_id']  = $dealer_id->dealer_id;
-            }
-            if ($requestKeys->contains('subdealer_id')) {
-                $subdealer_id = User::find($request->input('subdealer_id'));
-                $data['subdealer_id']  = $subdealer_id->subdealer_id;
-            }
-            $sim = $sim->update($data);
             if ($sim) {
+                $data = [];
+
+                if ($request->has('admin_id')) {
+                    $admin = User::find($request->input('admin_id'));
+                    $data['admin_id'] = $admin->admin_id;
+                }
+                if ($request->has('distributor_id')) {
+                    $distributor = User::find($request->input('distributor_id'));
+                    $data['distributor_id'] = $distributor->distributor_id;
+                }
+                if ($request->has('dealer_id')) {
+                    $dealer = User::find($request->input('dealer_id'));
+                    $data['dealer_id'] = $dealer->dealer_id;
+                }
+                if ($request->has('subdealer_id')) {
+                    $subdealer = User::find($request->input('subdealer_id'));
+                    $data['subdealer_id'] = $subdealer->subdealer_id;
+                }
+
+                $sim->update($data);
+
                 $response = ["success" => true, "message" => "Sim Transferred Successfully", "status_code" => 200];
                 return response()->json($response, 200);
             } else {
-                $response = ["success" => false, "message" => "Sim Not Transferred", "status_code" => 404];
+                $response = ["success" => false, "message" => "Sim Not Found", "status_code" => 404];
                 return response()->json($response, 404);
             }
-            return response()->json($sim);
         } catch (\Exception $e) {
-
-            return $e->getMessage();
-
-            $response = ["success" => false, "message" => $e->getMessage(), "status_code" => 404];
-            return response()->json($response, 404);
+            $response = ["success" => false, "message" => $e->getMessage(), "status_code" => 500];
+            return response()->json($response, 500);
         }
     }
 
+    //Sim Stock List in Stock Management
     public function sim_list(Request $request)
     {
         try {
@@ -174,21 +165,17 @@ class SimController extends BaseController
             $distributor_id = auth()->user()->distributor_id;
             $dealer_id = auth()->user()->dealer_id;
             $subdealer_id = auth()->user()->subdealer_id;
-            // return response()->json($admin_id);
 
-            $sim_data = DB::table('sims as a')
-                ->join('network_providers as b', 'a.network_id', '=', 'b.id')
-                ->select('a.id', 'a.network_id', 'a.sim_imei_no', 'a.sim_mob_no1', 'a.sim_mob_no2', 'a.valid_from', 'a.valid_to', 'b.network_provider_name')
-                ->where('a.admin_id', $admin_id)
-                ->where('a.distributor_id', $distributor_id)
-                ->where('a.dealer_id', $dealer_id)
-                ->where('a.subdealer_id', $subdealer_id)
-                ->where('a.client_id', null)
-                ->where('a.status', '1')
-                ->orderBy('a.id', 'desc')
+            $sim_data = Sim::select('sims.id', 'sims.network_id', 'sims.sim_imei_no', 'sims.sim_mob_no1', 'sims.sim_mob_no2', 'sims.valid_from', 'sims.valid_to', 'network_providers.network_provider_name')
+                ->join('network_providers', 'sims.network_id', '=', 'network_providers.id')
+                ->where('sims.admin_id', $admin_id)
+                ->where('sims.distributor_id', $distributor_id)
+                ->where('sims.dealer_id', $dealer_id)
+                ->where('sims.subdealer_id', $subdealer_id)
+                ->whereNull('sims.client_id')
+                ->where('sims.status', '1')
+                ->orderBy('sims.id', 'desc')
                 ->get();
-
-            // return response()->json($request->all());
 
             if ($sim_data->isEmpty()) {
                 $response = ["success" => false, "message" => "No Sims Found", "status_code" => 404];
@@ -203,83 +190,59 @@ class SimController extends BaseController
         }
     }
 
+    //Sim Stock List in Vehicle Management [Dealer/SubDealer]
     public function sim_stock_list(Request $request)
     {
         $user_id = $request->input('user_id');
 
-        $data = User::find($user_id);
-        $role_id = $data->role_id;
-        $dealer_id = null;
-        $subdealer_id = null;
-        if ($role_id == 4) {
-            $dealer_id = $data->dealer_id;
+        $user = User::find($user_id);
+        $results = Sim::availableForUser($user)->select('id', 'sim_mob_no1')->get();
 
-            $results = DB::table('sims')
-                ->select('id', 'sim_mob_no1')
-                ->where('dealer_id', $dealer_id)
-                ->where('subdealer_id', $subdealer_id)
-                ->where('client_id', null)
-                ->where('status', '1')
-                ->get();
-        } else if ($role_id == 5) {
-            $subdealer_id = $data->subdealer_id;
-
-            $results = DB::table('sims')
-                ->select('id', 'sim_mob_no1')
-                ->where('subdealer_id', $subdealer_id)
-                ->where('client_id', null)
-                ->where('status', '1')
-                ->get();
-        }
-        if (empty($results)) {
-            $response = ["success" => false, "message" => "No Datas Found", "status_code" => 404];
-            return response()->json($response, 404);
+        if ($results->isEmpty()) {
+            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
         } else {
             $response = ["success" => true, "data" => $results, "status_code" => 200];
-            return response()->json($response, 200);
         }
+
+        return response()->json($response, $response['status_code']);
     }
 
+    //Vehicle Management Sim Show
     public function show($id)
     {
         $sim = Sim::find($id);
 
         if (!$sim) {
-            return $this->sendError('Sim Not Found');
+            return response()->json(["success" => false, "message" => "Sim Not Found", "status_code" => 404], 404);
         }
 
-        return $this->sendSuccess($sim);
+        $response = ["success" => true, "data" => $sim, "status_code" => 200];
+        return response()->json($response, $response['status_code']);
     }
 
+    //Stock Management Sim Edit
     public function update(Request $request)
     {
         $sim = Sim::find($request->id);
 
         if (!$sim) {
-            $response = ["success" => false, "message" => "Sim Not Found", "status_code" => 404];
-            return response()->json($response, 404);
+            return response()->json(["success" => false, "message" => "Sim Not Found", "status_code" => 404], 404);
         }
 
-        $validator = Validator::make($request->all(), [
-            'network_id' => 'required|max:255',
-            'sim_imei_no' => 'required|unique:sims,sim_imei_no,' . $request->input('id') . 'id',
-            'sim_mob_no1' => 'required|unique:sims,sim_mob_no1,' . $request->input('id') . 'id',
-        ]);
+        $validator = Validator::make($request->all(), Sim::validationRules($request->id));
 
         if ($validator->fails()) {
-            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
-            return response()->json($response, 403);
+            return response()->json(["success" => false, "message" => $validator->errors(), "status_code" => 403], 403);
         }
 
         if ($sim->update($request->all())) {
-            $response = ["success" => true, "message" => "Sim Updated Successfully", "status_code" => 200];
-            return response()->json($response, 200);
+            return response()->json(["success" => true, "message" => "Sim Updated Successfully", "status_code" => 200], 200);
         } else {
-            $response = ["success" => false, "message" => "Failed to Update Sim", "status_code" => 404];
-            return response()->json($response, 404);
+            return response()->json(["success" => false, "message" => "Failed to Update Sim", "status_code" => 404], 404);
         }
     }
 
+    //Stock Management Sim Delete
     public function destroy(Request $request)
     {
         $sim = Sim::find($request->input('id'));
@@ -299,26 +262,5 @@ class SimController extends BaseController
             $response = ["success" => false, "message" => "Failed To Delete Sim", "status_code" => 404];
             return response()->json($response, 404);
         }
-    }
-
-    public function sim_assign(Request $request, $id)
-    {
-        $sim = Sim::find($id);
-
-        if (!$sim) {
-            return $this->sendError('Sim Not Found');
-        }
-
-        if ($sim->update($request->all())) {
-            return $this->sendSuccess("Sim Updated Successfully");
-        } else {
-            return $this->sendError('Failed to Update Sim');
-        }
-    }
-
-    public function sim_new(Request $request)
-    {
-        $requestKeys = collect($request->all())->keys();
-        return response()->json($requestKeys);
     }
 }

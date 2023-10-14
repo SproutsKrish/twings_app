@@ -48,58 +48,56 @@ class UserController extends BaseController
         return $this->sendSuccess($users);
     }
 
+    //Role Based User List All Module
     public function role_based_user_list(Request $request)
     {
         $user_id = $request->input('user_id');
+        $user = User::find($user_id);
 
-        $data = User::where('id', $user_id)->first();
-
-        if (empty($data)) {
+        if (empty($user)) {
             return response()->json(["success" => false, "message" => "No Data Found", "status_code" => 404], 404);
         }
 
-        $role_id = $data->role_id;
+        $role_id = $user->role_id;
         $user_list = $subdealer_list = [];
 
         switch ($role_id) {
             case 1:
-                $user_list =  DB::table('users')
-                    ->select('id', 'name', 'email', 'role_id')
+                $user_list = User::select('id', 'name', 'email', 'role_id')
                     ->where('role_id', 2)
                     ->where('status', '1')
                     ->get();
                 break;
+
             case 2:
-                $admin_id  = $data->admin_id;
-                $user_list = DB::table('users')
-                    ->select('id', 'name', 'email', 'role_id')
+                $admin_id = $user->admin_id;
+                $user_list = User::select('id', 'name', 'email', 'role_id')
                     ->where('role_id', 3)
                     ->where('admin_id', $admin_id)
                     ->where('status', '1')
                     ->get();
                 break;
+
             case 3:
-                $distributor_id  = $data->distributor_id;
-                $user_list = DB::table('users')
-                    ->select('id', 'name', 'email', 'role_id')
+                $distributor_id = $user->distributor_id;
+                $user_list = User::select('id', 'name', 'email', 'role_id')
                     ->where('role_id', 4)
                     ->where('distributor_id', $distributor_id)
                     ->where('status', '1')
                     ->get();
                 break;
-            case 4:
-                $dealer_id  = $data->dealer_id;
 
-                $user_list = DB::table('users')
-                    ->select('id', 'name', 'email', 'role_id')
+            case 4:
+                $dealer_id = $user->dealer_id;
+
+                $user_list = User::select('id', 'name', 'email', 'role_id')
                     ->where('role_id', 6)
                     ->where('dealer_id', $dealer_id)
                     ->where('subdealer_id', null)
                     ->where('status', '1')
                     ->get();
 
-                $subdealer_list = DB::table('users')
-                    ->select('id', 'name', 'email', 'role_id')
+                $subdealer_list = User::select('id', 'name', 'email', 'role_id')
                     ->where('role_id', 5)
                     ->where('dealer_id', $dealer_id)
                     ->where('status', '1')
@@ -107,9 +105,8 @@ class UserController extends BaseController
                 break;
 
             case 5:
-                $subdealer_id  = $data->subdealer_id;
-                $user_list = DB::table('users')
-                    ->select('id', 'name', 'email', 'role_id')
+                $subdealer_id = $user->subdealer_id;
+                $user_list = User::select('id', 'name', 'email', 'role_id')
                     ->where('role_id', 6)
                     ->where('subdealer_id', $subdealer_id)
                     ->where('status', '1')
@@ -123,11 +120,72 @@ class UserController extends BaseController
         $result = ['user_list' => $user_list, 'subdealer_list' => $subdealer_list];
 
         if (empty($result['user_list']) && empty($result['subdealer_list'])) {
-            return response()->json(["success" => false, "message" => "No Datas Found", "status_code" => 404], 404);
+            return response()->json(["success" => false, "message" => "No Data Found", "status_code" => 404], 404);
         } else {
             return response()->json(["success" => true, "data" => $result, "status_code" => 200], 200);
         }
     }
+
+    //Role Based User List License
+    public function user_point_list(Request $request)
+    {
+        $user_id = $request->input('user_id');
+        $data = User::find($user_id);
+
+        if (empty($data)) {
+            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
+            return response()->json($response, 404);
+        }
+
+        $role_id = $data->role_id;
+
+        if ($role_id == 1) {
+            $role_id  = $role_id + 1;
+
+            $user_point_list = User::select('name', 'admin_id as id')
+                ->where('role_id', $role_id)
+                ->get();
+        } else if ($role_id == 2) {
+            $role_id  = $role_id + 1;
+
+            $data = User::find($user_id);
+            $admin_id  = $data->admin_id;
+
+            $user_point_list = User::select('name', 'distributor_id as id')
+                ->where('admin_id', $admin_id)
+                ->where('role_id', $role_id)
+                ->get();
+        } else if ($role_id == 3) {
+            $role_id  = $role_id + 1;
+
+            $data = User::find($user_id);
+            $distributor_id  = $data->distributor_id;
+
+            $user_point_list = User::select('name', 'dealer_id as id')
+                ->where('distributor_id', $distributor_id)
+                ->where('role_id', $role_id)
+                ->get();
+        } else if ($role_id == 4) {
+            $role_id  = $role_id + 1;
+
+            $data = User::find($user_id);
+            $dealer_id  = $data->dealer_id;
+
+            $user_point_list = User::select('name', 'subdealer_id as id')
+                ->where('dealer_id', $dealer_id)
+                ->where('role_id', $role_id)
+                ->get();
+        }
+
+        if ($user_point_list->isEmpty()) {
+            $response = ["success" => false, "message" => "No User Found", "status_code" => 404];
+            return response()->json($response, 404);
+        }
+
+        $response = ["success" => true, "data" => $user_point_list, "status_code" => 200];
+        return response()->json($response, 200);
+    }
+
 
 
     public function user_list(Request $request)
@@ -674,64 +732,7 @@ class UserController extends BaseController
 
 
 
-    public function user_point_list(Request $request)
-    {
-        $user_id = $request->input('user_id');
-        $data = User::where('id', $user_id)->first();
 
-        if (empty($data)) {
-            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
-            return response()->json($response, 404);
-        }
-
-        $role_id = $data->role_id;
-
-        if ($role_id == 1) {
-            $role_id  = $role_id + 1;
-
-            $user_point_list = User::select('name', 'admin_id as id')
-                ->where('role_id', $role_id)
-                ->get();
-        } else if ($role_id == 2) {
-            $role_id  = $role_id + 1;
-
-            $data = User::find($user_id);
-            $admin_id  = $data->admin_id;
-
-            $user_point_list = User::select('name', 'distributor_id as id')
-                ->where('admin_id', $admin_id)
-                ->where('role_id', $role_id)
-                ->get();
-        } else if ($role_id == 3) {
-            $role_id  = $role_id + 1;
-
-            $data = User::find($user_id);
-            $distributor_id  = $data->distributor_id;
-
-            $user_point_list = User::select('name', 'dealer_id as id')
-                ->where('distributor_id', $distributor_id)
-                ->where('role_id', $role_id)
-                ->get();
-        } else if ($role_id == 4) {
-            $role_id  = $role_id + 1;
-
-            $data = User::find($user_id);
-            $dealer_id  = $data->dealer_id;
-
-            $user_point_list = User::select('name', 'subdealer_id as id')
-                ->where('dealer_id', $dealer_id)
-                ->where('role_id', $role_id)
-                ->get();
-        }
-
-        if ($user_point_list->isEmpty()) {
-            $response = ["success" => false, "message" => "No Users Found", "status_code" => 404];
-            return response()->json($response, 404);
-        }
-
-        $response = ["success" => true, "data" => $user_point_list, "status_code" => 200];
-        return response()->json($response, 200);
-    }
 
 
     public function show($id)

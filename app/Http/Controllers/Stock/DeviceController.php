@@ -8,196 +8,173 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Models\Device;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class DeviceController extends BaseController
 {
-    public function index()
-    {
-        $devices = Device::all();
+    // public function index()
+    // {
+    //     $devices = Device::all();
 
-        if ($devices->isEmpty()) {
-            return $this->sendError('No Devices Found');
-        }
+    //     if ($devices->isEmpty()) {
+    //         return $this->sendError('No Devices Found');
+    //     }
 
-        return $this->sendSuccess($devices);
-    }
+    //     return $this->sendSuccess($devices);
+    // }
 
+    //Stock Management Device Add
     public function store(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'supplier_id' => 'required|max:255',
-                'device_make_id' => 'required',
-                'device_model_id' => 'required',
-                'device_imei_no' => 'required|unique:devices,device_imei_no'
+            $user = auth()->user();
+
+            $data = $request->only([
+                'supplier_id', 'device_make_id', 'device_model_id', 'device_imei_no',
+                'ccid', 'uid', 'description'
             ]);
 
+            $validator = Validator::make($request->all(), Device::validationRules());
 
             if ($validator->fails()) {
-                $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
-                return response()->json($response, 403);
+                return response()->json([
+                    "success" => false,
+                    "message" => $validator->errors(),
+                    "status_code" => 403
+                ], 403);
             }
 
-            $request['admin_id'] = auth()->user()->admin_id;
-            $request['distributor_id'] = auth()->user()->distributor_id;
-            $request['dealer_id'] = auth()->user()->dealer_id;
-            $request['subdealer_id'] = auth()->user()->subdealer_id;
-            $request['created_by'] = auth()->user()->id;
-            $request['purchase_date'] = date('Y-m-d');
-
-            $device = new Device($request->all());
+            $device = new Device(array_merge($data, [
+                'purchase_date' => now(),
+                'admin_id' => $user->admin_id,
+                'distributor_id' => $user->distributor_id,
+                'dealer_id' => $user->dealer_id,
+                'subdealer_id' => $user->subdealer_id,
+                'created_by' => $user->id,
+            ]));
 
             if ($device->save()) {
-                $response = ["success" => true, "message" => "Device Inserted Successfully", "status_code" => 200];
-                return response()->json($response, 200);
+                return response()->json([
+                    "success" => true,
+                    "message" => "Device Inserted Successfully",
+                    "status_code" => 200
+                ], 200);
             } else {
-                $response = ["success" => false, "message" => "Failed to Insert Device", "status_code" => 404];
-                return response()->json($response, 404);
+                return response()->json([
+                    "success" => false,
+                    "message" => "Failed to Insert Device",
+                    "status_code" => 404
+                ], 404);
             }
         } catch (\Exception $e) {
-
-            return $e->getMessage();
-
-            $response = ["success" => false, "message" => $e->getMessage(), "status_code" => 404];
-            return response()->json($response, 404);
+            return response()->json(["success" => false, "message" => $e->getMessage(), "status_code" => 404], 404);
         }
     }
 
+    //Vehicle Management Device Add
     public function device_store(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'supplier_id' => 'required|max:255',
-                'device_make_id' => 'required',
-                'device_model_id' => 'required',
-                'device_imei_no' => 'required|unique:devices,device_imei_no'
-            ]);
+            $validator = Validator::make($request->all(), Device::validationRules());
 
             if ($validator->fails()) {
-                $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
-                return response()->json($response, 403);
+                return response()->json(["success" => false, "message" => $validator->errors(), "status_code" => 403], 403);
             }
 
-            $data['supplier_id'] =  $request->input('supplier_id');
-            $data['device_make_id'] =  $request->input('device_make_id');
-            $data['device_model_id'] =  $request->input('device_model_id');
-            $data['device_imei_no'] =  $request->input('device_imei_no');
+            $data = $request->only(['supplier_id', 'device_make_id', 'device_model_id', 'device_imei_no', 'ccid', 'uid', 'description', 'admin_id']);
 
-            $data['uid'] =  $request->input('uid');
-            $data['ccid'] =  $request->input('ccid');
-            $data['description'] =  $request->input('description');
+            $data['purchase_date'] = now(); // Current date and time
 
-            $data['purchase_date'] = date('Y-m-d');
-            $data['admin_id'] =  $request->input('admin_id');
+            $distributor = User::find($request->input('distributor_id'));
+            $data['distributor_id'] = $distributor->distributor_id;
 
-            $distributor_id = $request->input('distributor_id');
-            $user = User::find($distributor_id);
-            $data['distributor_id'] = $user->distributor_id;
+            $dealer = User::find($request->input('dealer_id'));
+            $data['dealer_id'] = $dealer->dealer_id;
 
-            $dealer_id = $request->input('dealer_id');
-            $user = User::find($dealer_id);
-            $data['dealer_id'] = $user->dealer_id;
-            $data['subdealer_id'] = null;
-            if ($request->input('subdealer_id') != null) {
-                $subdealer_id = $request->input('subdealer_id');
-                $user = User::find($subdealer_id);
-                $data['subdealer_id'] = $user->subdealer_id;
+            $subdealer_id = $request->input('subdealer_id');
+            if ($subdealer_id) {
+                $subdealer = User::find($subdealer_id);
+                $data['subdealer_id'] = $subdealer->subdealer_id;
             }
 
             $data['created_by'] = auth()->user()->id;
 
-            $device = new Device($data);
+            $device = Device::create($data);
 
-            if ($device->save()) {
-                $response = ["success" => true, "message" => "Device Inserted Successfully", "status_code" => 200];
-                return response()->json($response, 200);
-            } else {
-                $response = ["success" => false, "message" => "Failed to Insert Device", "status_code" => 404];
-                return response()->json($response, 404);
-            }
+            return response()->json(["success" => true, "message" => "Device Inserted Successfully", "status_code" => 200], 200);
         } catch (\Exception $e) {
-
-            return $e->getMessage();
-
-            $response = ["success" => false, "message" => $e->getMessage(), "status_code" => 404];
-            return response()->json($response, 404);
+            return response()->json(["success" => false, "message" => $e->getMessage(), "status_code" => 404], 404);
         }
     }
 
-
+    //Stock Management Device Transfer
     public function device_transfer(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(["success" => false, "message" => $validator->errors(), "status_code" => 403], 403);
+        }
+
         try {
-            $validator = Validator::make($request->all(), [
-                'id' => 'required|max:255',
-            ]);
-
-            if ($validator->fails()) {
-                $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
-                return response()->json($response, 403);
-            }
-
             $device = Device::find($request->input('id'));
 
-            $requestKeys = collect($request->all())->keys();
-
-            if ($requestKeys->contains('admin_id')) {
-                $admin_id = User::find($request->input('admin_id'));
-                $data['admin_id']  = $admin_id->admin_id;
-            }
-            if ($requestKeys->contains('distributor_id')) {
-                $distributor_id = User::find($request->input('distributor_id'));
-                $data['distributor_id']  = $distributor_id->distributor_id;
-            }
-            if ($requestKeys->contains('dealer_id')) {
-                $dealer_id = User::find($request->input('dealer_id'));
-                $data['dealer_id']  = $dealer_id->dealer_id;
-            }
-            if ($requestKeys->contains('subdealer_id')) {
-                $subdealer_id = User::find($request->input('subdealer_id'));
-                $data['subdealer_id']  = $subdealer_id->subdealer_id;
-            }
-            $device = $device->update($data);
-
             if ($device) {
+                $data = [];
+
+                if ($request->has('admin_id')) {
+                    $admin = User::find($request->input('admin_id'));
+                    $data['admin_id'] = $admin->admin_id;
+                }
+                if ($request->has('distributor_id')) {
+                    $distributor = User::find($request->input('distributor_id'));
+                    $data['distributor_id'] = $distributor->distributor_id;
+                }
+                if ($request->has('dealer_id')) {
+                    $dealer = User::find($request->input('dealer_id'));
+                    $data['dealer_id'] = $dealer->dealer_id;
+                }
+                if ($request->has('subdealer_id')) {
+                    $subdealer = User::find($request->input('subdealer_id'));
+                    $data['subdealer_id'] = $subdealer->subdealer_id;
+                }
+
+                $device->update($data);
+
                 $response = ["success" => true, "message" => "Device Transferred Successfully", "status_code" => 200];
                 return response()->json($response, 200);
             } else {
-                $response = ["success" => false, "message" => "Failed to Transfer Device", "status_code" => 404];
+                $response = ["success" => false, "message" => "Device Not Found", "status_code" => 404];
                 return response()->json($response, 404);
             }
         } catch (\Exception $e) {
-
-            return $e->getMessage();
-
-            $response = ["success" => false, "message" => $e->getMessage(), "status_code" => 404];
-            return response()->json($response, 404);
+            $response = ["success" => false, "message" => $e->getMessage(), "status_code" => 500];
+            return response()->json($response, 500);
         }
     }
 
+    //Device Stock List in Stock Management
     public function device_list(Request $request)
     {
         try {
-
             $admin_id = auth()->user()->admin_id;
             $distributor_id = auth()->user()->distributor_id;
             $dealer_id = auth()->user()->dealer_id;
             $subdealer_id = auth()->user()->subdealer_id;
 
-            $device_data = DB::table('devices as a')
-                ->select('a.id', 'a.device_imei_no', 'a.ccid', 'a.uid', 'a.device_make_id', 'a.device_model_id', 'a.supplier_id', 'b.device_make', 'c.device_model', 'd.supplier_name', 'a.description')
-                ->join('device_makes as b', 'a.device_make_id', '=', 'b.id')
-                ->join('device_models as c', 'a.device_model_id', '=', 'c.id')
-                ->join('suppliers as d', 'a.supplier_id', '=', 'd.id')
-                ->where('a.admin_id', $admin_id)
-                ->where('a.distributor_id', $distributor_id)
-                ->where('a.dealer_id', $dealer_id)
-                ->where('a.subdealer_id', $subdealer_id)
-                ->where('a.client_id', null)
-                ->where('a.status', '1')
-                ->orderBy('a.id', 'desc')
+            $device_data = Device::select('devices.id', 'devices.device_imei_no', 'devices.ccid', 'devices.uid', 'devices.device_make_id', 'devices.device_model_id', 'devices.supplier_id', 'device_makes.device_make', 'device_models.device_model', 'suppliers.supplier_name', 'devices.description')
+                ->join('device_makes', 'devices.device_make_id', '=', 'device_makes.id')
+                ->join('device_models', 'devices.device_model_id', '=', 'device_models.id')
+                ->join('suppliers', 'devices.supplier_id', '=', 'suppliers.id')
+                ->where('devices.admin_id', $admin_id)
+                ->where('devices.distributor_id', $distributor_id)
+                ->where('devices.dealer_id', $dealer_id)
+                ->where('devices.subdealer_id', $subdealer_id)
+                ->whereNull('devices.client_id')
+                ->where('devices.status', '1')
+                ->orderBy('devices.id', 'desc')
                 ->get();
 
             if ($device_data->isEmpty()) {
@@ -208,99 +185,70 @@ class DeviceController extends BaseController
                 return response()->json($response, 200);
             }
         } catch (\Exception $e) {
-
             return $e->getMessage();
-
             $response = ["success" => false, "message" => $e->getMessage(), "status_code" => 404];
             return response()->json($response, 404);
         }
     }
 
+    //Device Stock List in Vehicle Management [Dealer/SubDealer]
     public function device_stock_list(Request $request)
     {
         $user_id = $request->input('user_id');
 
-        $data = User::find($user_id);
-        $role_id = $data->role_id;
-        $dealer_id = null;
-        $subdealer_id = null;
-        if ($role_id == 4) {
-            $dealer_id = $data->dealer_id;
+        $user = User::find($user_id);
+        $results = Device::availableForUser($user)->select('id', 'device_imei_no')->get();
 
-            $results = DB::table('devices')
-                ->select('id', 'device_imei_no')
-                ->where('dealer_id', $dealer_id)
-                ->where('subdealer_id', $subdealer_id)
-                ->where('client_id', null)
-                ->where('status', '1')
-                ->orderBy('id', 'desc')
-                ->get();
-        } else if ($role_id == 5) {
-            $subdealer_id = $data->subdealer_id;
-
-            $results = DB::table('devices')
-                ->select('id', 'device_imei_no')
-                ->where('subdealer_id', $subdealer_id)
-                ->where('client_id', null)
-                ->where('status', '1')
-                ->orderBy('id', 'desc')
-                ->get();
-        }
-        if (empty($results)) {
-            $response = ["success" => false, "message" => "No Datas Found", "status_code" => 404];
-            return response()->json($response, 404);
+        if ($results->isEmpty()) {
+            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
         } else {
             $response = ["success" => true, "data" => $results, "status_code" => 200];
-            return response()->json($response, 200);
         }
+
+        return response()->json($response, $response['status_code']);
     }
 
-
+    //Vehicle Management Device Show
     public function show($id)
     {
-        $device = DB::table('devices as a')
-            ->select('a.id', 'a.device_imei_no', 'a.ccid', 'a.uid', 'a.device_make_id', 'a.device_model_id', 'a.supplier_id', 'b.device_make', 'c.device_model', 'd.supplier_name')
-            ->join('device_makes as b', 'a.device_make_id', '=', 'b.id')
-            ->join('device_models as c', 'a.device_model_id', '=', 'c.id')
-            ->join('suppliers as d', 'a.supplier_id', '=', 'd.id')
-            ->where('a.id', $id)
+        $device = Device::select('devices.id', 'devices.device_imei_no', 'devices.ccid', 'devices.uid', 'devices.device_make_id', 'devices.device_model_id', 'devices.supplier_id', 'device_makes.device_make', 'device_models.device_model', 'suppliers.supplier_name')
+            ->join('device_makes', 'devices.device_make_id', '=', 'device_makes.id')
+            ->join('device_models', 'devices.device_model_id', '=', 'device_models.id')
+            ->join('suppliers', 'devices.supplier_id', '=', 'suppliers.id')
+            ->where('devices.id', $id)
             ->first();
 
         if (!$device) {
-            return $this->sendError('Device Not Found');
+            return response()->json(["success" => false, "message" => "Device Not Found", "status_code" => 404], 404);
         }
 
-        return $this->sendSuccess($device);
+        $response = ["success" => true, "data" => $device, "status_code" => 200];
+        return response()->json($response, $response['status_code']);
     }
 
+    //Stock Management Device Edit
     public function update(Request $request)
     {
-        $device = Device::find($request->input('id'));
+        $device = Device::find($request->id);
 
         if (!$device) {
-            $response = ["success" => false, "message" => "Device Not Found", "status_code" => 404];
-            return response()->json($response, 404);
+            return response()->json(["success" => false, "message" => "D Not Found", "status_code" => 404], 404);
         }
 
-        $validator = Validator::make($request->all(), [
-            'device_imei_no' => 'required|unique:devices,device_imei_no,' . $request->input('id') . 'id',
-        ]);
+        $validator = Validator::make($request->all(), Device::validationRules($request->id));
 
         if ($validator->fails()) {
-            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
-            return response()->json($response, 403);
+            return response()->json(["success" => false, "message" => $validator->errors(), "status_code" => 403], 403);
         }
 
         if ($device->update($request->all())) {
-            $response = ["success" => true, "message" => "Device Updated Successfully", "status_code" => 200];
-            return response()->json($response, 200);
+            return response()->json(["success" => true, "message" => "Device Updated Successfully", "status_code" => 200], 200);
         } else {
-            $response = ["success" => false, "message" => "Failed to Update Device", "status_code" => 404];
-            return response()->json($response, 404);
+            return response()->json(["success" => false, "message" => "Failed to Update Device", "status_code" => 404], 404);
         }
     }
 
-
+    //Stock Management Device Delete
     public function destroy(Request $request)
     {
         $device = Device::find($request->input('id'));
@@ -319,21 +267,6 @@ class DeviceController extends BaseController
         } else {
             $response = ["success" => false, "message" => "Failed To Delete Device", "status_code" => 404];
             return response()->json($response, 404);
-        }
-    }
-
-    public function device_assign(Request $request, $id)
-    {
-        $device = Device::find($id);
-
-        if (!$device) {
-            return $this->sendError('Device Not Found');
-        }
-
-        if ($device->update($request->all())) {
-            return $this->sendSuccess("Device Updated Successfully");
-        } else {
-            return $this->sendError('Failed to Update Device');
         }
     }
 }

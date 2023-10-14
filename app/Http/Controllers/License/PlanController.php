@@ -14,90 +14,58 @@ use Illuminate\Support\Facades\DB;
 
 class PlanController extends BaseController
 {
+
+    //Licence Management Plan List
     public function index()
     {
-        $plans = DB::table('plans as a')
-            ->join('packages as b', 'a.package_id', '=', 'b.id')
-            ->join('periods as c', 'a.period_id', '=', 'c.id')
-            ->select('a.id', 'b.package_name', 'c.period_name', 'c.period_days')
+        $plans = Plan::join('packages as b', 'plans.package_id', '=', 'b.id')
+            ->join('periods as c', 'plans.period_id', '=', 'c.id')
+            ->select('plans.id', 'b.package_name', 'c.period_name', 'c.period_days')
             ->get();
 
         if ($plans->isEmpty()) {
-            return $this->sendError('No Plans Found');
-        }
-
-        return $this->sendSuccess($plans);
-    }
-
-    public function plan_days(Request $request)
-    {
-        $newinstallDate = Carbon::now();
-        $newinstallDateFormatted = $newinstallDate->format('Y-m-d');
-
-        // The rest of your code remains the same
-        $plan_id = $request->input('plan_id');
-        $plan = Plan::find($plan_id);
-        $period_id = $plan->period_id;
-        $period = Period::find($period_id);
-
-        $newexpireDate = $newinstallDate->copy()->addDays($period->period_days);
-        $data['installation_date'] = $newinstallDateFormatted;
-        $data['expire_date'] = $newexpireDate->format('Y-m-d');
-        $data['extend_date'] = $newexpireDate->addDays(15)->format('Y-m-d');
-
-        $response = ["success" => true, "data" => $data, "status_code" => 200];
-        return response()->json($response, 200);
-    }
-
-    public function user_plan_list(Request $request)
-    {
-        $user_id = $request->input('user_id');
-
-        $data = User::find($user_id);
-        $role_id = $data->role_id;
-
-        $dealer_id = null;
-        $subdealer_id = null;
-        if ($role_id == 4) {
-            $dealer_id = $data->dealer_id;
-
-            $results = DB::table('plans as a')
-                ->select('a.id', 'b.package_name', 'c.period_days')
-                ->join('packages as b', 'a.package_id', '=', 'b.id')
-                ->join('periods as c', 'a.period_id', '=', 'c.id')
-                ->whereIn('a.id', function ($query) use ($dealer_id) {
-                    $query->select('plan_id')
-                        ->from('points')
-                        ->where('total_point', '>=', 1)
-                        ->where('point_type_id', 1)
-                        ->where('dealer_id', $dealer_id)
-                        ->whereNull('subdealer_id');
-                })
-                ->get();
-        } else if ($role_id == 5) {
-            $subdealer_id = $data->subdealer_id;
-
-            $results = DB::table('plans as a')
-                ->select('a.id', 'b.package_name', 'c.period_days')
-                ->join('packages as b', 'a.package_id', '=', 'b.id')
-                ->join('periods as c', 'a.period_id', '=', 'c.id')
-                ->whereIn('a.id', function ($query) use ($subdealer_id) {
-                    $query->select('plan_id')
-                        ->from('points')
-                        ->where('total_point', '>=', 1)
-                        ->where('point_type_id', 1)
-                        ->where('subdealer_id', $subdealer_id);
-                })
-                ->get();
-        }
-        if (empty($results)) {
-            $response = ["success" => false, "message" => "No Datas Found", "status_code" => 404];
+            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
             return response()->json($response, 404);
         } else {
-            $response = ["success" => true, "data" => $results, "status_code" => 200];
+            $response = ["success" => true, "data" => $plans, "status_code" => 200];
             return response()->json($response, 200);
         }
     }
+
+    //Vehicle Management Plan List
+    public function user_plan_list(Request $request)
+    {
+        $user_id = $request->input('user_id');
+        $data = User::find($user_id);
+        $role_id = $data->role_id;
+
+        $plans = Plan::select('plans.id', 'packages.package_name', 'periods.period_days')
+            ->join('packages', 'plans.package_id', '=', 'packages.id')
+            ->join('periods', 'plans.period_id', '=', 'periods.id')
+            ->whereIn('plans.id', function ($query) use ($role_id, $data) {
+                $query->select('points.plan_id')
+                    ->from('points')
+                    ->where('total_point', '>=', 1)
+                    ->where('point_type_id', 1);
+
+                if ($role_id == 4) {
+                    $query->where('dealer_id', $data->dealer_id)
+                        ->whereNull('subdealer_id');
+                } elseif ($role_id == 5) {
+                    $query->where('subdealer_id', $data->subdealer_id);
+                }
+            })
+            ->get();
+
+        if ($plans->isEmpty()) {
+            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => $plans, "status_code" => 200];
+            return response()->json($response, 200);
+        }
+    }
+
 
     public function store(Request $request)
     {

@@ -426,9 +426,9 @@ class PointController extends BaseController
         }
     }
 
+    //license Management Plan List
     public function point_stock_list(Request $request)
     {
-        $user_id = $request->input('user_id');
         $role_id = $request->input('role_id');
 
         $admin_id = auth()->user()->admin_id;
@@ -436,66 +436,46 @@ class PointController extends BaseController
         $dealer_id = auth()->user()->dealer_id;
         $subdealer_id = auth()->user()->subdealer_id;
 
+        $name = null;
+        $ref_id = null;
+
         if ($role_id == 2) {
-            $result = DB::table('points as a')
-                ->select('c.point_type', 'd.package_code', 'd.package_name', 'e.period_name', 'e.period_days', 'f.admin_name as name', 'a.total_point')
-                ->join('plans as b', 'a.plan_id', '=', 'b.id')
-                ->join('point_types as c', 'a.point_type_id', '=', 'c.id')
-                ->join('packages as d', 'd.id', '=', 'b.package_id')
-                ->join('periods as e', 'e.id', '=', 'b.period_id')
-                ->join('admins as f', 'f.id', '=', 'a.admin_id')
-                ->where('a.admin_id', $admin_id)
-                ->where('a.distributor_id', $distributor_id)
-                ->where('a.dealer_id', $dealer_id)
-                ->where('a.subdealer_id', $subdealer_id)
-                ->get();
+            $table = "admins";
+            $name = "admin_name";
+            $ref_id = "admin_id";
         } else  if ($role_id == 3) {
-            $result = DB::table('points as a')
-                ->select('c.point_type', 'd.package_code', 'd.package_name', 'e.period_name', 'e.period_days', 'f.distributor_name as name', 'a.total_point')
-                ->join('plans as b', 'a.plan_id', '=', 'b.id')
-                ->join('point_types as c', 'a.point_type_id', '=', 'c.id')
-                ->join('packages as d', 'd.id', '=', 'b.package_id')
-                ->join('periods as e', 'e.id', '=', 'b.period_id')
-                ->join('distributors as f', 'f.id', '=', 'a.distributor_id')
-                ->where('a.admin_id', $admin_id)
-                ->where('a.distributor_id', $distributor_id)
-                ->where('a.dealer_id', $dealer_id)
-                ->where('a.subdealer_id', $subdealer_id)
-                ->get();
+            $table = "distributors";
+            $name = "distributor_name";
+            $ref_id = "distributor_id";
         } else  if ($role_id == 4) {
-            $result = DB::table('points as a')
-                ->select('c.point_type', 'd.package_code', 'd.package_name', 'e.period_name', 'e.period_days', 'f.dealer_name as name', 'a.total_point')
-                ->join('plans as b', 'a.plan_id', '=', 'b.id')
-                ->join('point_types as c', 'a.point_type_id', '=', 'c.id')
-                ->join('packages as d', 'd.id', '=', 'b.package_id')
-                ->join('periods as e', 'e.id', '=', 'b.period_id')
-                ->join('dealers as f', 'f.id', '=', 'a.dealer_id')
-                ->where('a.admin_id', $admin_id)
-                ->where('a.distributor_id', $distributor_id)
-                ->where('a.dealer_id', $dealer_id)
-                ->where('a.subdealer_id', $subdealer_id)
-                ->get();
+            $table = "dealers";
+            $name = "dealer_name";
+            $ref_id = "dealer_id";
         } else  if ($role_id == 5) {
-            $result = DB::table('points as a')
-                ->select('c.point_type', 'd.package_code', 'd.package_name', 'e.period_name', 'e.period_days', 'f.subdealer_name as name', 'a.total_point')
-                ->join('plans as b', 'a.plan_id', '=', 'b.id')
-                ->join('point_types as c', 'a.point_type_id', '=', 'c.id')
-                ->join('packages as d', 'd.id', '=', 'b.package_id')
-                ->join('periods as e', 'e.id', '=', 'b.period_id')
-                ->join('sub_dealers as f', 'f.id', '=', 'a.subdealer_id')
-                ->where('a.admin_id', $admin_id)
-                ->where('a.distributor_id', $distributor_id)
-                ->where('a.dealer_id', $dealer_id)
-                ->where('a.subdealer_id', $subdealer_id)
-                ->get();
+            $table = "sub_dealers";
+            $name = "subdealer_name";
+            $ref_id = "subdealer_id";
         }
 
+        $result = DB::table('points as a')
+            ->select('c.point_type', 'd.package_code', 'd.package_name', 'e.period_name', 'e.period_days', $name . ' as name', 'a.total_point')
+            ->join('plans as b', 'a.plan_id', '=', 'b.id')
+            ->join('point_types as c', 'a.point_type_id', '=', 'c.id')
+            ->join('packages as d', 'd.id', '=', 'b.package_id')
+            ->join('periods as e', 'e.id', '=', 'b.period_id')
+            ->join($table . ' as f', 'f.id', '=', 'a.' . $ref_id)
+            ->where('a.admin_id', $admin_id)
+            ->where('a.distributor_id', $distributor_id)
+            ->where('a.dealer_id', $dealer_id)
+            ->where('a.subdealer_id', $subdealer_id)
+            ->get();
 
-
-        if (empty($result)) {
-            return $this->sendError('No Users Found');
+        if ($result->isEmpty()) {
+            $response = ["success" => false, "message" => "No Data Found", "status_code" => 404];
+            return response()->json($response, 404);
+        } else {
+            $response = ["success" => true, "data" => $result, "status_code" => 200];
+            return response()->json($response, 200);
         }
-
-        return $this->sendSuccess($result);
     }
 }
