@@ -38,7 +38,6 @@ return new class extends Migration
             $table->integer('trip_duration')->nullable();
             $table->integer('ac_duration')->nullable();
             $table->integer('total_rpm_duration')->nullable();
-            $table->integer('total_rpm_duration')->nullable();
             $table->integer('total_idle_rpm_duration')->nullable();
             $table->integer('total_normal_rpm_duration')->nullable();
             $table->integer('total_max_rpm_duration')->nullable();
