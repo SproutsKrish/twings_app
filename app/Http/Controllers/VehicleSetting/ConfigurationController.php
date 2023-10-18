@@ -232,6 +232,7 @@ class ConfigurationController extends BaseController
     public function speed_update(Request $request, $device_imei)
     {
         $vehicle = Configuration::where('device_imei', $device_imei)->first();
+        $main_vehicle = DB::table('twings.configurations')->where('device_imei', $device_imei)->first();
 
         if (!$vehicle) {
             $response = ["success" => false, "message" => "Vehicle Not Found", "status_code" => 404];
@@ -247,7 +248,7 @@ class ConfigurationController extends BaseController
             return response()->json($response, 403);
         }
 
-        if ($vehicle->update($request->all())) {
+        if ($vehicle->update($request->all()) && $main_vehicle->update($request->all())) {
             $response = ["success" => true, "message" => 'Vehicle Speed Limit Updated Successfully', "status_code" => 200];
             return response()->json($response, 200);
         } else {
