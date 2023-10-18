@@ -445,6 +445,7 @@ class UserController extends BaseController
                     }
 
                     $tenant = Tenant::create(['id' => $client->id]);
+                    $tenant->domains()->create(['domain' => $client->id]);
 
                     $customer_configurations = CustomerConfiguration::create(
                         [

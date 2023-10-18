@@ -39,7 +39,6 @@ class VehicleController extends BaseController
             'device_id' => 'required|unique:vehicles,device_id',
             'vehicle_type_id' => 'required',
             'vehicle_name' => 'required',
-            'installation_date' => 'required',
             'plan_id' => 'required',
             'license_id' => 'required'
         ]);
