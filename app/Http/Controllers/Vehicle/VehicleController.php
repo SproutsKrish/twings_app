@@ -97,10 +97,9 @@ class VehicleController extends BaseController
         $data['install_person_name'] = $request->input('install_person_name');
         $data['service_person_name'] = $request->input('service_person_name');
         $data['description'] = $request->input('description');
-        $mytime = Carbon::now();
+        // $mytime = Carbon::now();
         // echo $mytime->toDateString();
-
-        $data['installation_date'] = $mytime->toDateString();
+        $data['installation_date'] = $request->input('installation_date');
         $data['expire_date'] = $request->input('expire_date');
         $data['extend_date'] = $request->input('extend_date');
         $data['vehicle_expire_date'] = $request->input('vehicle_expire_date');
