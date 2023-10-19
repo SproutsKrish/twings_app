@@ -233,6 +233,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::controller(AcReportController::class)->group(function () {
             Route::post('ac_report', 'ac_report');
         });
+        Route::controller(ExecutiveReportController::class)->group(function () {
+            Route::post('executive_report', 'index');
+        });
 
         Route::controller(TemperatureReportController::class)->group(function () {
             Route::post('temperature_report', 'temperature_report');
@@ -273,7 +276,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('geofence_not_assign_vehicles', 'geofence_not_assign_vehicles');
             Route::put('notify/update/{id}', 'update');
         });
-        Route::resource('executive_report', ExecutiveReportController::class);
+        // Route::resource('executive_report', ExecutiveReportController::class);
         Route::resource('smart_report', SmartReportController::class);
         Route::resource('fuel_fill_dip_report', FuelController::class);
         Route::resource('rpm_controller', RpmController::class);
