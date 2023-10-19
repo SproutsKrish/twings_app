@@ -6,8 +6,11 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\Configuration;
 use App\Models\CustomerConfiguration;
 use App\Models\EnginePassword;
+use App\Models\ImmoblizerData;
 use App\Models\LiveData;
+use App\Models\User;
 use App\Models\Vehicle;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -168,6 +171,9 @@ class ConfigurationController extends BaseController
     }
     public function immobilizer_option(Request $request, $device_imei)
     {
+
+        $today = Carbon::now();
+
         $validator = Validator::make($request->all(), [
             'engine_password' => 'required',
         ]);
@@ -176,6 +182,8 @@ class ConfigurationController extends BaseController
 
         if (!empty($enginePasswords)) {
             $vehicle = Vehicle::where('device_imei', $device_imei)->first();
+            $user = User::where('client_id', $vehicle->client_id)->first();
+
             if (!$vehicle) {
                 $response = ["success" => false, "message" => "Vehicle Not Found", "status_code" => 404];
                 return response()->json($response, 404);
@@ -190,7 +198,22 @@ class ConfigurationController extends BaseController
                 return response()->json($response, 403);
             }
 
-            if ($vehicle->update($request->all())) {
+            $data = array(
+                'client_id' => $vehicle->client_id,
+                'user_id' => $user->id,
+                'deviceimei' => $vehicle->device_imei,
+                'vehicle_id' => $vehicle->id,
+                'status' => $request->input('immobilizer_option'),
+                'completed_status' => '1',
+                'dealer_id' => $vehicle->dealer_id,
+                'subdealer_id' => $vehicle->subdealer_id,
+                'created_by' => auth()->user()->id,
+                'created_on' => $today
+            );
+
+            $res = ImmoblizerData::create($data);
+
+            if ($res) {
                 $response = ["success" => true, "message" => 'Engine Status Updated Successfully', "status_code" => 200];
                 return response()->json($response, 200);
             } else {

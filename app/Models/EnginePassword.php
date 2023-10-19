@@ -9,5 +9,5 @@ class EnginePassword extends Model
 {
     use HasFactory;
 
-    protected $table = "engine_password";
+    protected $table = "twings.engine_password";
 }
