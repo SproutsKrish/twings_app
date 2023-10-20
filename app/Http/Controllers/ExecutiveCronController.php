@@ -4,26 +4,30 @@ namespace App\Http\Controllers\Crons;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class ExecutiveCronController extends Controller
 {
     public function GenerateExecutiveReport()
     {
-        $yesterday = now()->subDay();
-        $report_date = now()->subDay()->toDateString();
-        $fromd = $yesterday->startOfDay();
-        $tod = $yesterday->endOfDay();
+        $indianTimezone = 'Asia/Kolkata';
+        $yesterday = Carbon::now($indianTimezone)->subDay();
+        $report_date = $yesterday->toDateString();
+        $fromd = $report_date . ' 00:00:00';
+        $tod = $report_date . ' 23:59:59';
         $active_client_list = DB::table('vehicles')
             ->select('client_id', DB::raw('CONCAT("client_", client_id) as client_db'))
-            // ->where('client_id', 12964)
+            ->where('client_id', 12964)
             ->where('status', 1)
             ->groupBy('client_id')
             ->orderBy('client_id', 'asc')
             ->get();
+        echo "<pre>";
         foreach ($active_client_list as $key => $c_list) {
+            $start_time  = microtime(true);
             $client_db = $c_list->client_db;
             $client_id = $c_list->client_id;
+            echo "Executing Client DB " . $client_db . "<br>";
             $sub_query_condition = "end_datetime !='' AND end_datetime<'" . $tod . "' AND flag=2 AND start_datetime BETWEEN '" . $fromd . "' AND '" . $tod . "'";
             $vehicles = DB::table($client_db . '.live_data')
                 ->leftJoin($client_db . '.temp_distance_data as tdd', 'live_data.deviceimei', '=', 'tdd.deviceimei')
@@ -60,6 +64,14 @@ class ExecutiveCronController extends Controller
             echo "<pre>";
             print_r($VehicleDataInsertArray);
             DB::table($client_db . '.executive_reports')->insert($VehicleDataInsertArray);
+            $end_time = microtime(true);
+            $execution_time = $end_time - $start_time;
+            // Convert seconds to minutes and seconds
+            $minutes = floor($execution_time / 60);
+            $seconds = $execution_time % 60;
+
+            // Print the execution time in minutes and seconds
+            echo "$client_db Execution Time: " . $minutes . " minutes and " . $seconds . " seconds";
         }
     }
 }
