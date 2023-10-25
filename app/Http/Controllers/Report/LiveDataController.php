@@ -912,6 +912,15 @@ class LiveDataController extends Controller
                     WHEN device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 5
                 ELSE NULL
                 END AS vehicle_current_status',
+            'CASE
+                    WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "Parking"
+                    WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "Idle"
+                    WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "Moving"
+                    WHEN B.device_updatedtime IS NULL THEN "No Data"
+                    WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "InActive"
+                    WHEN A.expire_date < CURDATE() THEN "Expired"
+                ELSE NULL
+                END AS current_status',
         )->get();
 
         return response()->json(['success' => true, 'data' => $live_data]);
