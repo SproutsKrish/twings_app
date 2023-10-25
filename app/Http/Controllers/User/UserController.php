@@ -468,10 +468,9 @@ class UserController extends BaseController
                         'driver' => 'mysql',
                         'host' => env('DB_HOST'), // Use the environment variable for host
                         'port' => env('DB_PORT'), // Use the environment variable for port
-                        'database' => $result->db_name,   // Change this to the actual database name
+                        'database' => $result->db_name,    // Change this to the actual database name
                         'username' => env('DB_USERNAME'), // Use the environment variable for username
                         'password' => env('DB_PASSWORD'), // Use the environment variable for password
-                        // Add any other connection parameters you need
                     ];
 
                     // Use the dynamic connection configuration to connect to the database
@@ -869,5 +868,21 @@ class UserController extends BaseController
         // $result = DB::table('users')->where('id', 13384)->update(['password' => $password]);
 
         // dd($result);
+
+        $alert_types =  DB::table('alert_types')
+            ->where('status', '1')
+            ->select('id')
+            ->get();
+
+        foreach ($alert_types as $alert_type) {
+            $userdata = array(
+                'user_id' => 13365,
+                'client_id' => 12964,
+                'alert_type_id' => $alert_type->id,
+                'user_status' => 0,
+                'active_status' => 1,
+            );
+            DB::table('alert_notifications')->insert($userdata);
+        }
     }
 }

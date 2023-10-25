@@ -58,6 +58,15 @@ class LiveDataController extends Controller
                     WHEN A.expire_date < CURDATE() THEN 6
                 ELSE NULL
                 END AS vehicle_current_status,
+                CASE
+                    WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "Parking"
+                    WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "Idle"
+                    WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "Moving"
+                    WHEN B.device_updatedtime IS NULL THEN "No Data"
+                    WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "InActive"
+                    WHEN A.expire_date < CURDATE() THEN "Expired"
+                ELSE NULL
+                END AS current_status,
                 B.vehicle_status,
                 B.lattitute,
                 B.longitute,
@@ -135,6 +144,15 @@ class LiveDataController extends Controller
                     WHEN A.expire_date < CURDATE() THEN 6
                 ELSE NULL
                 END AS vehicle_current_status,
+                CASE
+                    WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "Parking"
+                    WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "Idle"
+                    WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "Moving"
+                    WHEN B.device_updatedtime IS NULL THEN "No Data"
+                    WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "InActive"
+                    WHEN A.expire_date < CURDATE() THEN "Expired"
+                ELSE NULL
+                END AS current_status,
                 B.vehicle_status,
                 B.lattitute,
                 B.longitute,
@@ -267,6 +285,15 @@ class LiveDataController extends Controller
                     WHEN A.expire_date < CURDATE() THEN 6
                 ELSE NULL
                 END AS vehicle_current_status,
+                CASE
+                    WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "Parking"
+                    WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "Idle"
+                    WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "Moving"
+                    WHEN B.device_updatedtime IS NULL THEN "No Data"
+                    WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "InActive"
+                    WHEN A.expire_date < CURDATE() THEN "Expired"
+                ELSE NULL
+                END AS current_status,
             B.vehicle_status,
             B.lattitute,
             B.longitute,
@@ -869,5 +896,24 @@ class LiveDataController extends Controller
 
         $response = ["success" => true, "data" => $vehicle_count, "status_code" => 200];
         return response()->json($response, 200);
+    }
+
+    public function detect_vehicle_status()
+    {
+        $live_data = LiveData::where('vehicle_status', 1)->selectRaw(
+            'vehicle_id,
+            deviceimei,
+            vehicle_name,
+            CASE
+                    WHEN ignition = 0 AND device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 1
+                    WHEN ignition = 1 AND speed = 0 AND device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 2
+                    WHEN ignition = 1 AND speed > 1 AND device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 3
+                    WHEN device_updatedtime IS NULL THEN 4
+                    WHEN device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 5
+                ELSE NULL
+                END AS vehicle_current_status',
+        )->get();
+
+        return response()->json(['success' => true, 'data' => $live_data]);
     }
 }

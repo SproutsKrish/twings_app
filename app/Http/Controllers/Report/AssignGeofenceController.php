@@ -53,8 +53,10 @@ class AssignGeofenceController extends Controller
 
         $data = DB::table('assign_geofences as a')
             ->join('geofences as b', 'a.geofence_id', '=', 'b.id')
+            ->join('vehicles as c', 'c.device_imei', '=', 'a.device_imei')
+
             ->where('a.device_imei', $device_imei)
-            ->select('a.id', 'b.location_short_name', 'b.latitude', 'b.longitude', 'b.circle_size', 'b.radius', 'a.device_imei')
+            ->select('a.id', 'c.vehicle_name', 'b.location_short_name', 'b.latitude', 'b.longitude', 'b.circle_size', 'b.radius', 'a.device_imei')
             ->get();
 
         if ($data->isEmpty()) {
