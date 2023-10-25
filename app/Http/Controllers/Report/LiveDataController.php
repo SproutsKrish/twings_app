@@ -911,8 +911,8 @@ class LiveDataController extends Controller
                     WHEN device_updatedtime IS NULL THEN 4
                     WHEN device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 5
                 ELSE NULL
-                END AS vehicle_current_status',
-            'CASE
+                END AS vehicle_current_status,
+            CASE
                     WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "Parking"
                     WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "Idle"
                     WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.expire_date >= CURDATE() THEN "Moving"
