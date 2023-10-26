@@ -74,6 +74,7 @@ use App\Http\Controllers\VehicleSetting\ShareLinkController;
 use App\Http\Controllers\ExecutiveReportController;
 use App\Http\Controllers\FuelController;
 use App\Http\Controllers\HourMeterReportController;
+use App\Http\Controllers\Report\ExecutiveReportCheckController;
 use App\Http\Controllers\RpmController;
 use App\Http\Controllers\SmartReportController;
 /*
@@ -188,6 +189,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::controller(PlanController::class)->group(function () {
         Route::post('user_plan_list', 'user_plan_list');
     });
+
+
+
+    Route::controller(ExecutiveReportCheckController::class)->group(function () {
+        Route::post('executive_report_check_list', 'executive_report_check_list');
+        Route::post('executive_report_check_update', 'executive_report_check_update');
+    });
+
 
     Route::middleware('switch.database')->group(function () {
 
@@ -419,3 +428,5 @@ Route::post('due_vehicle_list', [VehicleController::class, 'due_vehicle_list']);
 //Not Use
 Route::get('greeting', [LanguageController::class, 'index'])
     ->middleware('localization');
+
+Route::post('imgupload', [ImportController::class, 'imageUpload']);

@@ -978,4 +978,38 @@ class ImportController extends BaseController
             'total' => $total,
         ]);
     }
+
+    public function imageUpload(Request $req)
+    {
+        $postObj = new Dealer;
+
+        try {
+            if ($req->hasFile('image')) {
+                $file = $req->file('image');
+
+                // Validate the file (e.g., check MIME type, size)
+                $validationRules = [
+                    'image' => 'required|image|mimes:jpeg,png|max:1048', // 2MB max file size
+                ];
+
+                $this->validate($req, $validationRules);
+
+                $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+
+                // Store the file in a subdirectory within the storage directory
+                $filePath = $file->storeAs('post_img', $fileName, 'public');
+
+                // Save the file path in the database
+                $postObj->dealer_logo = $filePath;
+            }
+
+            if ($postObj->save()) {
+                return ['status' => true, 'message' => "Image uploaded successfully"];
+            } else {
+                throw new \Exception("Error: Image not uploaded successfully");
+            }
+        } catch (\Exception $e) {
+            return ['status' => false, 'message' => $e->getMessage()];
+        }
+    }
 }
