@@ -75,6 +75,7 @@ use App\Http\Controllers\ExecutiveReportController;
 use App\Http\Controllers\FuelController;
 use App\Http\Controllers\HourMeterReportController;
 use App\Http\Controllers\Report\ExecutiveReportCheckController;
+use App\Http\Controllers\Report\VehicleHistoryController;
 use App\Http\Controllers\RpmController;
 use App\Http\Controllers\SmartReportController;
 /*
@@ -261,6 +262,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('notify/show', 'show');
             Route::put('notify/update/{id}', 'update');
         });
+
+        Route::controller(VehicleHistoryController::class)->group(function () {
+            Route::post('vehicle_history_details', 'vehicle_history_details');
+        });
+
         Route::controller(ConfigurationController::class)->group(function () {
             Route::get('config/show', 'show');
             Route::put('config/update/{id}', 'update');

@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
-
+use Illuminate\Support\Facades\Storage;
 use App\Models\Sim;
 use App\Models\Camera;
 use App\Models\Client;
@@ -979,37 +979,76 @@ class ImportController extends BaseController
         ]);
     }
 
-    public function imageUpload(Request $req)
+    // public function imageUpload(Request $req)
+    // {
+    //     $postObj = new Dealer;
+
+    //     try {
+    //         if ($req->hasFile('image')) {
+    //             $file = $req->file('image');
+
+    //             // Validate the file (e.g., check MIME type, size)
+    //             $validationRules = [
+    //                 'image' => 'required|image|mimes:jpeg,png|max:1048', // 2MB max file size
+    //             ];
+
+    //             $this->validate($req, $validationRules);
+
+    //             $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+
+    //             // Store the file in a subdirectory within the storage directory
+    //             $filePath = $file->storeAs('post_img', $fileName, 'public');
+
+    //             // Save the file path in the database
+    //             $postObj->dealer_logo = $filePath;
+    //         }
+
+    //         if ($postObj->save()) {
+    //             return ['status' => true, 'message' => "Image uploaded successfully"];
+    //         } else {
+    //             throw new \Exception("Error: Image not uploaded successfully");
+    //         }
+    //     } catch (\Exception $e) {
+    //         return ['status' => false, 'message' => $e->getMessage()];
+    //     }
+    // }
+
+    public function imageUpload(Request $request)
     {
-        $postObj = new Dealer;
+        $dealer = new Dealer;
+
 
         try {
-            if ($req->hasFile('image')) {
-                $file = $req->file('image');
+            $updatedImages = [];
 
-                // Validate the file (e.g., check MIME type, size)
-                $validationRules = [
-                    'image' => 'required|image|mimes:jpeg,png|max:1048', // 2MB max file size
-                ];
+            $columnMappings = [
+                'image1' => 'dealer_city',
+                'image2' => 'dealer_address',
+            ];
 
-                $this->validate($req, $validationRules);
+            foreach ($columnMappings as $inputName => $dbColumn) {
+                if ($request->hasFile($inputName)) {
 
-                $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                    $file = $request->file($inputName);
 
-                // Store the file in a subdirectory within the storage directory
-                $filePath = $file->storeAs('post_img', $fileName, 'public');
+                    $validationRules = [
+                        $inputName => 'image|mimes:jpeg,png|max:4048',
+                    ];
+                    $this->validate($request, $validationRules);
+                    $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                    $filePath = $file->storeAs('post_img', $fileName, 'public');
 
-                // Save the file path in the database
-                $postObj->dealer_logo = $filePath;
+
+                    $updatedImages[$dbColumn] = $filePath;
+                }
+            }
+            if (!empty($updatedImages)) {
+                $dealer->create($updatedImages);
             }
 
-            if ($postObj->save()) {
-                return ['status' => true, 'message' => "Image uploaded successfully"];
-            } else {
-                throw new \Exception("Error: Image not uploaded successfully");
-            }
+            return response()->json(['status' => true, 'message' => "Images uploaded successfully"]);
         } catch (\Exception $e) {
-            return ['status' => false, 'message' => $e->getMessage()];
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
         }
     }
 }
