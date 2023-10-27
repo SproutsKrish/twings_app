@@ -436,3 +436,4 @@ Route::get('greeting', [LanguageController::class, 'index'])
     ->middleware('localization');
 
 Route::post('imgupload', [ImportController::class, 'imageUpload']);
+Route::post('imageRetrieve', [ImportController::class, 'imageRetrieve']);

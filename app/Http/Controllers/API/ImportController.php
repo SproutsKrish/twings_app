@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use Illuminate\Support\Facades\File;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\Admin;
 use Illuminate\Http\Request;
@@ -23,6 +24,7 @@ use App\Models\Point;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Models\Vehicle;
+use App\Models\VehicleDocument;
 
 class ImportController extends BaseController
 {
@@ -1015,40 +1017,75 @@ class ImportController extends BaseController
 
     public function imageUpload(Request $request)
     {
-        $dealer = new Dealer;
+        // $dealer = new Dealer;
 
+        $vehicle = VehicleDocument::where('vehicle_id', $request->input('vehicle_id'))->first();
 
         try {
             $updatedImages = [];
 
             $columnMappings = [
-                'image1' => 'dealer_city',
-                'image2' => 'dealer_address',
+                'image1' => 'insurance_front_image',
+                'image2' => 'insurance_back_image',
+                'image3' => 'fitness_front_image',
+                'image4' => 'fitness_back_image',
+                'image5' => 'tax_front_image',
+                'image6' => 'tax_back_image',
+                'image7' => 'permit_front_image',
+                'image8' => 'permit_back_image',
+                'image9' => 'rc_front_image',
+                'image10' => 'rc_back_image',
             ];
 
             foreach ($columnMappings as $inputName => $dbColumn) {
                 if ($request->hasFile($inputName)) {
-
                     $file = $request->file($inputName);
-
                     $validationRules = [
-                        $inputName => 'image|mimes:jpeg,png|max:4048',
+                        $inputName => 'image|mimes:jpeg,png|max:2048',
                     ];
                     $this->validate($request, $validationRules);
-                    $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                    $fileName = $request->input('vehicle_id') . '_' . $dbColumn . '_' . str_replace(' ', '_', $file->getClientOriginalName());
                     $filePath = $file->storeAs('post_img', $fileName, 'public');
-
-
                     $updatedImages[$dbColumn] = $filePath;
                 }
             }
             if (!empty($updatedImages)) {
-                $dealer->create($updatedImages);
+                $vehicle->update($updatedImages);
             }
 
             return response()->json(['status' => true, 'message' => "Images uploaded successfully"]);
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function imageRetrieve(Request $request)
+    {
+        $vehicle = VehicleDocument::where('vehicle_id', $request->input('vehicle_id'))->first();
+        $imageData = [];
+
+        // Define the columns in your database that hold image file paths
+        $imageColumns = [
+            'insurance_front_image',
+            'insurance_back_image',
+            'fitness_front_image',
+            // Add more columns as needed
+        ];
+
+        foreach ($imageColumns as $column) {
+            $imageUrl = storage_path('app/public/' . $vehicle[$column]);
+
+            if (File::exists($imageUrl)) {
+                $fileContents = File::get($imageUrl);
+                $base64 = base64_encode($fileContents);
+                $imageData[$column] = 'data:image/jpeg;base64,' . $base64;
+            }
+        }
+
+        if (!empty($imageData)) {
+            return response()->json(['success' => true, 'message' => $imageData]);
+        } else {
+            return response()->json(['message' => 'Images not found'], 404);
         }
     }
 }
