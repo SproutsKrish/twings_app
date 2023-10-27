@@ -284,16 +284,16 @@ class VehicleDocumentController extends BaseController
             $updatedImages = [];
 
             $columnMappings = [
-                'image1' => 'insurance_front_image',
-                'image2' => 'insurance_back_image',
-                'image3' => 'fitness_front_image',
-                'image4' => 'fitness_back_image',
-                'image5' => 'tax_front_image',
-                'image6' => 'tax_back_image',
-                'image7' => 'permit_front_image',
-                'image8' => 'permit_back_image',
-                'image9' => 'rc_front_image',
-                'image10' => 'rc_back_image',
+                'insurance_front_image' => 'insurance_front_image',
+                'insurance_back_image' => 'insurance_back_image',
+                'fitness_front_image' => 'fitness_front_image',
+                'fitness_back_image' => 'fitness_back_image',
+                'tax_front_image' => 'tax_front_image',
+                'tax_back_image' => 'tax_back_image',
+                'permit_front_image' => 'permit_front_image',
+                'permit_back_image' => 'permit_back_image',
+                'rc_front_image' => 'rc_front_image',
+                'rc_back_image' => 'rc_back_image',
             ];
 
             foreach ($columnMappings as $inputName => $dbColumn) {
