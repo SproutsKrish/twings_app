@@ -435,5 +435,5 @@ Route::post('due_vehicle_list', [VehicleController::class, 'due_vehicle_list']);
 Route::get('greeting', [LanguageController::class, 'index'])
     ->middleware('localization');
 
-Route::post('imgupload', [ImportController::class, 'imageUpload']);
-Route::post('imageRetrieve', [ImportController::class, 'imageRetrieve']);
+Route::post('vehicleimageUpload', [VehicleDocumentController::class, 'vehicleimageUpload']);
+Route::post('vehicleimageRetrieve', [VehicleDocumentController::class, 'vehicleimageRetrieve']);
