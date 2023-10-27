@@ -308,6 +308,17 @@ class VehicleDocumentController extends BaseController
                     $updatedImages[$dbColumn] = $filePath;
                 }
             }
+
+            $updatedImages['policy_no'] = $request->input('policy_no');
+            $updatedImages['insurance_company_name'] = $request->input('insurance_company_name');
+            $updatedImages['insurance_type'] = $request->input('insurance_type');
+            $updatedImages['insurance_start_date'] = $request->input('insurance_start_date');
+            $updatedImages['insurance_expiry_date'] = $request->input('insurance_expiry_date');
+            $updatedImages['fitness_certificate_expiry_date'] = $request->input('fitness_certificate_expiry_date');
+            $updatedImages['tax_expiry_date'] = $request->input('tax_expiry_date');
+            $updatedImages['permit_expiry_date'] = $request->input('permit_expiry_date');
+            $updatedImages['rc_expiry_date'] = $request->input('rc_expiry_date');
+
             if (!empty($updatedImages)) {
                 $vehicle->update($updatedImages);
             }
@@ -323,7 +334,6 @@ class VehicleDocumentController extends BaseController
         $vehicle = VehicleDocument::where('vehicle_id', $request->input('vehicle_id'))->first();
         $imageData = [];
 
-        // Define the columns in your database that hold image file paths
         $imageColumns = [
             'insurance_front_image',
             'insurance_back_image',
@@ -338,14 +348,32 @@ class VehicleDocumentController extends BaseController
         ];
 
         foreach ($imageColumns as $column) {
-            $imageUrl = storage_path('app/public/' . $vehicle[$column]);
+            $imagePath = $vehicle[$column];
 
-            if (File::exists($imageUrl)) {
-                $fileContents = File::get($imageUrl);
-                $base64 = base64_encode($fileContents);
-                $imageData[$column] = 'data:image/jpeg;base64,' . $base64;
+            if ($imagePath) {
+                $imageUrl = storage_path('app/public/' . $imagePath);
+                if (File::exists($imageUrl)) {
+                    $fileContents = File::get($imageUrl);
+                    $base64 = base64_encode($fileContents);
+                    $imageData[$column] = 'data:image/jpeg;base64,' . $base64;
+                } else {
+                    $imageData[$column] = '';
+                }
+            } else {
+                $imageData[$column] = '';
             }
         }
+
+        $imageData['policy_no'] = $vehicle->policy_no;
+        $imageData['insurance_company_name'] = $vehicle->insurance_company_name;
+        $imageData['insurance_type'] = $vehicle->insurance_type;
+        $imageData['insurance_start_date'] = $vehicle->insurance_start_date;
+        $imageData['insurance_expiry_date'] = $vehicle->insurance_expiry_date;
+        $imageData['fitness_certificate_expiry_date'] = $vehicle->fitness_certificate_expiry_date;
+        $imageData['tax_expiry_date'] = $vehicle->tax_expiry_date;
+        $imageData['permit_expiry_date'] = $vehicle->permit_expiry_date;
+        $imageData['rc_expiry_date'] = $vehicle->rc_expiry_date;
+        $imageData['vehicle_id'] = $vehicle->vehicle_id;
 
         if (!empty($imageData)) {
             return response()->json(['success' => true, 'message' => $imageData]);
