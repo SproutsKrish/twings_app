@@ -1069,7 +1069,13 @@ class ImportController extends BaseController
             'insurance_front_image',
             'insurance_back_image',
             'fitness_front_image',
-            // Add more columns as needed
+            'fitness_back_image',
+            'tax_front_image',
+            'tax_back_image',
+            'permit_front_image',
+            'permit_back_image',
+            'rc_front_image',
+            'rc_back_image',
         ];
 
         foreach ($imageColumns as $column) {
