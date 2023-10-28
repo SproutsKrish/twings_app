@@ -4,6 +4,7 @@ namespace App\Http\Controllers\VehicleSetting;
 
 use App\Http\Controllers\Controller;
 use App\Models\ShareLink;
+use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -11,44 +12,6 @@ use Illuminate\Support\Facades\Crypt;
 
 class ShareLinkController extends Controller
 {
-    public function current_link($id)
-    {
-        $client_id = auth()->user()->client_id;
-        $link_type = "current";
-
-        $data = DB::table('live_data')
-            ->select('lattitute', 'longitute')
-            ->where('deviceimei', $id)
-            ->first();
-
-        if (!$data) {
-            $response = ["success" => false, "message" => 'No Data Found', "status_code" => 404];
-            return response()->json($response, 404);
-        }
-
-        $latitude = $data->lattitute; // Replace with your actual latitude column name
-        $longitude = $data->longitute; // Replace with your actual longitude column name
-
-        $link = "https://www.google.com/maps?q={$latitude},{$longitude}";
-
-        $links = [
-            'client_id' => $client_id,
-            'link' => $link,
-            'link_type' => $link_type,
-        ];
-
-        try {
-            ShareLink::create($links);
-
-            $response = ["success" => true, "data" => $link, "status_code" => 200];
-            return response()->json($response, 200);
-        } catch (\Exception $e) {
-            // Handle the exception and log or print the error
-            $response = ["success" => false, "message" => 'Error saving link', "status_code" => 500];
-            return response()->json($response, 500);
-        }
-    }
-
 
     public function link_list()
     {
@@ -144,10 +107,23 @@ class ShareLinkController extends Controller
 
     public function share_link_save(Request $request)
     {
+        $encryptedData = "eyJpdiI6IjJWck02ZjNXWW1Rb2tySTZyOWZkY1E9PSIsInZhbHVlIjoiUWRNN1ltYWRpa1VPOVpHOHZBa3FMUT09IiwibWFjIjoiZmI1ZDhmMDk5NDEzNjM0ZjE3ZTMxZDQ5Nzc5MDNiYmUxMWI2ZDY0YWI3ZDI0MjVhMDVhM2Y0NDRkODEyMDc5OSIsInRhZyI6IiJ9";
+
+        try {
+            $decryptedData = Crypt::decryptString($encryptedData);
+            return $decryptedData;
+            // Use $decryptedData for further processing
+            // For example, you can store it in a variable, display it, or perform any necessary actions.
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            // Handle decryption error
+            // Log the error, redirect, or display a meaningful error message
+            return  "Decryption failed: " . $e->getMessage();
+        }
+
+
         $validator = Validator::make($request->all(), [
             'device_imei' => 'required|max:255',
             'expiry_date' => 'required|max:255',
-            'client_id' => 'required|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -155,10 +131,10 @@ class ShareLinkController extends Controller
             return response()->json($response, 404);
         }
 
+        $client_id = auth()->user()->client_id;
+        $client_db_name = 'client_' .  $client_id;
         $device_imei = $request->input('device_imei');
         $expiry_date = $request->input('expiry_date');
-        $client_id = $request->input('client_id');
-        $client_db_name = 'client_' .  $request->input('client_id');
 
         $shareLink = new ShareLink();
         $shareLink->client_id = $client_id;
@@ -170,7 +146,10 @@ class ShareLinkController extends Controller
 
         if ($share_Link) {
             $id_encrypt = Crypt::encryptString($shareLink->id);
-            $link = "https://api.gpstrak.in/api/share_link/" . $id_encrypt;
+
+            // $link = "https://gpsapp.in/share_link/" . $id_encrypt;
+            $link = "http://127.0.0.1:8000/share_link/" . $id_encrypt;
+
             DB::table('share_links')->where('id', $shareLink->id)->update(['link' => $link]);
             $response = ["success" => true, "message" => 'Link Created', "status_code" => 200];
             return response()->json($response, 200);
