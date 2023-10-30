@@ -37,6 +37,8 @@ class ExecutiveReportController extends Controller
         $endDay = $request->input('end_day');
         $duration = $request->input('report_type');
 
+        $executiveReports = "";
+
         if ($request->input('report_type') == 'all') {
             $executiveReports = DB::table('executive_reports')
                 ->select('report_date', DB::raw('SUM(parking_duration) as parking_duration'), DB::raw('SUM(idle_duration) as idle_duration'), DB::raw('SUM(moving_duration) as moving_duration'), DB::raw('SUM(distance) as distance'))
