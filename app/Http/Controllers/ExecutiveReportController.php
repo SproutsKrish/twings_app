@@ -33,11 +33,23 @@ class ExecutiveReportController extends Controller
 
     public function executive_summary(Request $request)
     {
-        $executiveReports = DB::table('executive_reports')
-            ->select('report_date', DB::raw('SUM(parking_duration) as parking_duration'), DB::raw('SUM(idle_duration) as idle_duration'), DB::raw('SUM(moving_duration) as moving_duration'), DB::raw('SUM(distance) as distance'))
-            ->whereBetween('report_date', [$request->input('start_day'), $request->input('end_day')])
-            ->groupBy('report_date')
-            ->get();
+        $startDay = $request->input('start_day');
+        $endDay = $request->input('end_day');
+        $duration = $request->input('report_type');
+
+        if ($request->input('report_type') == 'all') {
+            $executiveReports = DB::table('executive_reports')
+                ->select('report_date', DB::raw('SUM(parking_duration) as parking_duration'), DB::raw('SUM(idle_duration) as idle_duration'), DB::raw('SUM(moving_duration) as moving_duration'), DB::raw('SUM(distance) as distance'))
+                ->whereBetween('report_date', [$startDay, $endDay])
+                ->groupBy('report_date')
+                ->get();
+        } else {
+            $executiveReports = DB::table('executive_reports')
+                ->select('report_date', DB::raw("SUM($duration) as $duration"))
+                ->whereBetween('report_date', [$startDay, $endDay])
+                ->groupBy('report_date')
+                ->get();
+        }
 
         return response()->json(['success' => true, 'data' =>  $executiveReports]);
     }
