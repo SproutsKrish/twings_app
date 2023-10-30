@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ExecutiveReport;
-
+use Illuminate\Support\Facades\DB;
 
 class ExecutiveReportController extends Controller
 {
@@ -29,6 +29,17 @@ class ExecutiveReportController extends Controller
             //throw $th;
             return response($th, 500);
         }
+    }
+
+    public function executive_summary(Request $request)
+    {
+        $executiveReports = DB::table('executive_reports')
+            ->select('report_date', DB::raw('SUM(parking_duration) as parking_duration'), DB::raw('SUM(idle_duration) as idle_duration'), DB::raw('SUM(moving_duration) as moving_duration'), DB::raw('SUM(distance) as distance'))
+            ->whereBetween('report_date', [$request->input('start_day'), $request->input('end_day')])
+            ->groupBy('report_date')
+            ->get();
+
+        return response()->json(['success' => true, 'data' =>  $executiveReports]);
     }
 
     /**

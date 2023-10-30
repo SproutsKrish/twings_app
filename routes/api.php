@@ -247,6 +247,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         });
         Route::controller(ExecutiveReportController::class)->group(function () {
             Route::post('executive_report', 'index');
+            Route::post('executive_summary', 'executive_summary');
         });
 
         Route::controller(TemperatureReportController::class)->group(function () {
