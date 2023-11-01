@@ -107,20 +107,6 @@ class ShareLinkController extends Controller
 
     public function share_link_save(Request $request)
     {
-        $encryptedData = "eyJpdiI6IjJWck02ZjNXWW1Rb2tySTZyOWZkY1E9PSIsInZhbHVlIjoiUWRNN1ltYWRpa1VPOVpHOHZBa3FMUT09IiwibWFjIjoiZmI1ZDhmMDk5NDEzNjM0ZjE3ZTMxZDQ5Nzc5MDNiYmUxMWI2ZDY0YWI3ZDI0MjVhMDVhM2Y0NDRkODEyMDc5OSIsInRhZyI6IiJ9";
-
-        try {
-            $decryptedData = Crypt::decryptString($encryptedData);
-            return $decryptedData;
-            // Use $decryptedData for further processing
-            // For example, you can store it in a variable, display it, or perform any necessary actions.
-        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
-            // Handle decryption error
-            // Log the error, redirect, or display a meaningful error message
-            return  "Decryption failed: " . $e->getMessage();
-        }
-
-
         $validator = Validator::make($request->all(), [
             'device_imei' => 'required|max:255',
             'expiry_date' => 'required|max:255',
@@ -145,10 +131,13 @@ class ShareLinkController extends Controller
         $share_Link = $shareLink->save();
 
         if ($share_Link) {
-            $id_encrypt = Crypt::encryptString($shareLink->id);
-
+            // $id_encrypt = Crypt::encryptString($shareLink->id);
             // $link = "https://gpsapp.in/share_link/" . $id_encrypt;
-            $link = "http://127.0.0.1:8000/share_link/" . $id_encrypt;
+
+            $id_encrypt = $shareLink->id;
+            // $link = "http://127.0.0.1:8000/share_link/" . $id_encrypt;
+            $link = "https://gpsapp.in/share_link/" . $id_encrypt;
+
 
             DB::table('share_links')->where('id', $shareLink->id)->update(['link' => $link]);
             $response = ["success" => true, "message" => 'Link Created', "status_code" => 200];
