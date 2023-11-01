@@ -439,3 +439,5 @@ Route::get('greeting', [LanguageController::class, 'index'])
 
 Route::post('vehicleimageUpload', [VehicleDocumentController::class, 'vehicleimageUpload']);
 Route::post('vehicleimageRetrieve', [VehicleDocumentController::class, 'vehicleimageRetrieve']);
+
+Route::post('demo_alert', [ImportController::class, 'demo_alert']);

@@ -1014,5 +1014,29 @@ class ImportController extends BaseController
     //     }
     // }
 
+    public function demo_alert()
+    {
+        for ($i = 12501; $i <= 12950; $i++) {
 
+            ini_set('max_execution_time', 0);
+
+            $alert_types =  DB::table('alert_types')
+                ->where('status', '1')
+                ->select('id')
+                ->get();
+
+            $user =  User::where('client_id', $i)->first();
+
+            foreach ($alert_types as $alert_type) {
+                $userdata = array(
+                    'user_id' => $user->id,
+                    'client_id' => $i,
+                    'alert_type_id' => $alert_type->id,
+                    'user_status' => 0,
+                    'active_status' => 1,
+                );
+                DB::table('alert_notifications')->insert($userdata);
+            }
+        }
+    }
 }
