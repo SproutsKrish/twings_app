@@ -62,11 +62,19 @@ class ExecutiveReportController extends Controller
                 ->groupBy('report_date')
                 ->get();
         } else {
-            $executiveReports = DB::table('executive_reports')
-                ->select('report_date', DB::raw("SEC_TO_TIME(SUM($duration) * 60) as $duration"))
-                ->whereBetween('report_date', [$startDay, $endDay])
-                ->groupBy('report_date')
-                ->get();
+            if ($duration != "distance") {
+                $executiveReports = DB::table('executive_reports')
+                    ->select('report_date', DB::raw("SEC_TO_TIME(SUM($duration) * 60) as $duration"))
+                    ->whereBetween('report_date', [$startDay, $endDay])
+                    ->groupBy('report_date')
+                    ->get();
+            } else {
+                $executiveReports = DB::table('executive_reports')
+                    ->select('report_date', DB::raw("SUM($duration) as $duration"))
+                    ->whereBetween('report_date', [$startDay, $endDay])
+                    ->groupBy('report_date')
+                    ->get();
+            }
         }
 
         return response()->json(['success' => true, 'data' =>  $executiveReports]);
