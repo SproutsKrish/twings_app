@@ -37,17 +37,33 @@ class ExecutiveReportController extends Controller
         $endDay = $request->input('end_day');
         $duration = $request->input('report_type');
 
+        // $executiveReports = "";
+
+        // if ($request->input('report_type') == 'all') {
+        //     $executiveReports = DB::table('executive_reports')
+        //         ->select('report_date', DB::raw('SUM(parking_duration) as parking_duration'), DB::raw('SUM(idle_duration) as idle_duration'), DB::raw('SUM(moving_duration) as moving_duration'), DB::raw('SUM(distance) as distance'))
+        //         ->whereBetween('report_date', [$startDay, $endDay])
+        //         ->groupBy('report_date')
+        //         ->get();
+        // } else {
+        //     $executiveReports = DB::table('executive_reports')
+        //         ->select('report_date', DB::raw("SUM($duration) as $duration"))
+        //         ->whereBetween('report_date', [$startDay, $endDay])
+        //         ->groupBy('report_date')
+        //         ->get();
+        // }
+
         $executiveReports = "";
 
         if ($request->input('report_type') == 'all') {
             $executiveReports = DB::table('executive_reports')
-                ->select('report_date', DB::raw('SUM(parking_duration) as parking_duration'), DB::raw('SUM(idle_duration) as idle_duration'), DB::raw('SUM(moving_duration) as moving_duration'), DB::raw('SUM(distance) as distance'))
+                ->select('report_date', DB::raw('SEC_TO_TIME(SUM(parking_duration) * 60) as parking_duration'), DB::raw('SEC_TO_TIME(SUM(idle_duration) * 60) as idle_duration'), DB::raw('SEC_TO_TIME(SUM(moving_duration) * 60) as moving_duration'), DB::raw('SUM(distance) as distance'))
                 ->whereBetween('report_date', [$startDay, $endDay])
                 ->groupBy('report_date')
                 ->get();
         } else {
             $executiveReports = DB::table('executive_reports')
-                ->select('report_date', DB::raw("SUM($duration) as $duration"))
+                ->select('report_date', DB::raw("SEC_TO_TIME(SUM($duration) * 60) as $duration"))
                 ->whereBetween('report_date', [$startDay, $endDay])
                 ->groupBy('report_date')
                 ->get();
