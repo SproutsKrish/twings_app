@@ -15,10 +15,13 @@ class ShareLinkController extends Controller
 
     public function link_list()
     {
+        $client_id = auth()->user()->client_id;
+
         $sharelinks = DB::table('share_links as a')
-            ->select('a.id', 'b.vehicle_name', 'b.device_imei', 'a.link', 'a.expiry_date', 'a.created_at', DB::raw('(CASE WHEN a.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
+            ->select('a.id', 'b.vehicle_name', 'a.client_id',  'a.client_db_name',  'b.device_imei', 'a.expiry_date', 'a.link', 'a.created_at', DB::raw('(CASE WHEN a.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
             ->join('vehicles as b', 'a.device_imei', '=', 'b.device_imei')
-            ->where('a.deleted_at', null)
+            ->where('a.client_id', $client_id)
+            ->where('a.status', 1)
             ->get();
 
         if ($sharelinks->isEmpty()) {
@@ -30,13 +33,13 @@ class ShareLinkController extends Controller
         return response()->json($response, 200);
     }
 
-    public function link_show($device_imei)
+    public function link_show($id)
     {
         $sharelinks = DB::table('share_links as a')
-            ->select('a.id', 'b.vehicle_name', 'a.link', 'a.expiry_date', 'a.created_at', DB::raw('(CASE WHEN a.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
+            ->select('a.id', 'b.vehicle_name', 'a.client_id',  'a.client_db_name',  'b.device_imei', 'a.expiry_date', 'a.link', 'a.created_at', DB::raw('(CASE WHEN a.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
             ->join('vehicles as b', 'a.device_imei', '=', 'b.device_imei')
-            ->where('a.deleted_at', null)
-            ->where('a.device_imei', $device_imei)
+            ->where('a.id', $id)
+            ->where('a.status', 1)
             ->get();
 
         if ($sharelinks->isEmpty()) {
@@ -92,7 +95,9 @@ class ShareLinkController extends Controller
             $response = ["success" => false, "message" => 'Link Not Found', "status_code" => 404];
             return response()->json($response, 404);
         }
-
+        $link->status = 0;
+        $link->deleted_by = auth()->user()->id;
+        $link->update();
         if ($link->delete()) {
             $response = ["success" => true, "message" => 'Link Deleted', "status_code" => 200];
             return response()->json($response, 200);
@@ -101,7 +106,6 @@ class ShareLinkController extends Controller
             return response()->json($response, 404);
         }
     }
-
 
 
 
