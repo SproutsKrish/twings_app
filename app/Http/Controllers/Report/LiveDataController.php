@@ -98,10 +98,11 @@ class LiveDataController extends Controller
                 A.device_make_id,
                 A.device_model_id,
                 B.vehicle_id,
+                A.sim_mob_no,
                 K.package_name
 
             ')
-                ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
+                ->leftJoin('twings.vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
                 ->leftJoin('twings.vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
                 ->leftJoin('twings.configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
                 ->leftJoin('twings.licenses as I', 'I.vehicle_id', '=', 'A.id')
@@ -184,9 +185,10 @@ class LiveDataController extends Controller
                 A.device_make_id,
                 A.device_model_id,
                 B.vehicle_id,
+                A.sim_mob_no,
                 K.package_name
         ')
-                ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
+                ->leftJoin('twings.vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
                 ->leftJoin('twings.vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
                 ->leftJoin('twings.configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
                 ->leftJoin('twings.licenses as I', 'I.vehicle_id', '=', 'A.id')
@@ -325,9 +327,10 @@ class LiveDataController extends Controller
             A.device_make_id,
             A.device_model_id,
             B.vehicle_id,
+            A.sim_mob_no,
             K.package_name
         ')
-            ->leftJoin('vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
+            ->leftJoin('twings.vehicles as A', 'B.deviceimei', '=', 'A.device_imei')
             ->leftJoin('twings.vehicle_types as C', 'A.vehicle_type_id', '=', 'C.id')
             ->leftJoin('twings.configurations as D', 'B.vehicle_id', '=', 'D.vehicle_id')
             ->leftJoin('twings.licenses as I', 'I.vehicle_id', '=', 'A.id')
