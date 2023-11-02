@@ -1016,7 +1016,7 @@ class ImportController extends BaseController
 
     public function demo_alert()
     {
-        for ($i = 12501; $i <= 12950; $i++) {
+        for ($i = 12570; $i <= 12950; $i++) {
 
             ini_set('max_execution_time', 0);
 

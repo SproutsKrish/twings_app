@@ -13,8 +13,11 @@ class ShareLink extends Model
 
     protected $fillable = [
         'client_id',
-        'link',
-        'link_type',
+        'client_db_name',
+        'vehicle_id',
+        'device_imei',
         'expiry_date',
+        'link',
+        'status',
     ];
 }

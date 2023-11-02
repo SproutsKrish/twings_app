@@ -13,50 +13,12 @@ use Illuminate\Support\Facades\Crypt;
 class ShareLinkController extends Controller
 {
 
-    public function link_list()
-    {
-        $client_id = auth()->user()->client_id;
-
-        $sharelinks = DB::table('share_links as a')
-            ->select('a.id', 'b.vehicle_name', 'a.client_id',  'a.client_db_name',  'b.device_imei', 'a.expiry_date', 'a.link', 'a.created_at', DB::raw('(CASE WHEN a.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
-            ->join('vehicles as b', 'a.device_imei', '=', 'b.device_imei')
-            ->where('a.client_id', $client_id)
-            ->where('a.status', 1)
-            ->get();
-
-        if ($sharelinks->isEmpty()) {
-            $response = ["success" => false, "message" => 'No Shared Links Found', "status_code" => 404];
-            return response()->json($response, 404);
-        }
-
-        $response = ["success" => true, "data" => $sharelinks, "status_code" => 200];
-        return response()->json($response, 200);
-    }
-
-    public function link_show($id)
-    {
-        $sharelinks = DB::table('share_links as a')
-            ->select('a.id', 'b.vehicle_name', 'a.client_id',  'a.client_db_name',  'b.device_imei', 'a.expiry_date', 'a.link', 'a.created_at', DB::raw('(CASE WHEN a.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
-            ->join('vehicles as b', 'a.device_imei', '=', 'b.device_imei')
-            ->where('a.id', $id)
-            ->where('a.status', 1)
-            ->get();
-
-        if ($sharelinks->isEmpty()) {
-            $response = ["success" => false, "message" => 'No Shared Links Found', "status_code" => 404];
-            return response()->json($response, 404);
-        }
-
-        $response = ["success" => true, "data" => $sharelinks, "status_code" => 200];
-        return response()->json($response, 200);
-    }
-
     public function link_save(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'device_imei' => 'required|max:255',
-            'expiry_date' => 'required|max:255',
-            'client_id' => 'required|max:255',
+            'device_imei' => 'required',
+            'vehicle_id' => 'required',
+            'expiry_date' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -64,21 +26,31 @@ class ShareLinkController extends Controller
             return response()->json($response, 404);
         }
 
+        $client_id = auth()->user()->client_id;
+        $client_db_name = 'client_' .  $client_id;
         $device_imei = $request->input('device_imei');
-        $client_id = $request->input('client_id');
+        $vehicle_id = $request->input('vehicle_id');
         $expiry_date = $request->input('expiry_date');
-        $link = "https://www.google.com/maps/@28.6068425,77.2964826,14z?entry=ttu";
 
         $shareLink = new ShareLink();
+        $shareLink->client_id = $client_id;
+        $shareLink->client_db_name = $client_db_name;
+        $shareLink->vehicle_id = $vehicle_id;
         $shareLink->device_imei = $device_imei;
         $shareLink->expiry_date = $expiry_date;
-        $shareLink->client_id = $client_id;
-        $shareLink->link_type = "Duration";
+        $shareLink->created_by = auth()->user()->id;
+        $share_Link = $shareLink->save();
 
-        $shareLink->link = $link;
-        $shareLink->save();
+        if ($share_Link) {
+            // $id_encrypt = Crypt::encryptString($shareLink->id);
+            // $link = "http://127.0.0.1:8000/share_link/" . $id_encrypt;
 
-        if ($shareLink->save()) {
+            $id_encrypt = $shareLink->id;
+            $link = "https://gpsapp.in/share_link/" . $id_encrypt;
+
+            $shareLink->link = $link;
+            $shareLink->update();
+
             $response = ["success" => true, "message" => 'Link Created', "status_code" => 200];
             return response()->json($response, 200);
         } else {
@@ -86,8 +58,53 @@ class ShareLinkController extends Controller
             return response()->json($response, 404);
         }
     }
+    public function link_list(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'vehicle_id' => 'required',
+        ]);
 
-    public function destroy($id)
+        if ($validator->fails()) {
+            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 404];
+            return response()->json($response, 404);
+        }
+
+        $client_id  = auth()->user()->client_id;
+        $vehicle_id = $request->input('vehicle_id');
+
+        $sharelinks = ShareLink::join('vehicles as a', 'a.id', '=', 'share_links.vehicle_id')
+            ->select('share_links.id', 'share_links.client_id', 'share_links.client_db_name', 'share_links.vehicle_id', 'a.vehicle_name', 'a.device_imei', 'share_links.expiry_date', 'share_links.link', 'share_links.created_at', DB::raw('(CASE WHEN share_links.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
+            ->where('share_links.client_id', $client_id)
+            ->where('share_links.vehicle_id', $vehicle_id)
+            ->where('share_links.status', 1)
+            ->get();
+
+        if ($sharelinks->isEmpty()) {
+            $response = ["success" => false, "message" => 'No Shared Links Found', "status_code" => 404];
+            return response()->json($response, 404);
+        }
+
+        $response = ["success" => true, "data" => $sharelinks, "status_code" => 200];
+        return response()->json($response, 200);
+    }
+    public function link_show($id)
+    {
+        $sharelinks = ShareLink::join('vehicles as a', 'a.id', '=', 'share_links.vehicle_id')
+            ->select('share_links.id', 'share_links.client_id', 'share_links.client_db_name', 'share_links.vehicle_id', 'a.vehicle_name', 'a.device_imei', 'share_links.expiry_date', 'share_links.link', 'share_links.created_at', DB::raw('(CASE WHEN share_links.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
+            ->where('share_links.id', $id)
+            ->where('share_links.status', 1)
+            ->first();
+
+        if ($sharelinks === null) {
+            $response = ["success" => false, "message" => 'No Shared Links Found', "status_code" => 404];
+            return response()->json($response, 404);
+        }
+
+
+        $response = ["success" => true, "data" => $sharelinks, "status_code" => 200];
+        return response()->json($response, 200);
+    }
+    public function link_delete($id)
     {
         $link = ShareLink::find($id);
 
@@ -112,8 +129,9 @@ class ShareLinkController extends Controller
     public function share_link_save(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'device_imei' => 'required|max:255',
-            'expiry_date' => 'required|max:255',
+            'device_imei' => 'required',
+            'vehicle_id' => 'required',
+            'expiry_date' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -124,11 +142,13 @@ class ShareLinkController extends Controller
         $client_id = auth()->user()->client_id;
         $client_db_name = 'client_' .  $client_id;
         $device_imei = $request->input('device_imei');
+        $vehicle_id = $request->input('vehicle_id');
         $expiry_date = $request->input('expiry_date');
 
         $shareLink = new ShareLink();
         $shareLink->client_id = $client_id;
         $shareLink->client_db_name = $client_db_name;
+        $shareLink->vehicle_id = $vehicle_id;
         $shareLink->device_imei = $device_imei;
         $shareLink->expiry_date = $expiry_date;
         $shareLink->created_by = auth()->user()->id;
@@ -136,14 +156,14 @@ class ShareLinkController extends Controller
 
         if ($share_Link) {
             // $id_encrypt = Crypt::encryptString($shareLink->id);
-            // $link = "https://gpsapp.in/share_link/" . $id_encrypt;
+            // $link = "http://127.0.0.1:8000/share_link/" . $id_encrypt;
 
             $id_encrypt = $shareLink->id;
-            // $link = "http://127.0.0.1:8000/share_link/" . $id_encrypt;
             $link = "https://gpsapp.in/share_link/" . $id_encrypt;
 
+            $shareLink->link = $link;
+            $shareLink->update();
 
-            DB::table('share_links')->where('id', $shareLink->id)->update(['link' => $link]);
             $response = ["success" => true, "message" => 'Link Created', "status_code" => 200];
             return response()->json($response, 200);
         } else {
@@ -151,14 +171,25 @@ class ShareLinkController extends Controller
             return response()->json($response, 404);
         }
     }
-
-    public function share_link_list($client_id)
+    public function share_link_list(Request $request)
     {
-        $sharelinks = DB::table('share_links as a')
-            ->select('a.id', 'b.vehicle_name', 'a.client_id',  'a.client_db_name',  'b.device_imei', 'a.expiry_date', 'a.link', 'a.created_at', DB::raw('(CASE WHEN a.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
-            ->join('vehicles as b', 'a.device_imei', '=', 'b.device_imei')
-            ->where('a.client_id', $client_id)
-            ->where('a.status', 1)
+        $validator = Validator::make($request->all(), [
+            'vehicle_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $response = ["success" => false, "message" => $validator->errors(), "status_code" => 404];
+            return response()->json($response, 404);
+        }
+
+        $client_id  = auth()->user()->client_id;
+        $vehicle_id = $request->input('vehicle_id');
+
+        $sharelinks = ShareLink::join('vehicles as a', 'a.id', '=', 'share_links.vehicle_id')
+            ->select('share_links.id', 'share_links.client_id', 'share_links.client_db_name', 'share_links.vehicle_id', 'a.vehicle_name', 'a.device_imei', 'share_links.expiry_date', 'share_links.link', 'share_links.created_at', DB::raw('(CASE WHEN share_links.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
+            ->where('share_links.client_id', $client_id)
+            ->where('share_links.vehicle_id', $vehicle_id)
+            ->where('share_links.status', 1)
             ->get();
 
         if ($sharelinks->isEmpty()) {
@@ -169,25 +200,23 @@ class ShareLinkController extends Controller
         $response = ["success" => true, "data" => $sharelinks, "status_code" => 200];
         return response()->json($response, 200);
     }
-
     public function share_link_show($id)
     {
-        $sharelinks = DB::table('share_links as a')
-            ->select('a.id', 'b.vehicle_name', 'a.client_id',  'a.client_db_name',  'b.device_imei', 'a.expiry_date', 'a.link', 'a.created_at', DB::raw('(CASE WHEN a.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
-            ->join('vehicles as b', 'a.device_imei', '=', 'b.device_imei')
-            ->where('a.id', $id)
-            ->where('a.status', 1)
-            ->get();
+        $sharelinks = ShareLink::join('vehicles as a', 'a.id', '=', 'share_links.vehicle_id')
+            ->select('share_links.id', 'share_links.client_id', 'share_links.client_db_name', 'share_links.vehicle_id', 'a.vehicle_name', 'a.device_imei', 'share_links.expiry_date', 'share_links.link', 'share_links.created_at', DB::raw('(CASE WHEN share_links.expiry_date > NOW() THEN "live" ELSE "expired" END) as status'))
+            ->where('share_links.id', $id)
+            ->where('share_links.status', 1)
+            ->first();
 
-        if ($sharelinks->isEmpty()) {
+        if ($sharelinks === null) {
             $response = ["success" => false, "message" => 'No Shared Links Found', "status_code" => 404];
             return response()->json($response, 404);
         }
 
+
         $response = ["success" => true, "data" => $sharelinks, "status_code" => 200];
         return response()->json($response, 200);
     }
-
     public function share_link_delete($id)
     {
         $link = ShareLink::find($id);

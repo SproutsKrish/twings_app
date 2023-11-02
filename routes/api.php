@@ -200,15 +200,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
 
-    Route::get('live_link', [ShareLinkController::class, 'live_link']);
-    Route::get('link_list', [ShareLinkController::class, 'link_list']);
-    Route::get('link_show/{id}', [ShareLinkController::class, 'link_show']);
-    Route::post('link_save', [ShareLinkController::class, 'link_save']);
-    Route::delete('delete_link/{id}', [ShareLinkController::class, 'destroy']);
 
 
     Route::controller(ShareLinkController::class)->group(function () {
-        Route::get('share_link_list/{client_id}', 'share_link_list');
+        Route::post('link_list', 'link_list');
+        Route::post('link_save', 'link_save');
+        Route::get('link_show/{id}', 'link_show');
+        Route::delete('link_delete/{id}', 'link_delete');
+
+        Route::post('share_link_list', 'share_link_list');
         Route::post('share_link_save', 'share_link_save');
         Route::get('share_link_show/{id}', 'share_link_show');
         Route::delete('share_link_delete/{id}', 'share_link_delete');
