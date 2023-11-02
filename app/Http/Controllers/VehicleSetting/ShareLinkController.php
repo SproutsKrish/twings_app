@@ -164,7 +164,7 @@ class ShareLinkController extends Controller
             $shareLink->link = $link;
             $shareLink->update();
 
-            $response = ["success" => true, "message" => 'Link Created', "status_code" => 200];
+            $response = ["success" => true, "message" => 'Link Created', "data" =>  $shareLink, "status_code" => 200];
             return response()->json($response, 200);
         } else {
             $response = ["success" => false, "message" => 'Failed to Create Link', "status_code" => 404];
