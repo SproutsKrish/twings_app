@@ -107,8 +107,10 @@ Route::controller(LiveDataController::class)->group(function () {
 });
 
 
+Route::post('admin_import', [ImportController::class, 'admin_import']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('date_import', [ImportController::class, 'date_import']);
 
     Route::post('admin_import', [ImportController::class, 'admin_import']);
     Route::post('distributor_import', [ImportController::class, 'distributor_import']);

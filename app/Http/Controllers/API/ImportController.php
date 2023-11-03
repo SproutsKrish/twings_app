@@ -698,6 +698,85 @@ class ImportController extends BaseController
     }
 
 
+    public function date_import(Request $request)
+    {
+        dd("ss");
+        $file_path = $request->input('file_path');
+
+        if (!$file_path) {
+            return $this->sendError("No File Path Provided");
+        }
+
+        $validator = Validator::make($request->all(), ['file_path' => 'required']);
+
+        if ($validator->fails()) {
+            return $this->sendError("Invalid File Format");
+        }
+
+        try {
+            $path = $file_path;
+            $data = array_map('str_getcsv', file($path));
+
+            // DB::beginTransaction();
+
+            foreach ($data as $row) {
+                ini_set('max_execution_time', 0);
+
+                $rowValidator = Validator::make($row, [
+                    0 => 'required',
+                    1 => 'required',
+                    2 => 'required',
+                    3 => 'required',
+                    4 => 'required',
+                    5 => 'required',
+                ]);
+
+                if ($rowValidator->fails()) {
+                    return $this->sendError($rowValidator->errors());
+                }
+
+                $vehicle = Vehicle::where('device_id', $row[0])->first();
+                $vehicle->installation_date = $row[1];
+                $vehicle->expire_date = $row[2];
+                $vehicle->extend_date = $row[3];
+                $vehicle->vehicle_expire_date = $row[4];
+                $vehicle->vehicle_extend_date = $row[5];
+                $result = $vehicle->save();
+
+                if ($result) {
+                    $result = CustomerConfiguration::where('client_id', $vehicle->client_id)
+                        ->first();
+
+                    $connectionName = $result->db_name;
+                    $connectionConfig = [
+                        'driver' => 'mysql',
+                        'host' => env('DB_HOST'), // Use the environment variable for host
+                        'port' => env('DB_PORT'), // Use the environment variable for port
+                        'database' => $result->db_name,    // Change this to the actual database name
+                        'username' => env('DB_USERNAME'), // Use the environment variable for username
+                        'password' => env('DB_PASSWORD'), // Use the environment variable for password
+                    ];
+
+                    Config::set("database.connections.$connectionName", $connectionConfig);
+
+                    DB::purge($connectionName);
+
+                    DB::connection($connectionName)->table('vehicles')->where('device_id', $row[0])->update(['installation_date' => $row[1], 'expire_date' => $row[2], 'extend_date' => $row[3], 'vehicle_expire_date' => $row[4], 'vehicle_extend_date' => $row[5]]);
+
+                    DB::disconnect($connectionName);
+
+                    DB::table('ref_tab')->insert(['id' => $vehicle->id]);
+                }
+            }
+
+            return $this->sendSuccess('Vehicle Date Imported Successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->sendError('An error occurred during CSV import: ' . $e->getMessage());
+        }
+    }
+
+
     public function vehicle_import(Request $request)
     {
         $file_path = $request->input('file_path');

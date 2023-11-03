@@ -162,6 +162,9 @@ class ConfigurationController extends BaseController
         }
 
         if ($vehicle->update($request->all())) {
+
+            DB::table('twings.vehicles')->where('id', $vehicle->id)->update($request->all());
+
             $response = ["success" => false, "message" => "Safe Parking Successfully", "status_code" => 200];
             return response()->json($response, 200);
         } else {
