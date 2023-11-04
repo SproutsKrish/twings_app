@@ -21,6 +21,8 @@ class Vehicle extends Model
         'device_id',
         'device_make_id',
         'device_model_id',
+        'device_type_id',
+
         'device_imei',
         'sim_id',
         'sim_mob_no',

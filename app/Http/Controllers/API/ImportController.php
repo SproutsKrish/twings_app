@@ -700,7 +700,6 @@ class ImportController extends BaseController
 
     public function date_import(Request $request)
     {
-        dd("ss");
         $file_path = $request->input('file_path');
 
         if (!$file_path) {

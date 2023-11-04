@@ -16,13 +16,13 @@ use Carbon\Carbon;
 class LiveDataController extends Controller
 {
 
-    public function demo_time()
-    {
-        $endDate = date('Y-m-d H:i:s', strtotime('330 minutes'));
-        $carbonDatetime = Carbon::parse($endDate);
-        $startDate = $carbonDatetime->toDateString() . " 00:00:00";
-        // dd("S-" . $startDate . "__" . "E-" . $endDate);
-    }
+    // public function demo_time()
+    // {
+    //     $endDate = date('Y-m-d H:i:s', strtotime('330 minutes'));
+    //     $carbonDatetime = Carbon::parse($endDate);
+    //     $startDate = $carbonDatetime->toDateString() . " 00:00:00";
+    //     // dd("S-" . $startDate . "__" . "E-" . $endDate);
+    // }
 
     public function multi_dashboard(Request $request)
     {
@@ -72,13 +72,13 @@ class LiveDataController extends Controller
                 B.longitute,
                 B.ignition,
                 B.ac_status,
-                B.speed,
+                ROUND(B.speed, 0) AS speed,
                 B.angle,
                 B.odometer,
                 DATE_ADD(B.device_updatedtime, INTERVAL 330 MINUTE) as device_updatedtime,
                 B.temperature,
-                B.device_battery_volt,
-                B.vehicle_battery_volt,
+                ROUND(B.device_battery_volt, 0) AS device_battery_volt,
+                ROUND(B.vehicle_battery_volt, 0) AS vehicle_battery_volt,
                 B.battery_percentage,
                 B.door_status,
                 B.power_status,
@@ -159,13 +159,13 @@ class LiveDataController extends Controller
                 B.longitute,
                 B.ignition,
                 B.ac_status,
-                B.speed,
+                ROUND(B.speed, 0) AS speed,
                 B.angle,
                 B.odometer,
                 DATE_ADD(B.device_updatedtime, INTERVAL 330 MINUTE) as device_updatedtime,
                 B.temperature,
-                B.device_battery_volt,
-                B.vehicle_battery_volt,
+                ROUND(B.device_battery_volt, 0) AS device_battery_volt,
+                ROUND(B.vehicle_battery_volt, 0) AS vehicle_battery_volt,
                 B.battery_percentage,
                 B.door_status,
                 B.power_status,
@@ -209,51 +209,6 @@ class LiveDataController extends Controller
             return response($response, 200);
         }
     }
-
-    // public function today_distance()
-    // {
-    //     $getLatlngs = array(
-    //         ["lat_message" => 10.999823, "lon_message" => 76.949936],
-    //         ["lat_message" => 10.992606, "lon_message" => 76.951486]
-    //     );
-    //     $todaykm = $this->GetDistance($getLatlngs);
-    //     echo $todaykm;
-    // }
-
-    // function GetDistance($lanlngs)
-    // {
-    //     $totalDistance = 0;
-    //     $prevLat = null;
-    //     $prevLon = null;
-    //     foreach ($lanlngs as $coord) {
-    //         $lat = $coord["lat_message"];
-    //         $lon = $coord["lon_message"];
-
-    //         if ($prevLat !== null && $prevLon !== null) {
-    //             $totalDistance += $this->haversineDistance($prevLat, $prevLon, $lat, $lon);
-    //         }
-
-    //         $prevLat = $lat;
-    //         $prevLon = $lon;
-    //     }
-    //     return round($totalDistance, 2);
-    // }
-
-    // private function haversineDistance($lat1, $lon1, $lat2, $lon2)
-    // {
-    //     $earthRadius = 6371; // Earth's radius in kilometers
-    //     $latd1 = deg2rad($lat1);
-    //     $lond1 = deg2rad($lon1);
-    //     $latd2 = deg2rad($lat2);
-    //     $lond2 = deg2rad($lon2);
-    //     // Haversine formula
-    //     $deltaLat = $latd2 - $latd1;
-    //     $deltaLon = $lond2 - $lond1;
-    //     $a = sin($deltaLat / 2) * sin($deltaLat / 2) + cos($latd1) * cos($latd2) * sin($deltaLon / 2) * sin($deltaLon / 2);
-    //     $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-    //     return $earthRadius * $c;
-    // }
-
 
     public function single_dashboard($device_imei)
     {
@@ -301,13 +256,13 @@ class LiveDataController extends Controller
             B.longitute,
             B.ignition,
             B.ac_status,
-            B.speed,
+            ROUND(B.speed, 0) AS speed,
             B.angle,
             B.odometer,
             DATE_ADD(B.device_updatedtime, INTERVAL 330 MINUTE) as device_updatedtime,
             B.temperature,
-            B.device_battery_volt,
-            B.vehicle_battery_volt,
+            ROUND(B.device_battery_volt, 0) AS device_battery_volt,
+            ROUND(B.vehicle_battery_volt, 0) AS vehicle_battery_volt,
             B.battery_percentage,
             B.door_status,
             B.power_status,
@@ -354,78 +309,58 @@ class LiveDataController extends Controller
 
     public function vehicle_count()
     {
-        //expiry date
-        $expiry_datas = DB::table('live_data as a')
-            ->join('vehicles as b', 'a.deviceimei', '=', 'b.device_imei')
-            ->whereBetween('b.expire_date', [DB::raw('CURDATE()'), DB::raw('DATE_ADD(CURDATE(), INTERVAL 15 DAY)')])
-            ->select("a.id")
+        $expiry_datas = Vehicle::whereBetween('vehicle_expire_date', [DB::raw('CURDATE()'), DB::raw('DATE_ADD(CURDATE(), INTERVAL 15 DAY)')])
+            ->select("id")
             ->get();
 
         foreach ($expiry_datas as $expiry_data) {
-            // print_r($live_data);
-            DB::table('live_data')
-                ->where('id', $expiry_data->id)
+            LiveData::where('vehicle_id', $expiry_data->id)
                 ->update(['expiry_status' => 1]);
         }
 
-        $expired_datas = DB::table('live_data as a')
-            ->join('vehicles as b', 'a.deviceimei', '=', 'b.device_imei')
-            ->where('b.expire_date', '<', DB::raw('CURDATE()'))
-            ->select("a.id")
+        $expired_datas = Vehicle::where('vehicle_expire_date', '<', DB::raw('CURDATE()'))
+            ->select("id")
             ->get();
 
+
         foreach ($expired_datas as $expired_data) {
-            // print_r($live_data);
-            DB::table('live_data')
-                ->where('id', $expired_data->id)
-                ->update(['vehicle_current_status' => 6]);
+            LiveData::where('vehicle_id', $expired_data->id)
+                ->update(['expiry_status' => 2]);
         }
 
-        $total_vehicles = DB::table('vehicles')
-            ->where('status', 1)
-            ->count();
+        $total_vehicles = LiveData::where('vehicle_status', 1)->count();
 
-        $parking = DB::table('live_data')
-            ->where('ignition', 0)
+        $parking = LiveData::where('ignition', 0)
             ->where('device_updatedtime', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
             ->where('vehicle_status', 1)
             ->count();
 
-        $idle = DB::table('live_data')
-            ->where('ignition', 1)
+        $idle = LiveData::where('ignition', 1)
             ->where('speed', 0)
             ->where('device_updatedtime', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
             ->where('vehicle_status', 1)
             ->count();
 
-        $moving = DB::table('live_data')
-            ->where('ignition', 1)
+        $moving = LiveData::where('ignition', 1)
             ->where('speed', '>', 0)
             ->where('device_updatedtime', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
             ->where('vehicle_status', 1)
             ->count();
 
-        $no_data = DB::table('live_data')
-            ->where('device_updatedtime', '=', null)
+        $no_data = LiveData::where('device_updatedtime', '=', null)
             ->where('vehicle_status', 1)
             ->count();
 
-        $inactive = DB::table('live_data')
-            ->where('device_updatedtime', '<', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
+        $inactive = LiveData::where('device_updatedtime', '<', DB::raw('DATE_SUB(NOW(), INTERVAL 10 MINUTE)'))
             ->where('vehicle_status', 1)
             ->count();
 
-        // dd($parking);
-        // dd($idle);
-        // dd($moving);
-        // dd($inactive);
-
-        $expired_vehicles = Vehicle::where('expire_date', '<', now())
+        $expiry_vehicles = Vehicle::whereBetween('vehicle_expire_date', [DB::raw('CURDATE()'), DB::raw('DATE_ADD(CURDATE(), INTERVAL 15 DAY)')])
             ->where('status', 1)
             ->count();
 
-        $expiry_vehicles = Vehicle::whereBetween('expire_date', [DB::raw('CURDATE()'), DB::raw('DATE_ADD(CURDATE(), INTERVAL 15 DAY)')])
-            ->where('status', 1)
+        $expired_vehicles = Vehicle::where('vehicle_expire_date', '<', now())
+            ->where('status', 2)
             ->count();
 
         $vehicle_count = array(
@@ -447,6 +382,8 @@ class LiveDataController extends Controller
         $response = ["success" => true, "data" => $vehicle_count, "status_code" => 200];
         return response()->json($response, 200);
     }
+
+
 
     public function role_based_vehicle_count(Request $request)
     {
@@ -547,7 +484,6 @@ class LiveDataController extends Controller
         $response = ["success" => true, "data" => $vehicle_count, "status_code" => 200];
         return response()->json($response, 200);
     }
-
 
     public function client_multi_dashboard(Request $request)
     {
@@ -901,30 +837,30 @@ class LiveDataController extends Controller
         return response()->json($response, 200);
     }
 
-    public function detect_vehicle_status()
-    {
-        $live_data = LiveData::where('vehicle_status', 1)->selectRaw(
-            'vehicle_id,
-            deviceimei,
-            vehicle_name,
-            CASE
-                    WHEN ignition = 0 AND device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 1
-                    WHEN ignition = 1 AND speed = 0 AND device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 2
-                    WHEN ignition = 1 AND speed > 1 AND device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 3
-                    WHEN device_updatedtime IS NULL THEN 4
-                    WHEN device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 5
-                ELSE NULL
-                END AS vehicle_current_status,
-            CASE
-                    WHEN ignition = 0 AND device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "Parking"
-                    WHEN ignition = 1 AND speed = 0 AND device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "Idle"
-                    WHEN ignition = 1 AND speed > 1 AND device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "Moving"
-                    WHEN device_updatedtime IS NULL THEN "No Data"
-                    WHEN device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "InActive"
-                ELSE NULL
-                END AS current_status',
-        )->get();
+    // public function detect_vehicle_status()
+    // {
+    //     $live_data = LiveData::where('vehicle_status', 1)->selectRaw(
+    //         'vehicle_id,
+    //         deviceimei,
+    //         vehicle_name,
+    //         CASE
+    //                 WHEN ignition = 0 AND device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 1
+    //                 WHEN ignition = 1 AND speed = 0 AND device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 2
+    //                 WHEN ignition = 1 AND speed > 1 AND device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 3
+    //                 WHEN device_updatedtime IS NULL THEN 4
+    //                 WHEN device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 5
+    //             ELSE NULL
+    //             END AS vehicle_current_status,
+    //         CASE
+    //                 WHEN ignition = 0 AND device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "Parking"
+    //                 WHEN ignition = 1 AND speed = 0 AND device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "Idle"
+    //                 WHEN ignition = 1 AND speed > 1 AND device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "Moving"
+    //                 WHEN device_updatedtime IS NULL THEN "No Data"
+    //                 WHEN device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "InActive"
+    //             ELSE NULL
+    //             END AS current_status',
+    //     )->get();
 
-        return response()->json(['success' => true, 'data' => $live_data]);
-    }
+    //     return response()->json(['success' => true, 'data' => $live_data]);
+    // }
 }

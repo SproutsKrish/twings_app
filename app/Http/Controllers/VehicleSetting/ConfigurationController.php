@@ -217,6 +217,9 @@ class ConfigurationController extends BaseController
             $res = ImmoblizerData::create($data);
 
             if ($res) {
+                $vehicle->immobilizer_option = $request->input('immobilizer_option');
+                $vehicle->save();
+                DB::table('twings.vehicles')->where('id', $vehicle->id)->update(['immobilizer_option' => $request->input('immobilizer_option')]);
                 $response = ["success" => true, "message" => 'Engine Status Updated Successfully', "status_code" => 200];
                 return response()->json($response, 200);
             } else {

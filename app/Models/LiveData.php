@@ -35,6 +35,7 @@ class LiveData extends Model
         'gpssignal',
         'gsm_status',
         'rpm_value',
+        'device_type_id',
         'sec_engine_status',
     ];
 }

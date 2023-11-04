@@ -223,7 +223,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('multi_dashboard', 'multi_dashboard');
             Route::get('single_dashboard/{id}', 'single_dashboard');
             Route::get('vehicle_count', 'vehicle_count');
-            Route::post('detect_vehicle_status', 'detect_vehicle_status');
         });
 
         Route::controller(IdleReportController::class)->group(function () {
