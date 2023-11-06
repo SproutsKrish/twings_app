@@ -331,7 +331,10 @@ class VehicleDocumentController extends BaseController
 
     public function vehicleimageRetrieve(Request $request)
     {
+
         $vehicle = VehicleDocument::where('vehicle_id', $request->input('vehicle_id'))->first();
+
+
         $imageData = [];
 
         $imageColumns = [
@@ -347,20 +350,35 @@ class VehicleDocumentController extends BaseController
             'rc_back_image'
         ];
 
+        // foreach ($imageColumns as $column) {
+        //     $imagePath = $vehicle[$column];
+
+        //     if ($imagePath) {
+        //         $imageUrl = storage_path('app/public/' . $imagePath);
+        //         if (File::exists($imageUrl)) {
+        //             $fileContents = File::get($imageUrl);
+        //             $base64 = base64_encode($fileContents);
+        //             $imageData[$column] = 'data:image/jpeg;base64,' . $base64;
+        //         } else {
+        //             $imageData[$column] = '';
+        //         }
+        //     } else {
+        //         $imageData[$column] = '';
+        //     }
+        // }
+
         foreach ($imageColumns as $column) {
             $imagePath = $vehicle[$column];
 
             if ($imagePath) {
                 $imageUrl = storage_path('app/public/' . $imagePath);
                 if (File::exists($imageUrl)) {
-                    $fileContents = File::get($imageUrl);
-                    $base64 = base64_encode($fileContents);
-                    $imageData[$column] = 'data:image/jpeg;base64,' . $base64;
+                    $imageData[$column] = $imageUrl; // Assign the URL path to the image data
                 } else {
-                    $imageData[$column] = '';
+                    $imageData[$column] = ''; // Image doesn't exist, so set it to an empty string
                 }
             } else {
-                $imageData[$column] = '';
+                $imageData[$column] = ''; // No image path provided, set it to an empty string
             }
         }
 
