@@ -371,12 +371,8 @@ class VehicleDocumentController extends BaseController
             $imagePath = $vehicle[$column];
 
             if ($imagePath) {
-                $imageUrl = storage_path('app/public/' . $imagePath);
-                if (File::exists($imageUrl)) {
-                    $imageData[$column] = $imageUrl; // Assign the URL path to the image data
-                } else {
-                    $imageData[$column] = ''; // Image doesn't exist, so set it to an empty string
-                }
+                $imageUrl = asset('storage/' . $imagePath);
+                $imageData[$column] = $imageUrl; // Assign the URL path to the image data
             } else {
                 $imageData[$column] = ''; // No image path provided, set it to an empty string
             }
