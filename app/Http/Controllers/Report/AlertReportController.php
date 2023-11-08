@@ -13,6 +13,11 @@ class AlertReportController extends Controller
     {
         $user = User::find($request->input('user_id'))->first();
 
+        if (!$user) {
+            $response = ["success" => false, "message" => "No User Found", "status_code" => 404];
+            return response()->json($response, 404);
+        }
+
         $results = DB::table('twings.live_notifications as a')
             ->join('twings.alert_types as b', 'a.alert_type_id', '=', 'b.id')
             ->join('twings.vehicles as c', 'a.device_imei', '=', 'c.device_imei')
@@ -31,6 +36,11 @@ class AlertReportController extends Controller
     public function device_alert(Request $request)
     {
         $user = User::find($request->input('user_id'))->first();
+
+        if (!$user) {
+            $response = ["success" => false, "message" => "No User Found", "status_code" => 404];
+            return response()->json($response, 404);
+        }
 
         $device_imei = $request->input('device_imei');
 

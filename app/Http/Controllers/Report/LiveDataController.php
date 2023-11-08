@@ -50,19 +50,19 @@ class LiveDataController extends Controller
                 A.safe_parking,
                 A.immobilizer_option,
                 CASE
-                    WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN 1
-                    WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN 2
-                    WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN 3
+                    WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 1
+                    WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 2
+                    WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 3
                     WHEN B.device_updatedtime IS NULL THEN 4
-                    WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN 5
+                    WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 5
                 ELSE NULL
                 END AS vehicle_current_status,
                 CASE
-                    WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN "Parking"
-                    WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN "Idle"
-                    WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN "Moving"
+                    WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "Parking"
+                    WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "Idle"
+                    WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "Moving"
                     WHEN B.device_updatedtime IS NULL THEN "No Data"
-                    WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN "InActive"
+                    WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "InActive"
                 ELSE NULL
                 END AS current_status,
                 B.vehicle_status,
@@ -135,19 +135,19 @@ class LiveDataController extends Controller
                 A.safe_parking,
                 A.immobilizer_option,
                 CASE
-                    WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN 1
-                    WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN 2
-                    WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN 3
+                    WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 1
+                    WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 2
+                    WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 3
                     WHEN B.device_updatedtime IS NULL THEN 4
-                    WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN 5
+                    WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 5
                 ELSE NULL
                 END AS vehicle_current_status,
                 CASE
-                    WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN "Parking"
-                    WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN "Idle"
-                    WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN "Moving"
+                    WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "Parking"
+                    WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "Idle"
+                    WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "Moving"
                     WHEN B.device_updatedtime IS NULL THEN "No Data"
-                    WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN "InActive"
+                    WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "InActive"
                 ELSE NULL
                 END AS current_status,
                 B.vehicle_status,
@@ -230,19 +230,19 @@ class LiveDataController extends Controller
             A.safe_parking,
             A.immobilizer_option,
             CASE
-                WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN 1
-                WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN 2
-                WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN 3
+                WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 1
+                WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 2
+                WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 3
                 WHEN B.device_updatedtime IS NULL THEN 4
-                WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN 5
+                WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 5
             ELSE NULL
             END AS vehicle_current_status,
             CASE
-                WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN "Parking"
-                WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN "Idle"
-                WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN "Moving"
+                WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "Parking"
+                WHEN B.ignition = 1 AND B.speed = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "Idle"
+                WHEN B.ignition = 1 AND B.speed > 1 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "Moving"
                 WHEN B.device_updatedtime IS NULL THEN "No Data"
-                WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND A.vehicle_expire_date >= CURDATE() THEN "InActive"
+                WHEN B.device_updatedtime < DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN "InActive"
             ELSE NULL
             END AS current_status,
             B.vehicle_status,
