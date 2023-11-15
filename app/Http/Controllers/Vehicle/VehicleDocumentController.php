@@ -311,10 +311,7 @@ class VehicleDocumentController extends BaseController
 
                     $fileName = $request->input('vehicle_id') . '_' . $dbColumn . '_' . str_replace(' ', '_', $file->getClientOriginalName());
                     $path = $file->storeAs('uploads/post_img', $fileName, 'public');
-
-                    // Use public_path() to get the public directory path and move the file
                     $path = $file->move(public_path('storage/uploads/post_img'), $fileName);
-
                     $updatedImages[$dbColumn] = $fileName;
                 }
             }
@@ -331,7 +328,6 @@ class VehicleDocumentController extends BaseController
             $updatedImages['rc_expiry_date'] = $request->input('rc_expiry_date');
 
             if (!empty($updatedImages)) {
-                dd($updatedImages);
                 $vehicle->update($updatedImages);
             }
 
@@ -343,9 +339,7 @@ class VehicleDocumentController extends BaseController
 
     public function vehicleimageRetrieve(Request $request)
     {
-
         $vehicle = VehicleDocument::where('vehicle_id', $request->input('vehicle_id'))->first();
-
 
         $imageData = [];
 
@@ -362,32 +356,15 @@ class VehicleDocumentController extends BaseController
             'rc_back_image'
         ];
 
-        // foreach ($imageColumns as $column) {
-        //     $imagePath = $vehicle[$column];
-
-        //     if ($imagePath) {
-        //         $imageUrl = storage_path('app/public/' . $imagePath);
-        //         if (File::exists($imageUrl)) {
-        //             $fileContents = File::get($imageUrl);
-        //             $base64 = base64_encode($fileContents);
-        //             $imageData[$column] = 'data:image/jpeg;base64,' . $base64;
-        //         } else {
-        //             $imageData[$column] = '';
-        //         }
-        //     } else {
-        //         $imageData[$column] = '';
-        //     }
-        // }
-
         foreach ($imageColumns as $column) {
             $imagePath = $vehicle[$column];
 
             if ($imagePath) {
-                $imageUrl = asset("storage/uploads/post_img/$imagePath");
+                $imageUrl = asset("storage/uploads/$imagePath");
 
-                $imageData[$column] = $imageUrl; // Assign the URL path to the image data
+                $imageData[$column] = $imageUrl;
             } else {
-                $imageData[$column] = ''; // No image path provided, set it to an empty string
+                $imageData[$column] = '';
             }
         }
 
