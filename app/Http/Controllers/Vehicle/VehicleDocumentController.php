@@ -302,12 +302,23 @@ class VehicleDocumentController extends BaseController
                     $validationRules = [
                         $inputName => 'image|mimes:jpeg,png|max:2048',
                     ];
-                    $this->validate($request, $validationRules);
+
+                    $request->validate($validationRules, [
+                        $inputName . '.image' => 'The ' . $inputName . ' must be an image.',
+                        $inputName . '.mimes' => 'The ' . $inputName . ' must be a file of type: jpeg, png.',
+                        $inputName . '.max' => 'The ' . $inputName . ' may not be greater than 2048 kilobytes.',
+                    ]);
+
                     $fileName = $request->input('vehicle_id') . '_' . $dbColumn . '_' . str_replace(' ', '_', $file->getClientOriginalName());
-                    $filePath = $file->storeAs('post_img', $fileName, 'public');
-                    $updatedImages[$dbColumn] = $filePath;
+                    $path = $file->storeAs('uploads/post_img', $fileName, 'public');
+
+                    // Use public_path() to get the public directory path and move the file
+                    $path = $file->move(public_path('storage/uploads/post_img'), $fileName);
+
+                    $updatedImages[$dbColumn] = $fileName;
                 }
             }
+
 
             $updatedImages['policy_no'] = $request->input('policy_no');
             $updatedImages['insurance_company_name'] = $request->input('insurance_company_name');
@@ -320,6 +331,7 @@ class VehicleDocumentController extends BaseController
             $updatedImages['rc_expiry_date'] = $request->input('rc_expiry_date');
 
             if (!empty($updatedImages)) {
+                dd($updatedImages);
                 $vehicle->update($updatedImages);
             }
 
@@ -371,7 +383,7 @@ class VehicleDocumentController extends BaseController
             $imagePath = $vehicle[$column];
 
             if ($imagePath) {
-                $imageUrl = asset("storage/$imagePath");
+                $imageUrl = asset("storage/uploads/post_img/$imagePath");
 
                 $imageData[$column] = $imageUrl; // Assign the URL path to the image data
             } else {

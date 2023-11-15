@@ -8,7 +8,7 @@ use App\Models\ExecutiveReport;
 
 class SmartReportController extends Controller
 {
-    public function index(Request $request)
+    public function store(Request $request)
     {
         try {
             $start_date = $request->input('start_day');

@@ -180,6 +180,12 @@ class VehicleController extends BaseController
             );
             DB::table('configurations')->insert($main_config_details);
 
+            $temp_vehicles = array(
+                'device_imei' => $vehicle->device_imei,
+                'device_make_id' => $vehicle->device_make_id,
+                'device_model_id' => $vehicle->device_model_id
+            );
+            DB::table('configurations')->insert($temp_vehicles);
 
             $result = CustomerConfiguration::where('client_id', $vehicle->client_id)
                 ->first();
