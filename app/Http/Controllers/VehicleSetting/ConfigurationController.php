@@ -145,9 +145,9 @@ class ConfigurationController extends BaseController
     }
     public function safe_parking(Request $request, $device_imei)
     {
-        $vehicle = Vehicle::where('device_imei', $device_imei)->first();
+        $livedata = LiveData::where('device_imei', $device_imei)->where('vehicle_status', 1)->first();
 
-        if (!$vehicle) {
+        if (!$livedata) {
             $response = ["success" => false, "message" => "Vehicle Not Found", "status_code" => 404];
             return response()->json($response, 404);
         }
@@ -159,19 +159,20 @@ class ConfigurationController extends BaseController
         if ($validator->fails()) {
             $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
             return response()->json($response, 403);
-        }
-
-        if ($vehicle->update($request->all())) {
-
-            DB::table('twings.vehicles')->where('id', $vehicle->id)->update($request->all());
-
-            $response = ["success" => false, "message" => "Safe Parking Successfully", "status_code" => 200];
-            return response()->json($response, 200);
         } else {
-            $response = ["success" => false, "message" => "Failed to Update Safe Parking", "status_code" => 404];
-            return response()->json($response, 404);
+            $livedata->safe_parking = $request->input('safe_parking');
+            $livedata->safe_parking_alert = 0;
+            $res = $livedata->update();
+            if ($res) {
+                $response = ["success" => false, "message" => "Safe Parking Successfully", "status_code" => 200];
+                return response()->json($response, 200);
+            } else {
+                $response = ["success" => false, "message" => "Failed to Update Safe Parking", "status_code" => 404];
+                return response()->json($response, 404);
+            }
         }
     }
+
     public function immobilizer_option(Request $request, $device_imei)
     {
 

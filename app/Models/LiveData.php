@@ -37,5 +37,7 @@ class LiveData extends Model
         'rpm_value',
         'device_type_id',
         'sec_engine_status',
+        'safe_parking',
+        'safe_parking_alert'
     ];
 }
