@@ -39,7 +39,8 @@ class LiveDataController extends Controller
                 A.device_imei,
                 A.installation_date,
                 A.vehicle_expire_date as expire_date,
-                A.safe_parking,
+                B.safe_parking,
+                B.safe_parking_alert,
                 A.immobilizer_option,
                 CASE
                     WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 1
@@ -125,7 +126,8 @@ class LiveDataController extends Controller
                 A.device_imei,
                 A.installation_date,
                 A.vehicle_expire_date as expire_date,
-                A.safe_parking,
+                B.safe_parking,
+                B.safe_parking_alert,
                 A.immobilizer_option,
                 CASE
                     WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 1
@@ -221,7 +223,8 @@ class LiveDataController extends Controller
             A.device_imei,
             A.installation_date,
             A.vehicle_expire_date as expire_date,
-            A.safe_parking,
+            B.safe_parking,
+            B.safe_parking_alert,
             A.immobilizer_option,
             CASE
                 WHEN B.ignition = 0 AND B.device_updatedtime >= DATE_SUB(NOW(), INTERVAL 10 MINUTE) THEN 1
