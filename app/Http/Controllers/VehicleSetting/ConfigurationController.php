@@ -145,7 +145,7 @@ class ConfigurationController extends BaseController
     }
     public function safe_parking(Request $request, $device_imei)
     {
-        $livedata = LiveData::where('device_imei', $device_imei)->where('vehicle_status', 1)->first();
+        $livedata = LiveData::where('deviceimei', $device_imei)->where('vehicle_status', 1)->first();
 
         if (!$livedata) {
             $response = ["success" => false, "message" => "Vehicle Not Found", "status_code" => 404];
