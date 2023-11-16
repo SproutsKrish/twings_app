@@ -11,8 +11,8 @@ class AlertReportController extends Controller
 {
     public function all_alert(Request $request)
     {
-        $offset = $request->input('offset');
-        $limit = $request->input('limit');
+        $offset = $request->input('offset') ? $request->input('offset') : 0;
+        $limit = $request->input('limit') ? $request->input('limit') : 1000;
 
         $user = User::find($request->input('user_id'))->first();
 
@@ -40,8 +40,8 @@ class AlertReportController extends Controller
     }
     public function device_alert(Request $request)
     {
-        $offset = $request->input('offset');
-        $limit = $request->input('limit');
+        $offset = $request->input('offset') ? $request->input('offset') : 0;
+        $limit = $request->input('limit') ? $request->input('limit') : 1000;
 
         $user = User::find($request->input('user_id'))->first();
 
