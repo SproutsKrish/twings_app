@@ -69,15 +69,11 @@ class AlertNotificationController extends Controller
     public function alert_notifications_list(Request $request)
     {
         $user_id = $request->input('user_id');
-        $offset = $request->input('offset');
-        $limit = $request->input('limit');
 
         $alert_notifications_list = DB::table('twings.alert_notifications as a')
             ->join('twings.alert_types as b', 'a.alert_type_id', '=', 'b.id')
             ->where('active_status', '1')
             ->where('a.user_id', $user_id)
-            ->skip($offset)
-            ->take($limit)
             ->select('a.id', 'a.alert_type_id', 'b.alert_type', 'a.user_status')
             ->get();
 
