@@ -360,7 +360,7 @@ class VehicleDocumentController extends BaseController
             $imagePath = $vehicle[$column];
 
             if ($imagePath) {
-                $imageUrl = asset("storage/uploads/$imagePath");
+                $imageUrl = asset("storage/uploads/post_img/$imagePath");
 
                 $imageData[$column] = $imageUrl;
             } else {
