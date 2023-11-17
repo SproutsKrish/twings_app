@@ -76,6 +76,7 @@ class LoginController extends BaseController
 
                 $last_used_at = null;
                 $tokens = DB::table('personal_access_tokens')->where('id', $token_id)->update(['last_used_at' => $last_used_at]);
+                $fcm_configurations = DB::table('fcm_configurations')->where('token_id', $token_id)->update(['status' => "0"]);
 
                 // $request->user()->tokens()->where('id', $token_id)->delete();
             }
