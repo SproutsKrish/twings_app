@@ -97,6 +97,7 @@ use App\Http\Controllers\SmartReportController;
 
 Route::controller(OnlineController::class)->group(function () {
     Route::post('online_user_save', 'store');
+    Route::post('online_vehicle_save', 'vehicle_store');
 });
 
 Route::controller(LoginController::class)->group(function () {
