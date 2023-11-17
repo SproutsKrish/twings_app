@@ -74,6 +74,7 @@ use App\Http\Controllers\VehicleSetting\ShareLinkController;
 use App\Http\Controllers\ExecutiveReportController;
 use App\Http\Controllers\FuelController;
 use App\Http\Controllers\HourMeterReportController;
+use App\Http\Controllers\OnlineController;
 use App\Http\Controllers\Report\ExecutiveReportCheckController;
 use App\Http\Controllers\Report\VehicleHistoryController;
 use App\Http\Controllers\RpmController;
@@ -93,6 +94,10 @@ use App\Http\Controllers\SmartReportController;
 //     Route::get('vehicle_list', 'index');
 // });
 
+
+Route::controller(OnlineController::class)->group(function () {
+    Route::post('online_user_save', 'store');
+});
 
 Route::controller(LoginController::class)->group(function () {
     Route::post('login', 'login');
