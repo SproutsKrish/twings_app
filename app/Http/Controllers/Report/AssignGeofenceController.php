@@ -151,9 +151,11 @@ class AssignGeofenceController extends Controller
 
         $imeiValues = $results->pluck('device_imei')->toArray();
 
-        $response = DB::table('vehicles')
-            ->whereNotIn('device_imei', $imeiValues)
-            ->select('id', 'device_imei', 'vehicle_name')
+        $response = DB::table('vehicles as v')
+            ->join('assign_geofences as ass_geo', 'ass_geo.device_imei', '=', 'v.device_imei')
+            ->where('status', 1)
+            ->whereNotIn('v.device_imei', $imeiValues)
+            ->select('ass_geo.id', 'v.device_imei', 'v.vehicle_name')
             ->get();
 
         if ($response->isEmpty()) {
@@ -176,10 +178,11 @@ class AssignGeofenceController extends Controller
 
         $imeiValues = $results->pluck('device_imei')->toArray();
 
-        $response = DB::table('vehicles')
+        $response = DB::table('vehicles as v')
+            ->join('assign_geofences as ass_geo', 'ass_geo.device_imei', '=', 'v.device_imei')
             ->where('status', 1)
-            ->whereIn('device_imei', $imeiValues)
-            ->select('id', 'device_imei', 'vehicle_name')
+            ->whereIn('v.device_imei', $imeiValues)
+            ->select('ass_geo.id', 'v.device_imei', 'v.vehicle_name')
             ->get();
 
         if ($response->isEmpty()) {
