@@ -22,7 +22,7 @@ return new class extends Migration
             $table->bigInteger('device_imei')->nullable();
             $table->bigInteger('device_ccid')->nullable();
             $table->bigInteger('device_uid')->nullable();
-            $table->bigInteger('vehicle_type_id')->default(6);
+            $table->bigInteger('vehicle_type_id')->nullable();
             $table->bigInteger('vehicle_name')->nullable();
             $table->longText('description')->nullable();
             $table->bigInteger('app_id')->nullable();
