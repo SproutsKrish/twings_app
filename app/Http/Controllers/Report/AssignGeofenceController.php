@@ -163,4 +163,56 @@ class AssignGeofenceController extends Controller
         $response = ["success" => true, "data" => $response, "status_code" => 200];
         return response()->json($response, 200);
     }
+
+    public function geofence_assign_vehicle(Request $request)
+    {
+        $geofence_id = $request->input('geofence_id');
+
+        $results = DB::table('assign_geofences')
+            ->where('geofence_id', $geofence_id)
+            ->select('device_imei')
+            ->distinct()
+            ->get();
+
+        $imeiValues = $results->pluck('device_imei')->toArray();
+
+        $response = DB::table('vehicles')
+            ->where('status', 1)
+            ->whereIn('device_imei', $imeiValues)
+            ->select('id', 'device_imei', 'vehicle_name')
+            ->get();
+
+        if ($response->isEmpty()) {
+            $response = ["success" => false, "message" => $response, "status_code" => 200];
+            return response()->json($response, 200);
+        }
+        $response = ["success" => true, "data" => $response, "status_code" => 200];
+        return response()->json($response, 200);
+    }
+
+    public function geofence_not_assign_vehicle(Request $request)
+    {
+        $geofence_id = $request->input('geofence_id');
+
+        $results = DB::table('assign_geofences')
+            ->where('geofence_id', $geofence_id)
+            ->select('device_imei')
+            ->distinct()
+            ->get();
+
+        $imeiValues = $results->pluck('device_imei')->toArray();
+
+        $response = DB::table('vehicles')
+            ->where('status', 1)
+            ->whereNotIn('device_imei', $imeiValues)
+            ->select('id', 'device_imei', 'vehicle_name')
+            ->get();
+
+        if ($response->isEmpty()) {
+            $response = ["success" => false, "message" => $response, "status_code" => 200];
+            return response()->json($response, 200);
+        }
+        $response = ["success" => true, "data" => $response, "status_code" => 200];
+        return response()->json($response, 200);
+    }
 }

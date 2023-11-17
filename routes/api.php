@@ -303,6 +303,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('assign_geofencelist/{geofenceId}', 'assign_geofencelist');
             Route::get('geofence_not_assign_vehicles', 'geofence_not_assign_vehicles');
             Route::put('notify/update/{id}', 'update');
+
+            Route::post('geofence_assign_vehicle', 'geofence_assign_vehicle');
+            Route::post('geofence_not_assign_vehicle', 'geofence_not_assign_vehicle');
         });
         // Route::resource('executive_report', ExecutiveReportController::class);
         Route::resource('smart_report', SmartReportController::class);
