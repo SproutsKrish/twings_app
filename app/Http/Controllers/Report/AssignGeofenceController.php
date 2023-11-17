@@ -174,6 +174,7 @@ class AssignGeofenceController extends Controller
             ->distinct()
             ->get();
 
+
         $imeiValues = $results->pluck('device_imei')->toArray();
 
         $response = DB::table('vehicles')
