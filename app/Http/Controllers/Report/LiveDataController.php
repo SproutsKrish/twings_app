@@ -85,6 +85,14 @@ class LiveDataController extends Controller
                 B.sec_engine_status,
                 B.expiry_status,
                 IFNULL(FLOOR(E.today_distance), 0) AS today_distances,
+                IFNULL(
+                    SUBSTRING(
+                        CAST(E.today_distance AS CHAR),
+                        LOCATE(' . ', CAST(E.today_distance AS CHAR)) + 1,
+                        2
+                    ),
+                    0
+                ) AS today_distance_decimal_part,
                 IFNULL(E.today_distance, 0) as today_distance,
                 F.device_make,
                 G.device_model,
@@ -173,6 +181,14 @@ class LiveDataController extends Controller
                 B.sec_engine_status,
                 B.expiry_status,
                 IFNULL(FLOOR(E.today_distance), 0) AS today_distances,
+                IFNULL(
+                    SUBSTRING(
+                        CAST(E.today_distance AS CHAR),
+                        LOCATE(' . ', CAST(E.today_distance AS CHAR)) + 1,
+                        2
+                    ),
+                    0
+                ) AS today_distance_decimal_part,
                 IFNULL(E.today_distance, 0) as today_distance,
                 F.device_make,
                 G.device_model,
@@ -271,6 +287,14 @@ class LiveDataController extends Controller
             B.sec_engine_status,
             B.expiry_status,
             IFNULL(FLOOR(E.today_distance), 0) AS today_distances,
+            IFNULL(
+                SUBSTRING(
+                    CAST(E.today_distance AS CHAR),
+                    LOCATE(' . ', CAST(E.today_distance AS CHAR)) + 1,
+                    2
+                ),
+                0
+            ) AS today_distance_decimal_part,
             IFNULL(E.today_distance, 0) as today_distance,
             F.device_make,
             G.device_model,
