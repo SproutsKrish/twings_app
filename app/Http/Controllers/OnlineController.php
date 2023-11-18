@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AppInfo;
 use App\Models\Country;
+use App\Models\OnlineStock;
 use App\Models\OnlineUser;
 use App\Models\OnlineVehicle;
 use Illuminate\Http\Request;
@@ -17,15 +18,13 @@ class OnlineController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
+            'email' => 'required|email|unique:online_users,email',
             'mobile_no' => 'required',
             'password' => 'required',
             'c_password' => 'required|same:password',
             'country_id' => 'required',
             'app_id' => 'required',
-            'sim_imei_no' => 'required',
-            'sim_mob_no1' => 'required',
-            'device_imei' => 'required',
-            'device_ccid' => 'required',
+            'barcode_no' => 'required|unique:online_vehicles,barcode_no',
             'vehicle_type_id' => 'required',
             'vehicle_name' => 'required',
         ]);
@@ -59,7 +58,6 @@ class OnlineController extends Controller
             $response = ["success" => false, "message" => "Country does not exist", "status_code" => 404];
             return response()->json($response, 404);
         }
-
         $data['country_id'] = $country->id;
         $data['country_name'] = $country->country_name;
         $data['timezone_name'] = $country->timezone_name;
@@ -70,16 +68,14 @@ class OnlineController extends Controller
 
         $result = OnlineUser::create($data);
 
-
+        $stock = OnlineStock::where($request->input('barcode_no'))->first();
+        if (!$stock) {
+            $response = ["success" => false, "message" => "Barcode is Invalid", "status_code" => 404];
+            return response()->json($response, 404);
+        }
 
         $vehicle['online_user_id'] = $result->id;
-        $vehicle['sim_imei_no'] = $request->input('sim_imei_no');
-        $vehicle['sim_mob_no1'] = $request->input('sim_mob_no1');
-        $vehicle['sim_mob_no2'] = $request->input('sim_mob_no2');
-        $vehicle['device_imei'] = $request->input('device_imei');
-        $vehicle['device_ccid'] = $request->input('device_ccid');
-        $vehicle['device_uid'] = $request->input('device_uid');
-
+        $vehicle['barcode_no'] = $request->input('barcode_no');
         $vehicle['vehicle_type_id'] = $request->input('vehicle_type_id');
         $vehicle['vehicle_name'] = $request->input('vehicle_name');
         $vehicle['description'] = $request->input('description');
@@ -87,21 +83,22 @@ class OnlineController extends Controller
         $vehicle['app_id'] = $request->input('app_id');
         $vehicle['app_name'] = $request->input('app_name');
 
-        $app_info = AppInfo::find($request->input('app_id'));
-        if (!$app_info) {
-            $response = ["success" => false, "message" => "App not valid", "status_code" => 404];
-            return response()->json($response, 404);
-        }
         $vehicle['admin_id'] = $app_info->admin_id;
         $vehicle['distributor_id'] = $app_info->distributor_id;
         $vehicle['dealer_id'] = $app_info->dealer_id;
         $vehicle['subdealer_id'] = $app_info->subdealer_id;
+
         $vehicle['ip_address'] = $request->ip();
 
         $results = OnlineVehicle::create($vehicle);
 
-        $response = ["success" => false, "message" => "Data Saved Successfully", "status_code" => 200];
-        return response()->json($response, 200);
+        if ($results) {
+            $response = ["success" => true, "message" => "Data Saved Successfully", "status_code" => 200];
+            return response()->json($response, 200);
+        } else {
+            $response = ["success" => false, "message" => "Data Not Saved", "status_code" => 404];
+            return response()->json($response, 404);
+        }
     }
 
     public function vehicle_store(Request $request)
