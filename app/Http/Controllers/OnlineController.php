@@ -68,7 +68,7 @@ class OnlineController extends Controller
 
         $result = OnlineUser::create($data);
 
-        $stock = OnlineStock::where($request->input('barcode_no'))->first();
+        $stock = OnlineStock::where('barcode_no', $request->input('barcode_no'))->first();
         if (!$stock) {
             $response = ["success" => false, "message" => "Barcode is Invalid", "status_code" => 404];
             return response()->json($response, 404);
