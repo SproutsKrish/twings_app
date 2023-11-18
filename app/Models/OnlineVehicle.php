@@ -11,12 +11,7 @@ class OnlineVehicle extends Model
 
     protected $fillable = [
         'online_user_id',
-        'sim_imei_no',
-        'sim_mob_no1',
-        'sim_mob_no2',
-        'device_imei',
-        'device_ccid',
-        'device_uid',
+        'barcode_no',
         'vehicle_type_id',
         'vehicle_name',
         'description',

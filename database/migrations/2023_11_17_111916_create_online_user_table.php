@@ -30,8 +30,8 @@ return new class extends Migration
             $table->bigInteger('subdealer_id')->nullable();
             $table->string('status')->default("Pending");
             $table->timestamps();
-            $table->integer('created_by')->nullable();
-            $table->integer('updated_by')->nullable();
+            $table->bigInteger('created_by')->nullable();
+            $table->bigInteger('updated_by')->nullable();
             $table->ipAddress('ip_address')->nullable();
         });
     }
