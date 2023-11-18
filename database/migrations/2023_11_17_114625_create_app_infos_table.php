@@ -21,7 +21,7 @@ return new class extends Migration
             $table->bigInteger('distributor_id')->nullable();
             $table->bigInteger('dealer_id')->nullable();
             $table->bigInteger('subdealer_id')->nullable();
-            $table->string('status')->default("Pending");
+            $table->string('status')->default(1);
             $table->timestamps();
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
