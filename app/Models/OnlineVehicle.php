@@ -15,7 +15,7 @@ class OnlineVehicle extends Model
         'vehicle_type_id',
         'vehicle_name',
         'app_id',
-        'app_name',
+        'app_package_name',
         'admin_id',
         'distributor_id',
         'dealer_id',

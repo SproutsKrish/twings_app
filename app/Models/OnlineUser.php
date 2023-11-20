@@ -19,7 +19,7 @@ class OnlineUser extends Model
         'country_code',
         'address',
         'app_id',
-        'app_name',
+        'app_package_name',
         'admin_id',
         'distributor_id',
         'dealer_id',

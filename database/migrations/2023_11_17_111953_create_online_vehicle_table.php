@@ -20,7 +20,7 @@ return new class extends Migration
             $table->bigInteger('vehicle_type_id')->nullable();
             $table->string('vehicle_name')->nullable();
             $table->bigInteger('app_id')->nullable();
-            $table->string('app_name')->nullable()->index();
+            $table->string('app_package_name')->nullable()->index();
             $table->bigInteger('admin_id')->nullable();
             $table->bigInteger('distributor_id')->nullable();
             $table->bigInteger('dealer_id')->nullable();

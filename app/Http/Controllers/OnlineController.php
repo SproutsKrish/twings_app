@@ -18,7 +18,6 @@ class OnlineController extends Controller
         DB::beginTransaction();
 
         try {
-            //Validation Code
             $validator = Validator::make($request->all(), [
                 'name' => 'required|max:50',
                 'email' => 'required|max:50|email|unique:users,email|unique:online_users,email',
@@ -26,10 +25,7 @@ class OnlineController extends Controller
                 'password' => 'required|max:8',
                 'c_password' => 'required|max:8|same:password',
                 'country_id' => 'required|integer',
-                'app_id' => 'required|integer',
-                'vehicle_type_id' => 'required|integer',
-                'vehicle_name' => 'required|max:20',
-                'barcode_no' => 'required|unique:online_vehicles,barcode_no',
+                'country_code' => 'required'
             ]);
 
             if ($validator->fails()) {
@@ -37,7 +33,7 @@ class OnlineController extends Controller
                 return response()->json($response, 403);
             }
 
-            $app_info = AppInfo::find($request->input('app_id'));
+            $app_info = AppInfo::where('app_package_name', $request->input('app_package_name'))->first();
             if (!$app_info) {
                 $response = ["success" => false, "message" => "App not valid", "status_code" => 404];
                 return response()->json($response, 404);
@@ -46,6 +42,11 @@ class OnlineController extends Controller
             $data['distributor_id'] = $app_info->distributor_id;
             $data['dealer_id'] = $app_info->dealer_id;
             $data['subdealer_id'] = $app_info->subdealer_id;
+            $data['subdealer_id'] = $app_info->subdealer_id;
+            $data['app_id'] = $app_info->subdealer_id;
+
+            $data['subdealer_id'] = $app_info->subdealer_id;
+
 
             $country = Country::find($request->input('country_id'));
             if (!$country) {
@@ -58,57 +59,25 @@ class OnlineController extends Controller
             $data['timezone_offset'] = $country->timezone_offset;
             $data['timezone_minutes'] = $country->timezone_minutes;
 
-            $stock = OnlineStock::where('barcode_no', $request->input('barcode_no'))
-                ->where('admin_id',  $data['admin_id'])
-                ->where('distributor_id',  $data['distributor_id'])
-                ->where('dealer_id',  $data['dealer_id'])
-                ->where('subdealer_id',  $data['subdealer_id'])
-                ->where('status', 1)
-                ->first();
+            $data['name'] = $request->input('name');
+            $data['email'] = $request->input('email');
+            $data['mobile_no'] = $request->input('mobile_no');
+            $data['password'] = $request->input('password');
+            $data['country_id'] = $request->input('country_id');
+            $data['address'] = $request->input('address');
 
-            if (!$stock) {
-                $response = ["success" => false, "message" => "Barcode is Invalid", "status_code" => 404];
-                return response()->json($response, 404);
+            $data['ip_address'] = $request->ip();
+
+            $result = OnlineUser::create($data);
+
+            if ($result) {
+                DB::commit();
+                $response = ["success" => true, "message" => "Data Saved Successfully", "status_code" => 200];
+                return response()->json($response, 200);
             } else {
-                $data['name'] = $request->input('name');
-                $data['email'] = $request->input('email');
-                $data['mobile_no'] = $request->input('mobile_no');
-                $data['password'] = $request->input('password');
-                $data['country_id'] = $request->input('country_id');
-                $data['address'] = $request->input('address');
-                $data['app_id'] = $request->input('app_id');
-                $data['app_name'] = $request->input('app_name');
-                $data['ip_address'] = $request->ip();
-
-                $result = OnlineUser::create($data);
-
-                $vehicle['online_user_id'] = $result->id;
-                $vehicle['barcode_no'] = $request->input('barcode_no');
-                $vehicle['vehicle_type_id'] = $request->input('vehicle_type_id');
-                $vehicle['vehicle_name'] = $request->input('vehicle_name');
-                $vehicle['description'] = $request->input('description');
-                $vehicle['app_id'] = $request->input('app_id');
-                $vehicle['app_name'] = $request->input('app_name');
-                $vehicle['admin_id'] = $app_info->admin_id;
-                $vehicle['distributor_id'] = $app_info->distributor_id;
-                $vehicle['dealer_id'] = $app_info->dealer_id;
-                $vehicle['subdealer_id'] = $app_info->subdealer_id;
-                $vehicle['ip_address'] = $request->ip();
-
-                $results = OnlineVehicle::create($vehicle);
-
-                $stock->status = 2;
-                $stock->update();
-
-                if ($results) {
-                    DB::commit();
-                    $response = ["success" => true, "message" => "Data Saved Successfully", "status_code" => 200];
-                    return response()->json($response, 200);
-                } else {
-                    DB::rollBack();
-                    $response = ["success" => false, "message" => "Data Not Saved", "status_code" => 404];
-                    return response()->json($response, 404);
-                }
+                DB::rollBack();
+                $response = ["success" => false, "message" => "Data Not Saved", "status_code" => 404];
+                return response()->json($response, 404);
             }
         } catch (\Exception $e) {
             DB::rollBack();
