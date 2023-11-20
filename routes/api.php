@@ -100,6 +100,7 @@ Route::resource('vehicle_type', VehicleTypeController::class);
 Route::controller(OnlineController::class)->group(function () {
     Route::post('online_user_save', 'store');
     Route::post('online_vehicle_save', 'vehicle_store');
+    Route::post('validate_user_details', 'validate_user_details');
 });
 
 Route::controller(LoginController::class)->group(function () {
