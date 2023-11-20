@@ -18,12 +18,11 @@ class OnlineController extends Controller
         DB::beginTransaction();
 
         try {
-
             //Validation Code
             $validator = Validator::make($request->all(), [
                 'name' => 'required|max:50',
                 'email' => 'required|max:50|email|unique:users,email|unique:online_users,email',
-                'mobile_no' => 'required|max:15|integer',
+                'mobile_no' => 'required|integer',
                 'password' => 'required|max:8',
                 'c_password' => 'required|max:8|same:password',
                 'country_id' => 'required|integer',
