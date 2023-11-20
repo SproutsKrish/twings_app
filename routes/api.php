@@ -94,6 +94,8 @@ use App\Http\Controllers\SmartReportController;
 //     Route::get('vehicle_list', 'index');
 // });
 
+Route::resource('country', CountryController::class);
+Route::resource('vehicle_type', VehicleTypeController::class);
 
 Route::controller(OnlineController::class)->group(function () {
     Route::post('online_user_save', 'store');
@@ -325,7 +327,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::group(['middleware' => ['auth']], function () {
-        Route::resource('country', CountryController::class);
         Route::resource('permission', PermissionController::class);
         Route::resource('role', RoleController::class);
         Route::resource('role_right', RoleRightsController::class);
@@ -410,7 +411,6 @@ Route::post('upload_vehicle_document', [VehicleDocumentController::class, 'uploa
 Route::get('delete_dummy_data', [ImportController::class, 'delete_dummy_data']);
 
 Route::resource('vehicle_service', VehicleServiceController::class);
-Route::resource('vehicle_type', VehicleTypeController::class);
 
 Route::resource('point_type', PointTypeController::class);
 Route::resource('point', PointController::class);
