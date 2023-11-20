@@ -70,46 +70,46 @@ class OnlineController extends Controller
             if (!$stock) {
                 $response = ["success" => false, "message" => "Barcode is Invalid", "status_code" => 404];
                 return response()->json($response, 404);
-            }
-
-            $data['name'] = $request->input('name');
-            $data['email'] = $request->input('email');
-            $data['mobile_no'] = $request->input('mobile_no');
-            $data['password'] = $request->input('password');
-            $data['country_id'] = $request->input('country_id');
-            $data['address'] = $request->input('address');
-            $data['app_id'] = $request->input('app_id');
-            $data['app_name'] = $request->input('app_name');
-            $data['ip_address'] = $request->ip();
-
-            $result = OnlineUser::create($data);
-
-            $vehicle['online_user_id'] = $result->id;
-            $vehicle['barcode_no'] = $request->input('barcode_no');
-            $vehicle['vehicle_type_id'] = $request->input('vehicle_type_id');
-            $vehicle['vehicle_name'] = $request->input('vehicle_name');
-            $vehicle['description'] = $request->input('description');
-            $vehicle['app_id'] = $request->input('app_id');
-            $vehicle['app_name'] = $request->input('app_name');
-            $vehicle['admin_id'] = $app_info->admin_id;
-            $vehicle['distributor_id'] = $app_info->distributor_id;
-            $vehicle['dealer_id'] = $app_info->dealer_id;
-            $vehicle['subdealer_id'] = $app_info->subdealer_id;
-            $vehicle['ip_address'] = $request->ip();
-
-            $results = OnlineVehicle::create($vehicle);
-
-            $stock->status = 2;
-            $stock->update();
-
-            if ($results) {
-                DB::commit();
-                $response = ["success" => true, "message" => "Data Saved Successfully", "status_code" => 200];
-                return response()->json($response, 200);
             } else {
-                DB::rollBack();
-                $response = ["success" => false, "message" => "Data Not Saved", "status_code" => 404];
-                return response()->json($response, 404);
+                $data['name'] = $request->input('name');
+                $data['email'] = $request->input('email');
+                $data['mobile_no'] = $request->input('mobile_no');
+                $data['password'] = $request->input('password');
+                $data['country_id'] = $request->input('country_id');
+                $data['address'] = $request->input('address');
+                $data['app_id'] = $request->input('app_id');
+                $data['app_name'] = $request->input('app_name');
+                $data['ip_address'] = $request->ip();
+
+                $result = OnlineUser::create($data);
+
+                $vehicle['online_user_id'] = $result->id;
+                $vehicle['barcode_no'] = $request->input('barcode_no');
+                $vehicle['vehicle_type_id'] = $request->input('vehicle_type_id');
+                $vehicle['vehicle_name'] = $request->input('vehicle_name');
+                $vehicle['description'] = $request->input('description');
+                $vehicle['app_id'] = $request->input('app_id');
+                $vehicle['app_name'] = $request->input('app_name');
+                $vehicle['admin_id'] = $app_info->admin_id;
+                $vehicle['distributor_id'] = $app_info->distributor_id;
+                $vehicle['dealer_id'] = $app_info->dealer_id;
+                $vehicle['subdealer_id'] = $app_info->subdealer_id;
+                $vehicle['ip_address'] = $request->ip();
+
+                $results = OnlineVehicle::create($vehicle);
+
+                $stock->status = 2;
+                $stock->update();
+
+                if ($results) {
+                    DB::commit();
+                    $response = ["success" => true, "message" => "Data Saved Successfully", "status_code" => 200];
+                    return response()->json($response, 200);
+                } else {
+                    DB::rollBack();
+                    $response = ["success" => false, "message" => "Data Not Saved", "status_code" => 404];
+                    return response()->json($response, 404);
+                }
             }
         } catch (\Exception $e) {
             DB::rollBack();
