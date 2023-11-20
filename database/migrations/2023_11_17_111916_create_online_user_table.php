@@ -16,19 +16,20 @@ return new class extends Migration
         Schema::create('online_users', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->string('email')->nullable();
+            $table->string('email')->nullable()->index();
             $table->bigInteger('mobile_no')->nullable();
             $table->string('password');
             $table->bigInteger('role_id')->default(6);
             $table->bigInteger('country_id')->nullable();
+            $table->string('country_code')->nullable();
             $table->longText('address')->nullable();
             $table->bigInteger('app_id')->nullable();
-            $table->string('app_name')->nullable();
+            $table->string('app_name')->nullable()->index();
             $table->bigInteger('admin_id')->nullable();
             $table->bigInteger('distributor_id')->nullable();
             $table->bigInteger('dealer_id')->nullable();
             $table->bigInteger('subdealer_id')->nullable();
-            $table->string('status')->default("Pending");
+            $table->string('status')->default("Pending")->index();
             $table->timestamps();
             $table->bigInteger('created_by')->nullable();
             $table->bigInteger('updated_by')->nullable();

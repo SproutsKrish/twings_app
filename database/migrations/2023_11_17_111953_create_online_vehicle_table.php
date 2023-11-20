@@ -16,17 +16,16 @@ return new class extends Migration
         Schema::create('online_vehicles', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('online_user_id')->nullable();
-            $table->bigInteger('barcode_no')->nullable();
+            $table->bigInteger('barcode_no')->nullable()->index();
             $table->bigInteger('vehicle_type_id')->nullable();
             $table->string('vehicle_name')->nullable();
-            $table->longText('description')->nullable();
             $table->bigInteger('app_id')->nullable();
-            $table->string('app_name')->nullable();
+            $table->string('app_name')->nullable()->index();
             $table->bigInteger('admin_id')->nullable();
             $table->bigInteger('distributor_id')->nullable();
             $table->bigInteger('dealer_id')->nullable();
             $table->bigInteger('subdealer_id')->nullable();
-            $table->string('status')->default("Pending");
+            $table->string('status')->default("Pending")->index();
             $table->timestamps();
             $table->bigInteger('created_by')->nullable();
             $table->bigInteger('updated_by')->nullable();

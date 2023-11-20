@@ -15,8 +15,7 @@ return new class extends Migration
     {
         Schema::create('app_infos', function (Blueprint $table) {
             $table->id();
-            $table->string('app_name')->nullable();
-            $table->longText('app_description')->nullable();
+            $table->string('app_package_name')->nullable();
             $table->bigInteger('admin_id')->nullable();
             $table->bigInteger('distributor_id')->nullable();
             $table->bigInteger('dealer_id')->nullable();

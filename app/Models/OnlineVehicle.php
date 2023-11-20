@@ -14,7 +14,6 @@ class OnlineVehicle extends Model
         'barcode_no',
         'vehicle_type_id',
         'vehicle_name',
-        'description',
         'app_id',
         'app_name',
         'admin_id',

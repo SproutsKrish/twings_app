@@ -15,11 +15,11 @@ return new class extends Migration
     {
         Schema::create('online_stocks', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('barcode_no')->nullable();
-            $table->bigInteger('sim_imei')->nullable();
+            $table->bigInteger('barcode_no')->nullable()->index();
+            $table->bigInteger('sim_imei')->nullable()->index();
             $table->bigInteger('sim_mob_no1')->nullable();
             $table->bigInteger('sim_mob_no2')->nullable();
-            $table->bigInteger('device_imei')->nullable();
+            $table->bigInteger('device_imei')->nullable()->index();
             $table->bigInteger('device_ccid')->nullable();
             $table->bigInteger('device_uid')->nullable();
             $table->bigInteger('admin_id')->nullable();

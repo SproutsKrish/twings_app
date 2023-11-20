@@ -16,6 +16,7 @@ class OnlineUser extends Model
         'password',
         'role_id',
         'country_id',
+        'country_code',
         'address',
         'app_id',
         'app_name',
