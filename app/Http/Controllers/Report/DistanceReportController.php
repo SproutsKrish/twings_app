@@ -15,7 +15,7 @@ class DistanceReportController extends Controller
         $startDay = $request->input('start_day');
         $endDay = $request->input('end_day');
         $deviceImei = $request->input('device_imei');
-
+        // DB::enableQueryLog();
         $results = DB::table('play_back_histories as pbh')
             ->join('vehicles as v', 'pbh.device_imei', '=', 'v.device_imei')
             ->select(
@@ -41,12 +41,17 @@ class DistanceReportController extends Controller
             ->orderBy('pbh.device_imei')
             ->orderBy('date')
             ->get();
-
+        // dd(DB::getQueryLog());
         if ($results->isEmpty()) {
             $response = ["success" => false, "message" => 'No Distance Data Found', "status_code" => 404];
             return response()->json($response, 404);
         } else {
-            $response = ["success" => true, "data" => $results, "status_code" => 200];
+            $tot_kms = 0;
+            foreach ($results as $res) {
+                $tot_kms =  $tot_kms + $res->odometer_difference;
+            }
+            $for_tot_kms = number_format((float)$tot_kms, 2, '.', '');
+            $response = ["success" => true, "data" => $results, "total_kms" => $for_tot_kms, "status_code" => 200];
             return response()->json($response, 200);
         }
     }
