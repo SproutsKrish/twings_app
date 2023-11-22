@@ -105,6 +105,7 @@ class LiveDataController extends Controller
                 ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
                 ->leftJoin(DB::raw("(SELECT device_imei, max(odometer), min(odometer), round(max(odometer) - min(odometer), 2) AS today_distance FROM play_back_histories WHERE DATE_ADD(device_datetime, INTERVAL 330 MINUTE) >= '$startDate' AND DATE_ADD(device_datetime, INTERVAL 330 MINUTE) <= '$endDate' GROUP by device_imei) AS E"), 'E.device_imei', '=', 'A.device_imei')
                 ->where('A.status', 1)
+                ->where('B.vehicle_status', 1)
                 ->get();
 
             if ($result->isEmpty()) {
@@ -193,6 +194,7 @@ class LiveDataController extends Controller
                 ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
                 ->whereIn('B.deviceimei', $device_imei)
                 ->where('A.status', 1)
+                ->where('B.vehicle_status', 1)
                 ->get();
 
             if ($result->isEmpty()) {
@@ -291,6 +293,7 @@ class LiveDataController extends Controller
             ->leftJoin('twings.device_models as G', 'G.id', '=', 'A.device_model_id')
             ->where('B.deviceimei', $device_imei)
             ->where('A.status', 1)
+            ->where('B.vehicle_status', 1)
             ->first();
 
         if (empty($result)) {
@@ -355,7 +358,7 @@ class LiveDataController extends Controller
             ->count();
 
         $expired_vehicles = Vehicle::where('vehicle_expire_date', '<', now())
-            ->where('status', 2)
+            ->where('status', 1)
             ->count();
 
         $vehicle_count = array(
