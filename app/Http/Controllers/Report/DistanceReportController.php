@@ -35,7 +35,11 @@ class DistanceReportController extends Controller
             ->whereRaw('(DATE_ADD(pbh.device_datetime, INTERVAL 330 MINUTE)) >= ?', [$startDay])
             ->whereRaw('(DATE_ADD(pbh.device_datetime, INTERVAL 330 MINUTE)) <= ?', [$endDay])
             ->when($deviceImei !== 'All', function ($query) use ($deviceImei) {
-                return $query->where('pbh.device_imei', '=', $deviceImei);
+                if (is_array($deviceImei)) {
+                    return $query->whereIn('pbh.device_imei', $deviceImei);
+                } else {
+                    return $query->where('pbh.device_imei', $deviceImei);
+                }
             })
             ->groupBy('pbh.device_imei', 'v.vehicle_name', 'date')
             ->orderBy('pbh.device_imei')

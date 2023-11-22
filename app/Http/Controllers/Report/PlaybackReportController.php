@@ -24,13 +24,15 @@ class PlaybackReportController extends Controller
             ->select(DB::raw("round(max(odometer) - min(odometer), 2) AS total_distance"))
             ->first();
 
+        $speed_limit =  DB::table('configurations')->where('device_imei',  $request->input('deviceimei'))->select('speed_limit')->first();
+
         $total_distance = $data->total_distance;
 
         if ($playbackReports->isEmpty()) {
             $response = ["success" => false, "message" => 'No Playback Data Found', "status_code" => 404];
             return response($response, 404);
         }
-        $response = ["success" => true, "data" => ['playback' => $playbackReports, 'total_distance' => $total_distance], "status_code" => 200];
+        $response = ["success" => true, "data" => ['playback' => $playbackReports, 'total_distance' => $total_distance, 'speed_limit' => $speed_limit->speed_limit], "status_code" => 200];
         return response($response, 200);
     }
 }

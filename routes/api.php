@@ -446,6 +446,7 @@ Route::post('live_address', [AddressController::class, 'live_address']);
 Route::get('demo_time', [LiveDataController::class, 'demo_time']);
 
 Route::post('due_vehicle_list', [VehicleController::class, 'due_vehicle_list']);
+Route::post('vehicle_due_update', [VehicleController::class, 'vehicle_due_update']);
 
 
 //Not Use

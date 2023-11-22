@@ -883,4 +883,19 @@ class VehicleController extends BaseController
             return response()->json($response, 200);
         }
     }
+    public function vehicle_due_update(Request $request)
+    {
+        $id =  $request->input('id');
+        $vehicle = Vehicle::find($id);
+        $vehicle->due_amount =  $vehicle->due_amount - $request->input('due_amount');
+        $result =  $vehicle->save();
+
+        if ($result) {
+            $response = ["success" => true, "message" => "Due Payment Updated", "status_code" => 200];
+            return response()->json($response, 200);
+        } else {
+            $response = ["success" => false, "message" => "Error to Update Due Payment", "status_code" => 404];
+            return response()->json($response, 404);
+        }
+    }
 }
