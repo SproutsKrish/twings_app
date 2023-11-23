@@ -885,17 +885,42 @@ class VehicleController extends BaseController
     }
     public function vehicle_due_update(Request $request)
     {
-        $id =  $request->input('id');
-        $vehicle = Vehicle::find($id);
-        $vehicle->due_amount =  $vehicle->due_amount - $request->input('due_amount');
-        $result =  $vehicle->save();
+        $request->input('transaction_id');
+        $request->input('total_amount');
+        $request->input('vehicle_list');
 
-        if ($result) {
-            $response = ["success" => true, "message" => "Due Payment Updated", "status_code" => 200];
-            return response()->json($response, 200);
-        } else {
-            $response = ["success" => false, "message" => "Error to Update Due Payment", "status_code" => 404];
-            return response()->json($response, 404);
-        }
+        // $res = [
+        //     "transaction_id" => "ABCD",
+        //     "total_amount" => 696,
+        //     "vehicle_list" => [
+        //         [
+        //             "id" => 1,
+        //             "due_amount" => 50.00
+        //         ],
+        //         [
+        //             "id" => 2,
+        //             "due_amount" => 56.00
+        //         ],
+        //         [
+        //             "id" => 3,
+        //             "due_amount" => 590.00
+        //         ]
+        //     ]
+        // ];
+
+        // echo json_encode($res);
+
+        // $id =  $request->input('id');
+        // $vehicle = Vehicle::find($id);
+        // $vehicle->due_amount =  $vehicle->due_amount - $request->input('due_amount');
+        // $result =  $vehicle->save();
+
+        // if ($result) {
+        //     $response = ["success" => true, "message" => "Due Payment Updated", "status_code" => 200];
+        //     return response()->json($response, 200);
+        // } else {
+        //     $response = ["success" => false, "message" => "Error to Update Due Payment", "status_code" => 404];
+        //     return response()->json($response, 404);
+        // }
     }
 }
