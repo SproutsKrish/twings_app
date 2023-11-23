@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Config;
 
 use App\Models\Vehicle;
+use App\Models\VehicleDueTransaction;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -885,42 +886,30 @@ class VehicleController extends BaseController
     }
     public function vehicle_due_update(Request $request)
     {
-        $request->input('transaction_id');
-        $request->input('total_amount');
-        $request->input('vehicle_list');
+        $transaction_id = $request->input('transaction_id');
+        $total_amount = $request->input('total_amount');
+        $vehicle_list = $request->input('vehicle_list');
 
-        // $res = [
-        //     "transaction_id" => "ABCD",
-        //     "total_amount" => 696,
-        //     "vehicle_list" => [
-        //         [
-        //             "id" => 1,
-        //             "due_amount" => 50.00
-        //         ],
-        //         [
-        //             "id" => 2,
-        //             "due_amount" => 56.00
-        //         ],
-        //         [
-        //             "id" => 3,
-        //             "due_amount" => 590.00
-        //         ]
-        //     ]
-        // ];
+        for ($i = 0; $i < count($vehicle_list); $i++) {
+            $vehicle = Vehicle::find($vehicle_list[$i]['id']);
+            $vehicle->due_amount = $vehicle_list[$i]['due_amount'];
+            $result = $vehicle->save();
 
-        // echo json_encode($res);
+            $data = array(
+                'transaction_id' => $transaction_id,
+                'total_amount' => $total_amount,
+                'vehicle_id' => $vehicle_list[$i]['id'],
+                'due_amount' => $vehicle_list[$i]['due_amount']
+            );
+            $response = VehicleDueTransaction::create($data);
+        }
 
-        // $id =  $request->input('id');
-        // $vehicle = Vehicle::find($id);
-        // $vehicle->due_amount =  $vehicle->due_amount - $request->input('due_amount');
-        // $result =  $vehicle->save();
-
-        // if ($result) {
-        //     $response = ["success" => true, "message" => "Due Payment Updated", "status_code" => 200];
-        //     return response()->json($response, 200);
-        // } else {
-        //     $response = ["success" => false, "message" => "Error to Update Due Payment", "status_code" => 404];
-        //     return response()->json($response, 404);
-        // }
+        if ($result) {
+            $response = ["success" => true, "message" => "Due Payment Updated", "status_code" => 200];
+            return response()->json($response, 200);
+        } else {
+            $response = ["success" => false, "message" => "Error to Update Due Payment", "status_code" => 404];
+            return response()->json($response, 404);
+        }
     }
 }
