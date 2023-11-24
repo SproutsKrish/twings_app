@@ -132,7 +132,7 @@ class DistanceReportController extends Controller
             return $item;
         })->toArray();
 
-
-        echo json_encode($processedData);
+        $response = ["success" => true, "data" => $processedData, "status_code" => 200];
+        return response()->json($response, 200);
     }
 }
