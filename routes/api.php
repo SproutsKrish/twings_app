@@ -226,6 +226,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::middleware('switch.database')->group(function () {
+        Route::post('dist_rpt_1', [DistanceReportController::class, 'dist_rpt_1']);
+        Route::post('distance_summary', [DistanceReportController::class, 'distance_summary']);
 
 
         Route::controller(LiveDataController::class)->group(function () {
