@@ -97,6 +97,7 @@ class DistanceReportController extends Controller
 
         $results = DB::table('vehicles')
             ->select(
+                'vehicles.id',
                 'vehicles.vehicle_name',
                 ...$vars
             )
@@ -109,7 +110,7 @@ class DistanceReportController extends Controller
                     ->from('play_back_histories')
                     ->groupBy('play_back_histories.device_imei', DB::raw("DATE(DATE_ADD(play_back_histories.device_datetime, INTERVAL 330 MINUTE))"));
             }, 'subquery', 'vehicles.device_imei', '=', 'subquery.device_imei')
-            ->groupBy('vehicles.device_imei', 'vehicles.vehicle_name')
+            ->groupBy('vehicles.device_imei', 'vehicles.vehicle_name', 'vehicles.id')
             ->when($deviceImei !== 'All', function ($query) use ($deviceImei) {
                 if (is_array($deviceImei)) {
                     return $query->whereIn('vehicles.device_imei', $deviceImei);
@@ -132,7 +133,29 @@ class DistanceReportController extends Controller
             return $item;
         })->toArray();
 
-        $response = ["success" => true, "data" => $processedData, "status_code" => 200];
+        $res = [];
+        $cnt = count($processedData);
+        $cnts = count($processedData[0]) - 3;
+
+        for ($i = 0; $i < $cnt; $i++) {
+            $start_day = $request->input('start_day');
+
+            $res[$i]['id'] = $processedData[$i]['id'];
+            $res[$i]['vehicle_name'] = $processedData[$i]['vehicle_name'];
+            $res[$i]['total'] = $processedData[$i]['total'];
+
+            for ($j = 0; $j < $cnts; $j++) {
+                $res[$i]['datalist'][$j]['Date'] = $start_day;
+                $res[$i]['datalist'][$j]['Distance'] = $processedData[$i][$start_day];
+                $start_day = date('Y-m-d', strtotime($start_day . ' +1 day'));
+            }
+        }
+
+        // dd($res);
+
+        // $response = ["success" => true, "data" => $processedData, "status_code" => 200];
+        // return response()->json($response, 200);
+        $response = ["success" => true, "data" => $res, "status_code" => 200];
         return response()->json($response, 200);
     }
 }
