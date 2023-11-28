@@ -45,7 +45,32 @@ class OnlineController extends Controller
             ]);
 
             if ($validator->fails()) {
-                $response = ["success" => false, "message" => $validator->errors(), "status_code" => 403];
+
+                $errors = $validator->errors();
+                if ($errors->first('name')) {
+                    $errors = $errors->first('name');
+                } else if ($errors->first('email')) {
+                    $errors = $errors->first('email');
+                } else if ($errors->first('password')) {
+                    $errors = $errors->first('password');
+                } else if ($errors->first('c_password')) {
+                    $errors = $errors->first('c_password');
+                } else if ($errors->first('mobile_no')) {
+                    $errors = $errors->first('mobile_no');
+                } else if ($errors->first('country_id')) {
+                    $errors = $errors->first('country_id');
+                } else if ($errors->first('vehicle_type_id')) {
+                    $errors = $errors->first('vehicle_type_id');
+                } else if ($errors->first('country_code')) {
+                    $errors = $errors->first('country_code');
+                } else if ($errors->first('vehicle_name')) {
+                    $errors = $errors->first('vehicle_name');
+                } else if ($errors->first('barcode_no')) {
+                    $errors = $errors->first('barcode_no');
+                }
+
+
+                $response = ["success" => false, "message" => $errors, "status_code" => 403];
                 return response()->json($response, 403);
             }
 
